@@ -1,0 +1,4 @@
+-r prod.requirements.txt
+pytest==5.3.5
+pytest-cov==2.10.0
+Flask==1.1.2
