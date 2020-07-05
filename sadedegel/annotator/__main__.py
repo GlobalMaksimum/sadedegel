@@ -18,13 +18,11 @@ class FileManager:
             raise FileNotFoundError("{} is not a directory".format(folder))
 
         self.root_folder = folder
-
-        # self.root_folder = os.path.join(folder, "labeltool_out")
+        print(folder)
         self.corpus_folder = pjoin(self.root_folder, "sents")
         self.label_folder = pjoin(self.root_folder, "labels")
 
         os.makedirs(self.label_folder, exist_ok=True)
-
         self.corpus_files = glob.glob(pjoin(self.corpus_folder, "*.json"))
 
         logger.info("|corpus|: {}".format(len(self.corpus_files)))
@@ -290,8 +288,8 @@ class MainFrame(wx.Frame):
 @click.option('--base-dir', default=None, help="base directory")
 def main(base_dir):
     if base_dir is None:
-        base_dir = pjoin(dirname(__file__), '..', 'dataset', 'sents')
-
+        base_dir = pjoin(dirname(__file__), os.pardir, "dataset", "preprocessed")
+        base_dir = os.path.abspath(base_dir)
     app = wx.App()
 
     fmgr = FileManager(base_dir)
