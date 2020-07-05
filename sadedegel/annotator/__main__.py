@@ -10,25 +10,38 @@ from os.path import join as pjoin
 import glob
 from loguru import logger
 
+import color_conf
 
 class FileManager:
+    """
+        Manages loading sentence level tokenized inputs, giving it to GUI in cyclical manner
+        and saving the labels.
+        "sents" and "labels" folder both contain .json files with same names,
+        "sents" containing sentence-level tokenized inputs and "labels" contains labels.
+
+        Constructor args:
+            folder: Root folder containing "sents" and "labels" folders.
+
+    """
+
     def __init__(self, folder):
 
         if not os.path.isdir(folder):
             raise FileNotFoundError("{} is not a directory".format(folder))
 
         self.root_folder = folder
-        print(folder)
+
         self.corpus_folder = pjoin(self.root_folder, "sents")
         self.label_folder = pjoin(self.root_folder, "labels")
-
+        print(self.label_folder)
         os.makedirs(self.label_folder, exist_ok=True)
         self.corpus_files = glob.glob(pjoin(self.corpus_folder, "*.json"))
 
+        assert len(self.corpus_files) > 0, "Folder is empty!"
+
         logger.info("|corpus|: {}".format(len(self.corpus_files)))
 
-        self.lengths = [0] * len(self.corpus_files)  # updated by get_ith
-
+        self.lengths = [0] * len(self.corpus_files)  # number of sentences per each sentence
         self.idx = -1
 
     def _get_ith(self, i):
@@ -43,25 +56,6 @@ class FileManager:
 
         return sents, [0 for _ in range(self.lengths[i])]
 
-    def combine_jsons(self):
-        texts_list = []
-        labels_list = []
-        for filename in os.listdir(self.sen_folder):
-            with open(os.path.join(self.sen_folder, filename), "r") as f:
-                sents = json.load(f)
-                texts_list.append(sents)
-
-            try:
-                with open(os.path.join(self.label_folder, filename), "r") as f:
-                    labels_list.append(json.load(f))
-            except FileNotFoundError:  # labels do not exist yet
-                labels_list.append([0] * len(sents))
-
-        with open(os.path.join(self.root_folder, "texts_combined.json"), "w") as f:
-            json.dump(texts_list, f)
-
-        with open(os.path.join(self.root_folder, "labels_combined.json"), "w") as f:
-            json.dump(labels_list, f)
 
     def get_next_sentences(self):
         self.idx += 1
@@ -77,15 +71,21 @@ class FileManager:
         if not type(labels) == list:
             raise TypeError("labels if of type {}. list expected".format(type(labels)))
 
-        with open(os.path.join(self.label_folder, self.file_list[self.idx] + ".json"), "w") as f:
-            json.dump(labels, f)
+        file_name = os.path.split(self.corpus_files[self.idx])[1]
+
+        with open(pjoin(self.label_folder, file_name), "w") as f:
+            json.dump({"labels":labels}, f)
 
 
-class SentenceTextPanel(wx.Panel):
-    def __init__(self, parent, label, bg=(242, 238, 203)):
+class SentencePanel(wx.Panel):
+    """
+        A Panel which has a StaticText and which can be toggled on.
+    """"
+
+    def __init__(self, parent, label):
         super().__init__(parent)
         self.text = wx.StaticText(parent=self, label=label)
-        self.SetBackgroundColour(bg)
+        self.SetBackgroundColour(color_conf.sentence_panel["untoggled"]["bg"])
         self.selected = False
 
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -94,16 +94,17 @@ class SentenceTextPanel(wx.Panel):
         self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeave)
         self.text.Bind(wx.EVT_LEFT_UP, self.OnClick)
 
-        self.bg = bg
         self.SetSizer(sizer)
 
     def OnEnter(self, e):
         if not self.selected:
-            self.text.SetForegroundColour((255, 0, 0))
+            self.text.SetForegroundColour(color_conf.sentence_panel["hovered"]["fg"])
 
     def OnLeave(self, e):
-        if not self.selected:
-            self.text.SetForegroundColour((31, 30, 25))
+        if self.selected:
+            self.text.SetForegroundColour(color_conf.sentence_panel["toggled"]["fg"])
+        else:
+            self.text.SetForegroundColour(color_conf.sentence_panel["untoggled"]["fg"])
 
     def OnClick(self, e):
         self.Toggle()
@@ -111,12 +112,12 @@ class SentenceTextPanel(wx.Panel):
     def Toggle(self):
         if self.selected:
             self.selected = False
-            self.text.SetForegroundColour((31, 30, 25))
-            self.SetBackgroundColour(self.bg)
+            self.text.SetForegroundColour(color_conf.sentence_panel["untoggled"]["fg"])
+            self.SetBackgroundColour(color_conf.sentence_panel["untoggled"]["bg"])
         else:
             self.selected = True
-            self.text.SetForegroundColour((0, 0, 0))
-            self.SetBackgroundColour((242, 238, 203))
+            self.text.SetForegroundColour(color_conf.sentence_panel["toggled"]["fg"])
+            self.SetBackgroundColour(color_conf.sentence_panel["toggled"]["bg"])
 
     def Wrap(self, wrap):
         self.text.Wrap(wrap)
@@ -133,8 +134,7 @@ class MainTextPanel(scrolled.ScrolledPanel):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.font = wx.Font(13, wx.MODERN, wx.NORMAL, wx.NORMAL)
 
-        self.bg = (215, 208, 141)
-        self.SetBackgroundColour(self.bg)
+        self.SetBackgroundColour(color_conf.text_panel["bg"])
 
         self.BuildSentences(sentences)
         self.SetSizer(self.sizer)
@@ -145,15 +145,21 @@ class MainTextPanel(scrolled.ScrolledPanel):
         self.sizer.Clear(delete_windows=True)
         self.sizer.Layout()
         for i, s in enumerate(sentence_list):
-            p = SentenceTextPanel(parent=self, label=s, bg=self.bg)
+            p = SentencePanel(parent=self, label=s)
             p.Wrap(500)
             p.SetFont(self.font)
             self.sizer.Add(p, flag=wx.EXPAND | wx.ALIGN_LEFT)
+
             if labels[i]:
                 p.Toggle()
 
 
 class BtnPanel(wx.Panel):
+    """
+        Bottom panel containing the navigation buttons.
+        No logic is done here, but rather the events are bound in MainFrame.
+    """
+
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -161,7 +167,7 @@ class BtnPanel(wx.Panel):
         self.next_btn = wx.Button(parent=self, label=">")
         self.prev_btn = wx.Button(parent=self, label="<")
         self.summ_btn = wx.ToggleButton(parent=self, label="Sadede gel")
-        self.comb_btn = wx.Button(parent=self, label="Combine JSONs")
+        # self.comb_btn = wx.Button(parent=self, label="Combine JSONs")
 
         font = wx.Font(11, wx.MODERN, wx.NORMAL, wx.NORMAL)
         self.order_txt = wx.StaticText(parent=self, label="")
@@ -178,21 +184,34 @@ class BtnPanel(wx.Panel):
         self.sizer.Add(self.file_txt, flag=wx.ALL | wx.ALIGN_CENTER, border=5)
         self.sizer.AddStretchSpacer()
 
-        self.sizer.Add(self.comb_btn, flag=wx.ALL, border=5)
+        # self.sizer.Add(self.comb_btn, flag=wx.ALL, border=5)
         self.sizer.Add(self.summ_btn, flag=wx.ALL, border=5)
         self.SetSizer(self.sizer)
         self.ResetTexts()
 
     def ResetTexts(self):
+        """
+            Change the index and filename shown.
+        """
+
         self.summ_btn.SetValue(False)
 
         fmgr: FileManager = self.GetParent().file_mgr
 
         self.order_txt.SetLabel("[{}/{}]".format(fmgr.idx + 1, len(fmgr.corpus_files)))
-        self.file_txt.SetLabel(fmgr.corpus_files[fmgr.idx])
+        file_name = os.path.split(fmgr.corpus_files[fmgr.idx])[1]
+        self.file_txt.SetLabel(file_name)
 
 
 class MainFrame(wx.Frame):
+    """
+        Main container frame.
+        All logic is bound to GUI layer here.
+
+        Constructor args:
+            file_mgr: FileManager instance which handles corpus files.
+    """
+
     def __init__(self, file_mgr: FileManager):
         super().__init__(parent=None, title="Sadedegel Annotation Tool")
         self.file_mgr = file_mgr
@@ -212,7 +231,6 @@ class MainFrame(wx.Frame):
         self.btn_panel.next_btn.Bind(wx.EVT_BUTTON, self.OnNext)
         self.btn_panel.prev_btn.Bind(wx.EVT_BUTTON, self.OnPrev)
         self.btn_panel.summ_btn.Bind(wx.EVT_TOGGLEBUTTON, self.OnSumm)
-        self.btn_panel.comb_btn.Bind(wx.EVT_BUTTON, self.OnComb)
 
         self.text_panel.Bind(wx.EVT_CHAR_HOOK, self.OnNextKey)
         # self.text_panel.Bind(wx.EVT_CHAR_HOOK, self.OnNextKey)
@@ -223,6 +241,11 @@ class MainFrame(wx.Frame):
         self.Center()
 
     def _SaveLabels(self):
+        """
+            Creates a list of 1's and 0's denoting whether the sentence is important or not,
+            and passes it on to the FileManager for saving.
+        """
+
         labels = [0] * self.file_mgr.lengths[self.file_mgr.idx]
 
         for i, t in enumerate(self.text_panel.sizer.GetChildren()):
@@ -252,12 +275,8 @@ class MainFrame(wx.Frame):
         self.text_panel.BuildSentences(self.file_mgr.get_prev_sentences())
         self._OnPageChange()
 
-    def OnComb(self, e):
-        self._SaveLabels()
-        self.file_mgr.combine_jsons()
-
     def OnSumm(self, e):
-        if self.btn_panel.summ_btn.GetValue():
+        if self.btn_panel.summ_btn.GetValue(): # when summarize button is toggled
             for i, t in enumerate(self.text_panel.sizer.GetChildren()):
                 t = t.GetWindow()
 
@@ -278,10 +297,7 @@ class MainFrame(wx.Frame):
 
     def OnClose(self, e):
         self._SaveLabels()
-        self.file_mgr.combine_jsons()
         self.Destroy()
-
-        self.Show()
 
 
 @click.command()
