@@ -1,0 +1,2 @@
+sadedegel/dataset/raw/*.txt filter=lfs diff=lfs merge=lfs -text
+sadedegel/dataset/sents/*.json filter=lfs diff=lfs merge=lfs -text
