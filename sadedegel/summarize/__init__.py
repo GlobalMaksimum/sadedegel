@@ -1,1 +1,1 @@
-from ._summ import FirstK  # noqa: F401
+from ._summ import FirstK, RandomK  # noqa: F401
