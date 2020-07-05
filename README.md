@@ -40,7 +40,7 @@ Coming soon...
 
 Coming soon...
 
-## Install spaCy
+## Install sadedeGel
 
 For detailed installation instructions, see the
 [documentation](https://spacy.io/usage).
