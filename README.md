@@ -42,9 +42,6 @@ Coming soon...
 
 ## Install sadedeGel
 
-For detailed installation instructions, see the
-[documentation](https://spacy.io/usage).
-
 - **Operating system**: macOS / OS X · Linux · Windows (Cygwin, MinGW, Visual
   Studio)
 - **Python version**: 3.5+ (only 64 bit)
