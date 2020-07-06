@@ -84,7 +84,7 @@ from sadedegel.dataset import load_sentence_corpus, load_raw_corpus
 
 nlp = sadedegel.load()
 tokenized = load_sentence_corpus()
-raw = load_sentence_corpus()
+raw = load_raw_corpus()
 
 summary = nlp(raw[0])
 summary = nlp(tokenized[0], sentence_tokenizer=False)
