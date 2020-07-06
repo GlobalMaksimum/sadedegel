@@ -112,3 +112,7 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 ```bash
 make test
 ```
+
+## References
+* Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
+    * We have borrowed many document and style related stuff from their code base :smile:  
