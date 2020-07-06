@@ -14,7 +14,7 @@ setup(
     # Needed for dependencies
     install_requires=install_requires,
     # *strongly* suggested for sharing
-    version='0.1',
+    version='0.2',
     python_requires='>=3.5',
     entry_points='''
         [console_scripts]
