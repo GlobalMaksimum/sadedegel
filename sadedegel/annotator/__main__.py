@@ -29,11 +29,9 @@ class FileManager:
         if not os.path.isdir(folder):
             raise FileNotFoundError("{} is not a directory".format(folder))
 
-        self.root_folder = folder
+        self.corpus_folder = folder
+        self.label_folder = pjoin(self.corpus_folder, "labels")
 
-        self.corpus_folder = pjoin(self.root_folder, "sents")
-        self.label_folder = pjoin(self.root_folder, "labels")
-        print(self.label_folder)
         os.makedirs(self.label_folder, exist_ok=True)
         self.corpus_files = glob.glob(pjoin(self.corpus_folder, "*.json"))
 
@@ -80,7 +78,7 @@ class FileManager:
 class SentencePanel(wx.Panel):
     """
         A Panel which has a StaticText and which can be toggled on.
-    """"
+    """
 
     def __init__(self, parent, label):
         super().__init__(parent)
@@ -141,6 +139,12 @@ class MainTextPanel(scrolled.ScrolledPanel):
         self.SetupScrolling()
 
     def BuildSentences(self, sentences):
+        """
+            Arguments:
+                sentences: a 2-item tuple, first item list of sentences,
+                and second item containing labels
+        """
+
         sentence_list, labels = sentences
         self.sizer.Clear(delete_windows=True)
         self.sizer.Layout()
@@ -157,7 +161,7 @@ class MainTextPanel(scrolled.ScrolledPanel):
 class BtnPanel(wx.Panel):
     """
         Bottom panel containing the navigation buttons.
-        No logic is done here, but rather the events are bound in MainFrame.
+        No logic is done here, the events are bound to buttons in MainFrame.
     """
 
     def __init__(self, parent):
@@ -215,7 +219,7 @@ class MainFrame(wx.Frame):
     def __init__(self, file_mgr: FileManager):
         super().__init__(parent=None, title="Sadedegel Annotation Tool")
         self.file_mgr = file_mgr
-        self.SetTitle("Sadedegel Annotation Tool - ({})".format(self.file_mgr.root_folder))
+        self.SetTitle("Sadedegel Annotation Tool - ({})".format(self.file_mgr.corpus_folder))
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         # sizer = wx.FlexGridSizer(cols=1)
         # main_panel = wx.Panel(self)
