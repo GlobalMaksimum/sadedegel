@@ -6,9 +6,6 @@ with open('prod.requirements.txt') as fp:
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
-    url='https://github.com/GlobalMaksimum/sadedegel',
-    author='Global Maksimum',
-    author_email='info@globalmaksimum.com',
     # Needed to actually package something
     packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.summarize', 'sadedegel.tokenize'],
     package_data={
@@ -17,10 +14,7 @@ setup(
     # Needed for dependencies
     install_requires=install_requires,
     # *strongly* suggested for sharing
-    version='0.1',
-    # The license can be anything you like
-    license='MIT',
-    description='Extraction-based Turkish news summarizer.',
+    version='0.2',
     python_requires='>=3.5',
     entry_points='''
         [console_scripts]

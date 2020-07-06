@@ -1,4 +1,4 @@
-__title__ = "sadedegel"
-__version__ = "0.1"
-__release__ = True
-__download_url__ = "https://github.com/globalmaksimum/sadedegel-private/releases"
+__title__ = "sadedegel"  # pragma: no cover
+__version__ = "0.2"  # pragma: no cover
+__release__ = True  # pragma: no cover
+__download_url__ = "https://github.com/globalmaksimum/sadedegel/releases"  # pragma: no cover

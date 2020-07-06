@@ -5,7 +5,7 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.1 out now!**
+💫 **Version 0.2 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -41,9 +41,6 @@ Coming soon...
 Coming soon...
 
 ## Install sadedeGel
-
-For detailed installation instructions, see the
-[documentation](https://spacy.io/usage).
 
 - **Operating system**: macOS / OS X · Linux · Windows (Cygwin, MinGW, Visual
   Studio)
@@ -115,3 +112,7 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 ```bash
 make test
 ```
+
+## References
+* Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
+    * We have borrowed many document and style related stuff from their code base :smile:  

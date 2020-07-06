@@ -8,4 +8,4 @@ def test_loading(capsys, example_fixture):  # pylint: disable=unused-argument
 def test_summarizer():
     sg = load()
 
-    assert sg("Lütfen sadede gel.") == [["Lütfen", "sade", "##de", "gel", "."]]
+    assert sg("Lütfen sadede gel.") == ["Lütfen sadede gel."]
