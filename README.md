@@ -114,5 +114,12 @@ make test
 ```
 
 ## References
+### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
-    * We have borrowed many document and style related stuff from their code base :smile:  
+    * We have borrowed many document and style related stuff from their code base :smile:
+    
+### Machine Learning (ML), Deep Learning (DL) and Natural Language Processing (NLP)
+* Resources on Extractive Text Summarization:
+
+    * [Leveraging BERT for Extractive Text Summarization on Lectures](https://arxiv.org/abs/1906.04165)  by Derek Miller
+    * [Fine-tune BERT for Extractive Summarization](https://arxiv.org/pdf/1903.10318.pdf) by Yang Liu
