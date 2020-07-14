@@ -1,4 +1,4 @@
-<a href="https://explosion.ai"><img src="https://avatars0.githubusercontent.com/u/2204565?s=280&v=4" width="125" height="125" align="right" /></a>
+<a href="http://sadedegel.ai"><img src="https://avatars0.githubusercontent.com/u/2204565?s=280&v=4" width="125" height="125" align="right" /></a>
 
 # SadedeGel: An extraction based Turkish news summarizer
 
