@@ -1,4 +1,4 @@
-<a href="https://explosion.ai"><img src="https://avatars0.githubusercontent.com/u/2204565?s=280&v=4" width="125" height="125" align="right" /></a>
+<a href="http://sadedegel.ai"><img src="https://avatars0.githubusercontent.com/u/2204565?s=280&v=4" width="125" height="125" align="right" /></a>
 
 # SadedeGel: An extraction based Turkish news summarizer
 
@@ -81,7 +81,7 @@ from sadedegel.dataset import load_sentence_corpus, load_raw_corpus
 
 nlp = sadedegel.load()
 tokenized = load_sentence_corpus()
-raw = load_sentence_corpus()
+raw = load_raw_corpus()
 
 summary = nlp(raw[0])
 summary = nlp(tokenized[0], sentence_tokenizer=False)
@@ -123,3 +123,4 @@ make test
 
     * [Leveraging BERT for Extractive Text Summarization on Lectures](https://arxiv.org/abs/1906.04165)  by Derek Miller
     * [Fine-tune BERT for Extractive Summarization](https://arxiv.org/pdf/1903.10318.pdf) by Yang Liu
+    * We have borrowed many document and style related stuff from their code base :smile:  
