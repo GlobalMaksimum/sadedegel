@@ -4,6 +4,16 @@ from loguru import logger
 import json
 
 
+def file_paths():
+    base_path = dirname(__file__)
+
+    search_pattern = join(base_path, 'raw', '*.txt')
+
+    files = sorted(glob.glob(search_pattern))
+
+    return files
+
+
 def safe_read(file: str):
     try:
         with open(file) as fp:
@@ -38,7 +48,7 @@ def load_raw_corpus(return_iter: bool = True):
 
     logger.debug("Search path {}".format(search_pattern))
 
-    files = glob.glob(search_pattern)
+    files = sorted(glob.glob(search_pattern))
 
     if return_iter:
         return map(safe_read, files)
@@ -65,7 +75,7 @@ def load_sentence_corpus(return_iter: bool = True):
 
     logger.debug("Search path {}".format(search_pattern))
 
-    files = glob.glob(search_pattern)
+    files = sorted(glob.glob(search_pattern))
 
     if return_iter:
         return map(safe_json_load, files)
