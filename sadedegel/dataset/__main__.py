@@ -5,6 +5,7 @@ import glob
 from loguru import logger
 import json
 from tqdm import tqdm
+import sys
 
 
 @click.group(help="Dataset commandline")
@@ -55,6 +56,52 @@ def sentences(dataset_dir: str, tokenizer: str, force: bool):
             n += 1
 
     logger.info("Total number of files dumped is {}".format(n))
+
+
+@cli.command(help="Generate sentences from raw news text docs.")
+@click.option("-v", count=True)
+def validate(v):
+    from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
+    from tqdm import tqdm
+
+    click.secho("Corpus loading...")
+    raw = load_raw_corpus(False)
+    sents = load_sentence_corpus(False)
+
+    click.secho(".done.", fg="green")
+    click.secho(f"Number of News Documents: {len(raw)}".rjust(50))
+
+    click.secho("\nPerforming span checks...")
+
+    for a, b, file in zip(raw, sents, file_paths()):
+        for i, sent in enumerate(b['sentences']):
+            if sent not in a:
+                logger.error(f"""{sent}[{i}] \n\t\t is not a span in raw document \n {a} \n\n Corpus file: {file}
+                """)
+                sys.exit(1)
+
+    click.secho(".done", fg="green")
+
+    click.secho("\nPerforming span order checks...")
+
+    for a, b, file in zip(raw, sents, file_paths()):
+
+        start = 0
+        for i, sent in enumerate(b['sentences']):
+
+            idx = a.find(sent, start)
+
+            if idx == -1:
+                logger.error(
+                    f"""{sent}[{i}] \n\t\t is potential our of order in "sentences" array of sentence corpus\n {a} \n\n Corpus file: {file}
+                    """)
+                sys.exit(1)
+            else:
+                start = start + len(sent)
+
+    click.secho(".done", fg="green")
+
+    click.secho("\nDataset is {}".format(click.style("OK", fg="green")))
 
 
 if __name__ == '__main__':
