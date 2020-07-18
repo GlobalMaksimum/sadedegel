@@ -1,11 +1,21 @@
-from transformers import AutoTokenizer
 from .tokenize import RegexpSentenceTokenizer
 from .summarize import FirstK
+from enum import Enum
+
+
+class TokenizerEnum(Enum):
+    AUTO_TOKENIZER = 0
+
+
+def tr_tokenizer():
+    from transformers import AutoTokenizer
+
+    return AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
 
 
 class NLPPipeline:
     def __init__(self, sent_tokenizer=RegexpSentenceTokenizer(),
-                 tokenizer=AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased"),
+                 tokenizer=TokenizerEnum.AUTO_TOKENIZER,
                  summarizer=FirstK(0.5)):
         self.sent_tok = sent_tokenizer
         self.summarizer = summarizer
@@ -13,7 +23,8 @@ class NLPPipeline:
         if isinstance(summarizer, FirstK):
             self.tokenizer = None
         else:
-            self.tokenizer = tokenizer
+            if tokenizer == TokenizerEnum.AUTO_TOKENIZER:
+                self.tokenizer = tr_tokenizer()
 
     def __call__(self, doc):
         sents = self.sent_tok(doc)
