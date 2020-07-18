@@ -278,8 +278,8 @@ class AnnotatedExtractiveSummarizer():
         self._twelve_layers = outputs[2][1:]
         if self.use_cuda:
             self._twelve_layers = [x.cpu() for x in self._twelve_layers]
-            
-        self._sentence_embeddings = select_layer(self._twelve_layers,[11],return_cls=self.use_CLS_token)
+
+        self._sentence_embeddings = select_layer(self._twelve_layers, self.layers, return_cls=self.use_CLS_token)
 
         self._cluster_model = ClusterEmbeddings(self.k,self.random_state)
         self._selected_indices = self._cluster_model.fit_transform(self._sentence_embeddings)
