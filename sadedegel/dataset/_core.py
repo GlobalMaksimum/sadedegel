@@ -1,7 +1,6 @@
 import glob
 from os.path import dirname, join
 from loguru import logger
-from typing import Iterator
 import json
 
 
