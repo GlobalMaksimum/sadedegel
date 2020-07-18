@@ -1,14 +1,34 @@
 import glob
 from os.path import dirname, join
 from loguru import logger
-from typing import Iterator
 import json
 
 
-def _load(files: Iterator[str]):
-    for file in files:
+def file_paths():
+    base_path = dirname(__file__)
+
+    search_pattern = join(base_path, 'raw', '*.txt')
+
+    files = sorted(glob.glob(search_pattern))
+
+    return files
+
+
+def safe_read(file: str):
+    try:
         with open(file) as fp:
-            yield fp.read()
+            return fp.read()
+    except:
+        logger.exception(f"Error in reading {file}")
+        raise
+
+
+def safe_json_load(file: str):
+    try:
+        return json.loads(safe_read(file))
+    except:
+        logger.exception(f"JSON Decoding error in {file}")
+        raise
 
 
 def load_raw_corpus(return_iter: bool = True):
@@ -28,12 +48,12 @@ def load_raw_corpus(return_iter: bool = True):
 
     logger.debug("Search path {}".format(search_pattern))
 
-    files = glob.glob(search_pattern)
+    files = sorted(glob.glob(search_pattern))
 
     if return_iter:
-        return _load(files)
+        return map(safe_read, files)
     else:
-        return list(_load(files))
+        return [safe_read(file) for file in files]
 
 
 def load_sentence_corpus(return_iter: bool = True):
@@ -55,9 +75,9 @@ def load_sentence_corpus(return_iter: bool = True):
 
     logger.debug("Search path {}".format(search_pattern))
 
-    files = glob.glob(search_pattern)
+    files = sorted(glob.glob(search_pattern))
 
     if return_iter:
-        return map(lambda buf: json.loads(buf), _load(files))
+        return map(safe_json_load, files)
     else:
-        return [json.loads(buf) for buf in _load(files)]
+        return [safe_json_load(file) for file in files]

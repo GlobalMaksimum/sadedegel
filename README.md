@@ -5,7 +5,7 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.2 out now!**
+💫 **Version 0.2.1 (Maintanence Release) out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -114,5 +114,13 @@ make test
 ```
 
 ## References
+### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
+    * We have borrowed many document and style related stuff from their code base :smile:
+    
+### Machine Learning (ML), Deep Learning (DL) and Natural Language Processing (NLP)
+* Resources on Extractive Text Summarization:
+
+    * [Leveraging BERT for Extractive Text Summarization on Lectures](https://arxiv.org/abs/1906.04165)  by Derek Miller
+    * [Fine-tune BERT for Extractive Summarization](https://arxiv.org/pdf/1903.10318.pdf) by Yang Liu
     * We have borrowed many document and style related stuff from their code base :smile:  

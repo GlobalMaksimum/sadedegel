@@ -1,4 +1,15 @@
 from setuptools import setup
+from os.path import dirname
+import sys
+
+
+def version():
+    sys.path.insert(0, dirname(__file__))
+
+    from sadedegel.about import __version__
+
+    return __version__
+
 
 with open('prod.requirements.txt') as fp:
     install_requires = fp.read().splitlines()
@@ -14,7 +25,7 @@ setup(
     # Needed for dependencies
     install_requires=install_requires,
     # *strongly* suggested for sharing
-    version='0.2',
+    version=version(),
     python_requires='>=3.5',
     entry_points='''
         [console_scripts]
