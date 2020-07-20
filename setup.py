@@ -18,9 +18,10 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.summarize', 'sadedegel.tokenize'],
+    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.summarize', 'sadedegel.tokenize', 'sadedegel.tokenize.ml'],
     package_data={
-        'sadedegel.dataset': ['raw/*.txt', 'sents/*.json']
+        'sadedegel.dataset': ['raw/*.txt', 'sents/*.json'],
+        'sadedegel.tokenize.ml': ['model/sbd.pickle']
     },
     # Needed for dependencies
     install_requires=install_requires,

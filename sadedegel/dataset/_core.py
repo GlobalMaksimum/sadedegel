@@ -2,6 +2,7 @@ import glob
 from os.path import dirname, join
 from loguru import logger
 import json
+import re
 
 
 def file_paths():
@@ -31,7 +32,11 @@ def safe_json_load(file: str):
         raise
 
 
-def load_raw_corpus(return_iter: bool = True):
+def cleaner(doc: str):
+    return re.sub('\d+\s+[a-zA-ZŞşğĞüÜıİ]+\s+\d{4}\s+PAYLAŞ\s+yorum\s+yaz(\s+a)?', '', doc, flags=re.I)
+
+
+def load_raw_corpus(return_iter: bool = True, base_path=None, clean=True):
     """Load corpus of sample news tokenized into sentences.
 
     Examples
@@ -42,7 +47,8 @@ def load_raw_corpus(return_iter: bool = True):
     <class 'str'>
 
     """
-    base_path = dirname(__file__)
+    if base_path is None:
+        base_path = dirname(__file__)
 
     search_pattern = join(base_path, 'raw', '*.txt')
 
@@ -51,12 +57,18 @@ def load_raw_corpus(return_iter: bool = True):
     files = sorted(glob.glob(search_pattern))
 
     if return_iter:
-        return map(safe_read, files)
+        if clean:
+            return (cleaner(safe_read(file)) for file in files)
+        else:
+            return (safe_read(file) for file in files)
     else:
-        return [safe_read(file) for file in files]
+        if clean:
+            return [cleaner(safe_read(file)) for file in files]
+        else:
+            return [safe_read(file) for file in files]
 
 
-def load_sentence_corpus(return_iter: bool = True):
+def load_sentence_corpus(return_iter: bool = True, base_path=None):
     """Load corpus of sample news tokenized into sentences.
 
     Examples
@@ -69,7 +81,8 @@ def load_sentence_corpus(return_iter: bool = True):
     >>> len(sents[0]['sentences'])
     62
     """
-    base_path = dirname(__file__)
+    if base_path is None:
+        base_path = dirname(__file__)
 
     search_pattern = join(base_path, 'sents', '*.json')
 
