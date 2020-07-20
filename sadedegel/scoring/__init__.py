@@ -1,1 +1,1 @@
-from _score import Rouge1
+from ._score import Rouge

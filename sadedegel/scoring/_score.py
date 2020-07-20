@@ -3,9 +3,9 @@ from collections import Counter
 class Rouge:
     _AVAILABLE_METRICS = ["f1", "recall", "precision"]
     def __init__(self, metric="f1", n=1):
-        assert metric in Rouge1._AVAILABLE_METRICS, "'%s' not a valid metric!".format(metric)
+        assert metric in Rouge._AVAILABLE_METRICS, "'%s' not a valid metric!".format(metric)
         assert n == 1, "Only Rouge-1 is supported (for now)."
-        
+
         self.metric = metric
 
 
@@ -17,7 +17,7 @@ class Rouge:
         s = "".join(s_list)
 
         unigrams = s.split(" ")
-        unigrams = [s.strip() for s in unigrams]
+        unigrams = [s.strip() for s in unigrams if s != ""]
 
         return unigrams
 

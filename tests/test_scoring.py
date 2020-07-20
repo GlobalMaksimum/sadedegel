@@ -21,7 +21,7 @@ def test_rouge1_precision():
     assert r1("big cat on bed", "My little cat is on bed!") - 3/4 < eps
 
 def test_rouge_f1():
-    r1 = Rouge(n=1, metric="precision")
+    r1 = Rouge(n=1, metric="f1")
     eps = 1e-4
 
     recall = 3/6
