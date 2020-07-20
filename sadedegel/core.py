@@ -1,6 +1,6 @@
+from enum import Enum
 from .tokenize import RegexpSentenceTokenizer
 from .summarize import FirstK
-from enum import Enum
 
 
 class TokenizerEnum(Enum):
@@ -8,7 +8,7 @@ class TokenizerEnum(Enum):
 
 
 def tr_tokenizer():
-    from transformers import AutoTokenizer
+    from transformers import AutoTokenizer  # pylint: disable=import-outside-toplevel
 
     return AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
 

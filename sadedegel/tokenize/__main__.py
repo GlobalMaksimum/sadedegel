@@ -13,7 +13,7 @@ def tokenize():
     pass
 
 
-def eval(name: str, y_true: List[List[str]], y_pred: List[List[str]], paths=None):
+def iou_eval(name: str, y_true: List[List[str]], y_pred: List[List[str]], paths=None):
     i, u, iou = 0, 0, 0
 
     for idx, (seq1, seq2) in enumerate(zip(y_true, y_pred)):
@@ -49,15 +49,15 @@ def evaluate(v):
     y_pred = [nltk(doc) for doc in raw]
     y_true = [doc['sentences'] for doc in sents]
 
-    eval("NLTKPunctTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
+    iou_eval("NLTKPunctTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
     y_pred = [reg(doc) for doc in raw]
 
-    eval("RegexpSentenceTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
+    iou_eval("RegexpSentenceTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
     y_pred = [Doc(doc).sents for doc in raw]
 
-    eval("MLBasedTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
+    iou_eval("MLBasedTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
 
 @tokenize.command()
@@ -101,7 +101,8 @@ def build():
     y = flatten(
         [[is_eos(span, sent['sentences']) for span in Doc(raw).spans] for raw, sent in zip(raw_corpus, sent_corpus)])
 
-    assert len(features) == len(y)
+    if len(features) != len(y):
+        raise Exception(f"Sanity check failed feature list length {len(features)} whereas target list length {len(y)}.")
 
     sbd_model = create_model()
 

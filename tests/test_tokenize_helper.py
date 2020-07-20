@@ -1,4 +1,4 @@
-from .context import tr_upper, tr_lower, __tr_upper__, __tr_lower__, load_raw_corpus, Doc,flatten
+from .context import tr_upper, tr_lower, __tr_upper__, __tr_lower__, load_raw_corpus, Doc, flatten
 
 
 def test_istitle():
@@ -36,10 +36,10 @@ def test_isdigit():
 def test_span_feature_generation():
     raw_corpus = load_raw_corpus()
 
-    processed = [[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus]
+    _ = [[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus]
 
 
 def test_flattening_span_features():
     raw_corpus = load_raw_corpus()
 
-    processed = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
+    _ = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
