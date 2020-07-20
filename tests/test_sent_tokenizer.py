@@ -1,4 +1,4 @@
-from .context import RegexpSentenceTokenizer, NLTKPunctTokenizer
+from .context import RegexpSentenceTokenizer, NLTKPunctTokenizer, Doc
 
 sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık sistemini uyaran tıbbi bitkiler, fiziksel,"
               " kimyasal, biyolojik ve psikolojik streslere karşı vücut direncini artırıyor."),
@@ -30,3 +30,22 @@ def test_re_tokenizer():
     pred, true = toker(text), map(lambda x: x.strip(), sentences)
 
     assert len(set(pred) & set(true)) / len(set(pred) | set(true)) >= 0.5
+
+
+def test_ml_sent_tokenizer_edge_cases():
+    doc_str = """Hz. İsa M.Ö. 0. yılda doğdu. Doç. Dr. Mehmet Bey kanserin ilacını buldu!!! Aşk… 
+    14 Şubat'ta olmasın… Kocatepe Mah.de, Güneş Sok.ta gerçekleşen olay herkesi şaşırttı!
+    Alb. Gen. Mehmet Bey kendi evine saldırı düzenledi...
+    K.K.T.C'de eşek nüfusu kontrol dışında!
+    Av. İst. Prof. Mehmet Bey Tahtalıköy'e uğradı.
+    123. Türkiye E-Sports turnuvası İstanbul'da gerçekleşti.
+    """
+
+    doc = Doc(doc_str)
+
+    assert doc.sents == ['Hz. İsa M.Ö. 0. yılda doğdu.', 'Doç. Dr. Mehmet Bey kanserin ilacını buldu!!!', 'Aşk…',
+                         "14 Şubat'ta olmasın…", "Kocatepe Mah.de, Güneş Sok.ta gerçekleşen olay herkesi şaşırttı!",
+                         "Alb. Gen. Mehmet Bey kendi evine saldırı düzenledi...",
+                         "K.K.T.C'de eşek nüfusu kontrol dışında!",
+                         "Av. İst. Prof. Mehmet Bey Tahtalıköy'e uğradı.",
+                         "123. Türkiye E-Sports turnuvası İstanbul'da gerçekleşti."]
