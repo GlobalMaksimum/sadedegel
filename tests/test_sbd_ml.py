@@ -1,7 +1,7 @@
-from .context import load_raw_corpus, load_sentence_corpus, Doc, flatten, is_eos, create_model, load_model, save_model
 from sklearn.feature_extraction import FeatureHasher
 from sklearn.linear_model import PassiveAggressiveClassifier as PA
 from sklearn.pipeline import Pipeline
+from .context import load_raw_corpus, load_sentence_corpus, Doc, flatten, is_eos, create_model, load_model, save_model
 
 
 def test_span_feature_hashed():
