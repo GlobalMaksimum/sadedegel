@@ -9,6 +9,17 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
+
+[![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
+[![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
+[![Coverage](https://img.shields.io/coveralls/github/globalmaksimum/sadedegel?style=plastic)]()
+[![Dependencies](https://img.shields.io/librariesio/github/globalmaksimum/sadedegel?style=plastic&logo=Python)]()
+[![License](https://img.shields.io/pypi/l/sadedegel)]()
+[![Commit Month](https://img.shields.io/github/commit-activity/m/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
+[![Commit Week](https://img.shields.io/github/commit-activity/w/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
+[![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
+
+
 ## 📖 Documentation
 
 | Documentation   |                                                                |
