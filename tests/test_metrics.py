@@ -1,5 +1,5 @@
-from .context import rouge1_score
 from pytest import approx
+from .context import rouge1_score
 
 
 def test_rouge1_recall():
@@ -21,7 +21,7 @@ def test_rouge_f1():
                         metric="f1") == approx(expected_f1)
 
 
-# Test case taken from https://www.freecodecamp.org/news/what-is-rouge-and-how-it-works-for-evaluation-of-summaries-e059fb8ac840/
+# Test Case: https://www.freecodecamp.org/news/what-is-rouge-and-how-it-works-for-evaluation-of-summaries-e059fb8ac840/
 def test_rouge1_recall_2():
     assert rouge1_score(["the", "cat", "was", "under", "the", "bed"],
                         ["the", "cat", "was", "found", "under", "the", "bed"],
@@ -37,7 +37,7 @@ def test_rouge1_precision_2():
 
 def test_rouge_f1_2():
     recall = 1.
-    precision = 6.7
+    precision = 6 / 7
     expected_f1 = (2 * recall * precision) / (recall + precision)
 
     assert rouge1_score(["the", "cat", "was", "under", "the", "bed"],
