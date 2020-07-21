@@ -54,8 +54,8 @@ test cases covering more than 80% what sadedeGel can do.
 
 ### Getting started
 
-To make changes to spaCy's code base, you need to fork then clone the GitHub repository
-and build spaCy from source. You'll need to make sure that you have a
+To make changes to sadedeGel's code base, you need to fork then clone the GitHub repository
+and build sadedeGel from source. You'll need to make sure that you have a
 development environment consisting of a Python distribution including header
 files, a compiler, [pip](https://pip.pypa.io/en/latest/installing/),
 [virtualenv](https://virtualenv.pypa.io/en/stable/) and
