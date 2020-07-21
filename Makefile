@@ -13,6 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 test:
+	@python -c "import nltk; nltk.download('punkt')"
 	@pytest
 
 whl:
