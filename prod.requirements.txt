@@ -7,4 +7,5 @@ wheel
 
 tqdm
 
-wxpython
+uvicorn
+fastapi

@@ -108,6 +108,15 @@ Doc(doc).sents
  'Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.']
 ```
 
+#### SadedeGel Server
+In order to integrate with your applications we provide a quick summarizer server with sadedeGel.
+
+```bash
+python3 -m sadedegel.server 
+```
+
+Refer to self documenting APIs for details (http://localhost:8000/docs or http://localhost:8000/redoc by default)
+
 ## PyLint, Flake8 and Bandit
 sadedeGel utilized [pylint](https://www.pylint.org/) for static code analysis, 
 [flake8](https://flake8.pycqa.org/en/latest) for code styling and [bandit](https://pypi.org/project/bandit) 
