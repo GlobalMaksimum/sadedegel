@@ -71,7 +71,7 @@ async def firstk(doc: Document, ratio: float = 0.2):
 
 
 @click.command()
-@click.option("--host", '-h', help="Hostname", default="0.0.0.0")
+@click.option("--host", '-h', help="Hostname", default="0.0.0.0")  # nosec
 @click.option("--log-level",
               type=click.Choice(['debug', 'info'], case_sensitive=False), help="Logging Level", default="info")
 @click.option("--reload", is_flag=True, default=False, help="enable/disable auto reload for development.")
