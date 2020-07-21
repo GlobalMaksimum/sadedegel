@@ -46,8 +46,8 @@ app.openapi = custom_openapi
 
 @app.post("/sadedegel/random")
 async def random(doc: Document, ratio: float = 0.2):
-    """Baseline FirstK summarizer.
-        Returning first K sentence of the document
+    """Baseline Random summarizer.
+        Returning random K sentence of the document.
     """
     sentences = Doc(doc.text).sents
 
