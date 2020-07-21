@@ -107,3 +107,6 @@ config.env
 *.csr
 *.key
 *.pem
+
+# model files
+sadedegel/tokenize/ml/model/sbd.test.pickle
