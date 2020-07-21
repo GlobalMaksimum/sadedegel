@@ -10,3 +10,4 @@ tqdm
 uvicorn
 fastapi
 sklearn
+nltk>=3.4.5
