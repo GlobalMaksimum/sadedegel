@@ -32,10 +32,11 @@ class RougeRawScorer(BasicSummarizer):
         tokenizer: Tokenizer to be used for unigram generation
     """
 
-    def __init__(self, tokenizer=AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")):
+    def __init__(self, metric="f1", tokenizer=AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")):
         super().__init__()
 
         self.tokenizer = tokenizer
+        self.metric = "f1"
 
     def _get_unigrams(self, sents: list):
         unigrams = []
@@ -58,7 +59,7 @@ class RougeRawScorer(BasicSummarizer):
             hyp_grams = self._get_unigrams([s])
             ref_grams = self._get_unigrams(all_sents_except_s)
             print(hyp_grams, ref_grams)
-            score = rouge1_score(hyp_grams, ref_grams, metric="recall")
+            score = rouge1_score(hyp_grams, ref_grams, metric=self.metric)
 
             sents_idx_by_score[i][1] += score
 
@@ -69,7 +70,7 @@ class RougeRawScorer(BasicSummarizer):
 
 class RougeSummarizer(BasicSummarizer):
     def __init__(self, k=3, tokenizer=AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")):
-        self.raw_scorer = RougeRawScorer(tokenizer)
+        self.raw_scorer = RougeRawScorer(metric="f1", tokenizer=tokenizer)
         self.k = k
 
     def _select(self, sents: list):

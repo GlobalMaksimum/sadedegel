@@ -25,7 +25,7 @@ def _get_f1(y_ref: list, y_cand: list) -> float:
     recall = _get_recall(y_ref, y_cand)
     precision = _get_precision(y_ref, y_cand)
 
-    f1 = (2 * precision * recall) / (precision + recall + 1e5)
+    f1 = (2 * precision * recall) / (precision + recall + 1e-6)
     return f1
 
 
