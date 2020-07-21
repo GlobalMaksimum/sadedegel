@@ -9,3 +9,4 @@ tqdm
 
 uvicorn
 fastapi
+sklearn
