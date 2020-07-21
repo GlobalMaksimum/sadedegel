@@ -1,10 +1,13 @@
-loguru==0.4.1
+loguru>=0.4.1
 click
 transformers
 
-smart-open==2.0.0
+smart-open>=2.0.0
 wheel
 
 tqdm
 
-wxpython
+uvicorn
+fastapi
+sklearn
+nltk>=3.4.5

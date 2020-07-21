@@ -5,8 +5,19 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.3 out now!**
+💫 **Version 0.3.1 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
+
+
+![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
+[![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
+[![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
+[![Coverage](https://img.shields.io/coveralls/github/globalmaksimum/sadedegel?style=plastic)]()
+[![Dependencies](https://img.shields.io/librariesio/github/globalmaksimum/sadedegel?style=plastic&logo=Python)]()
+[![License](https://img.shields.io/pypi/l/sadedegel)]()
+[![Commit Month](https://img.shields.io/github/commit-activity/m/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
+[![Commit Week](https://img.shields.io/github/commit-activity/w/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
+[![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
 
 
 ## 📖 Documentation
@@ -108,6 +119,15 @@ Doc(doc).sents
  'Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.']
 ```
 
+#### SadedeGel Server
+In order to integrate with your applications we provide a quick summarizer server with sadedeGel.
+
+```bash
+python3 -m sadedegel.server 
+```
+
+Refer to self documenting APIs for details (http://localhost:8000/docs or http://localhost:8000/redoc by default)
+
 ## PyLint, Flake8 and Bandit
 sadedeGel utilized [pylint](https://www.pylint.org/) for static code analysis, 
 [flake8](https://flake8.pycqa.org/en/latest) for code styling and [bandit](https://pypi.org/project/bandit) 
@@ -144,4 +164,7 @@ make test
 
     * [Leveraging BERT for Extractive Text Summarization on Lectures](https://arxiv.org/abs/1906.04165)  by Derek Miller
     * [Fine-tune BERT for Extractive Summarization](https://arxiv.org/pdf/1903.10318.pdf) by Yang Liu
-    * We have borrowed many document and style related stuff from their code base :smile:  
+
+* Other NLP related references
+
+    * [ROUGE: A Package for Automatic Evaluation of Summaries](https://www.aclweb.org/anthology/W04-1013.pdf)
