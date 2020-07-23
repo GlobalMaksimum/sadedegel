@@ -18,14 +18,15 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.summarize', 'sadedegel.tokenize', 'sadedegel.tokenize.ml'],
+    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.summarize', 'sadedegel.tokenize', 'sadedegel.tokenize.ml',
+              'sadedegel.server'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json'],
         'sadedegel.tokenize.ml': ['model/sbd.pickle']
     },
     # Needed for dependencies
     install_requires=install_requires,
-    # *strongly* suggested for sharing
+    # *strongly* suggested for sharings
     version=version(),
     python_requires='>=3.5',
     entry_points='''
