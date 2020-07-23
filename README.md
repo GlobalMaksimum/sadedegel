@@ -10,14 +10,13 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
+[![Coverage](https://img.shields.io/codecov/c/gh/globalmaksimum/sadedegel?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
-[![Coverage](https://img.shields.io/coveralls/github/globalmaksimum/sadedegel?style=plastic)]()
-[![Dependencies](https://img.shields.io/librariesio/github/globalmaksimum/sadedegel?style=plastic&logo=Python)]()
-[![License](https://img.shields.io/pypi/l/sadedegel)]()
-[![Commit Month](https://img.shields.io/github/commit-activity/m/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
-[![Commit Week](https://img.shields.io/github/commit-activity/w/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
-[![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)]()
+[![License](https://img.shields.io/pypi/l/sadedegel)](https://github.com/GlobalMaksimum/sadedegel/blob/master/LICENSE)
+![Commit Month](https://img.shields.io/github/commit-activity/m/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
+![Commit Week](https://img.shields.io/github/commit-activity/w/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
+![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 
 
 ## 📖 Documentation
@@ -45,11 +44,26 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
 
 ## Features
 
-Coming soon...
+* Several news datasets
+  * Raw corpus (`sadedegel.dataset.load_raw_corpus`)
+  * Sentences tokenized corpus (`sadedegel.dataset.load_sentences_corpus`)  
+  * Human annotated summary corpus (`sadedegel.dataset.load_summary_corpus`)   
+* ML based sentence boundary detector (**SBD**) trained for Turkish language (`sadedegel.dataset`)
+* Various baseline summarizers
+  * Position Summarizer
+    * First Important Summarizer
+    * Last Important Summarizer
+  * Length Summarizer
+  * Band Summarizer
+  * Random Summarizer
+  
+* Various unsupervised/supervised summarizers
+  * ROUGE1 Summarizer
+  * Cluster Summarizer
+  * Supervised Summarizer
+ 
 
-📖 **For more details, see the
-
-Coming soon...
+📖 **For more details, refere to [sadedegel.ai](http://sadedegel.ai)**
 
 ## Install sadedeGel
 
@@ -103,8 +117,8 @@ To use our ML based sentence boundary detector
 ```python
 from sadedegel.tokenize import Doc
 
-doc = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok"
-"daha büyük ölçekte. Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu. IBM 650 Model I adını taşıyan bilgisayarın"
+doc = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
+"daha büyük ölçekte. Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu. IBM 650 Model I adını taşıyan bilgisayarın "
 "satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı. Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı. "
 "Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.")
 
@@ -112,9 +126,9 @@ Doc(doc).sents
 ```
 ```python
 ['Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı.',
- 'Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çokdaha büyük ölçekte.',
+ 'Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok daha büyük ölçekte.',
  'Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu.',
- 'IBM 650 Model I adını taşıyan bilgisayarınsatın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı.',
+ 'IBM 650 Model I adını taşıyan bilgisayarın satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı.',
  'Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı.',
  'Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.']
 ```
