@@ -1,53 +1,31 @@
 from pytest import approx
+import numpy as np
 from tests.context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Rouge1Summarizer
 
 
-def test_firstK_default():
+def list_equal(a: list, b: list) -> bool:
+    return all((_a == _b) for _a, _b in zip(a, b))
+
+
+def test_first_default():
     summarizer = PositionSummarizer(normalize=False)
 
-    assert summarizer.predict([0, 1, 2]) == [2, 1, 0]
+    assert list_equal(summarizer.predict([0, 1, 2]), [2, 1, 0])
 
 
-def test_firstK_2():
+def test_first_normalized():
     summarizer = PositionSummarizer()
 
     assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
 
 
-def test_randomK_default():
+def test_random_default():
     summarizer = RandomSummarizer(normalize=False)
 
-    assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
+    assert summarizer.predict([0, 1]) == approx(np.array([0.37454012, 0.95071431]))
 
 
-def test_randomK_2():
+def test_random_normalized():
     summarizer = RandomSummarizer(normalize=True)
 
-    assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
-
-
-def test_rouge_scorer_format():  # test format
-    summ = RougeRawScorer()
-    result = summ(["aaaaa", "aaaaaa", "bbb bbb"])
-    ## bbb bbb should be the last sentence with f1 == 0
-    assert len(result) == 3 and len(result[0]) == 2
-
-
-def test_rouge_scorer_f1():  # test correctness of f1 ordering
-    summ = Rouge1Summarizer(metric="f1")
-    result = summ(["aaaaa", "aaaaaa", "bbb bbb"])
-    ## bbb bbb should be the last sentence with f1 == 0
-    assert result[-1][0] == 2 and result[-1][1] == 0
-
-
-def test_rouge_scorer_recall():
-    summ = Rouge1Summarizer(metric="recall")
-    result = summ(["aaaaa", "aaaaaa", "bbb bbb"])
-    ## bbb bbb should be the last sentence with f1 == 0
-    assert result[-1][0] == 2 and result[-1][1] == 0
-
-
-def test_rouge_summ():
-    summ = Rouge1Summarizer(k=2)
-
-    assert summ(["aaaaa", "aaaaaa", "bbb bbb"]) == ["aaaaa", "aaaaaa"]
+    assert summarizer.predict([0, 1]) == approx(np.array([0.28261752, 0.71738248]))
