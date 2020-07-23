@@ -1,85 +1,28 @@
-from ._summ import BasicSummarizer
-from sadedegel.metrics import rouge1_score
-from transformers import AutoTokenizer
+import numpy as np
 
-class FirstK(BasicSummarizer):
-    def __init__(self, k=3):
-        self.k = k
-        super().__init__()
 
-    def _select(self, sents):
+class Rouge1Summarizer:
+    """Assign a higher importance score based on ROUGE1 score of the sentences within the document.
 
-        if type(self.k) == int:
-            limit = self.k
-        else:
-            limit = min(ceil(self.k * len(sents)), len(sents))
+    metric : {'f1', 'precision','recall'}, default='f1'
+        Metric to be used for ROUGE1 computation.
 
-        for i, sent in enumerate(sents):
-            if i < limit:
-                yield sent
-
-class RougeRawScorer(BasicSummarizer):
-    """
-        Rogue-1 raw scorer, which returns list in form of
-        [[sent_idx, rouge score],..]
-        in descending order of rouge_score and sent_idx being the index of the sentence
-        in the original document.
-
-        Used for auto-labelling important sentences and processes all sentences.
-
-        Parameters
-        ==========
-        tokenizer: Tokenizer to be used for unigram generation
+    normalize : bool, optional (default=True)
+        If ``False``, return a raw score vector.
+        Otherwise, return L2 normalized score vector.
     """
 
-    def __init__(self, metric="f1", tokenizer=AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")):
-        super().__init__()
+    def __init__(self, metric='f1', normalize=True):
+        self.normalize = normalize
+        if metric not in ['f1', 'precision', 'recall']:
+            raise Exception(f"mode should be one of 'first', 'last'")
 
-        self.tokenizer = tokenizer
-        self.metric = "f1"
+        self.metric = metric
 
-    def _get_unigrams(self, sents: list):
-        unigrams = []
+    def predict(self, sentences):
+        scores = [sent.rouge1(self.metic) for sent in sentences]
 
-        for s in sents:
-            toks = self.tokenizer.tokenize(s)
-            toks = [t.lower() for t in toks if t.isalpha()]
-
-            unigrams += toks
-
-        return unigrams
-
-
-    def _select(self, sents: list):
-        sents_idx_by_score = [[i,0] for i in range(len(sents))] # keep the original idx with it
-
-        for i,s in enumerate(sents):
-            all_sents_except_s = sents[:i] + sents[i+1:]
-
-            hyp_grams = self._get_unigrams([s])
-            ref_grams = self._get_unigrams(all_sents_except_s)
-            print(hyp_grams, ref_grams)
-            score = rouge1_score(hyp_grams, ref_grams, metric=self.metric)
-
-            sents_idx_by_score[i][1] += score
-
-        sents_idx_by_score.sort(key=lambda x: x[1], reverse=True)
-
-        for i, sent in enumerate(sents_idx_by_score):
-            yield sent
-
-class RougeSummarizer(BasicSummarizer):
-    def __init__(self, k=3, tokenizer=AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")):
-        self.raw_scorer = RougeRawScorer(metric="f1", tokenizer=tokenizer)
-        self.k = k
-
-    def _select(self, sents: list):
-        if type(self.k) == int:
-            limit = self.k
+        if self.normalize:
+            return scores / np.linalg.norm(scores)
         else:
-            limit = min(ceil(self.k * len(sents)), len(sents))
-
-        for i,x in enumerate(self.raw_scorer(sents)):
-            if i < limit:
-                sent_idx = x[0]
-                yield sents[sent_idx]
+            return scores
