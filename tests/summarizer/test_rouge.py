@@ -1,33 +1,45 @@
 import pytest
+from pytest import approx
+import numpy as np
 from tests.context import Rouge1Summarizer
+from sadedegel.tokenize import Doc
 
 
-@pytest.mark.skip()
-def test_rouge_scorer_format():  # test format
-    summ = Rouge1Summarizer()
-    result = summ(["aaaaa", "aaaaaa", "bbb bbb"])
-    ## bbb bbb should be the last sentence with f1 == 0
-    assert len(result) == 3 and len(result[0]) == 2
+def test_rouge1_summarizer_precision_all_lower():
+    summ = Rouge1Summarizer(normalize=False, metric="precision")
+
+    assert summ.predict(Doc('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(np.array([0.5, 0.4, 0.75]))
 
 
-@pytest.mark.skip()
-def test_rouge_scorer_f1():  # test correctness of f1 ordering
-    summ = Rouge1Summarizer(metric="f1")
-    result = summ(["aaaaa", "aaaaaa", "bbb bbb"])
-    ## bbb bbb should be the last sentence with f1 == 0
-    assert result[-1][0] == 2 and result[-1][1] == 0
+def test_rouge1_summarizer_precision_proper_case():
+    summ = Rouge1Summarizer(normalize=False, metric="precision")
+
+    assert summ.predict(Doc('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(np.array([0.5, 0.4, 0.75]))
 
 
-@pytest.mark.skip()
-def test_rouge_scorer_recall():
-    summ = Rouge1Summarizer(metric="recall")
-    result = summ(["aaaaa", "aaaaaa", "bbb bbb"])
-    ## bbb bbb should be the last sentence with f1 == 0
-    assert result[-1][0] == 2 and result[-1][1] == 0
+def test_rouge1_summarizer_recall_all_lower():
+    summ = Rouge1Summarizer(normalize=False, metric="recall")
+
+    assert summ.predict(Doc('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(
+        np.array([2 / 9, 2 / 8, 3 / 9]))
 
 
-@pytest.mark.skip()
-def test_rouge_summ():
-    summ = Rouge1Summarizer(k=2)
+def test_rouge1_summarizer_recall_proper_case():
+    summ = Rouge1Summarizer(normalize=False, metric="recall")
 
-    assert summ(["aaaaa", "aaaaaa", "bbb bbb"]) == ["aaaaa", "aaaaaa"]
+    assert summ.predict(Doc('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(
+        np.array([2 / 9, 2 / 8, 3 / 9]))
+
+
+def test_rouge1_summarizer_f1_all_lower():
+    summ = Rouge1Summarizer(normalize=False)
+
+    assert summ.predict(Doc('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(
+        np.array([0.30769188, 0.30769183, 0.46153804]))
+
+
+def test_rouge1_summarizer_f1_proper_case():
+    summ = Rouge1Summarizer(normalize=False)
+
+    assert summ.predict(Doc('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(
+        np.array([0.30769188, 0.30769183, 0.46153804]))
