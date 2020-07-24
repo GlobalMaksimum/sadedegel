@@ -15,14 +15,14 @@ class Rouge1Summarizer:
     def __init__(self, metric='f1', normalize=True):
         self.normalize = normalize
         if metric not in ['f1', 'precision', 'recall']:
-            raise Exception(f"mode should be one of 'first', 'last'")
+            raise Exception(f"mode should be one of 'f1', 'precision','recall'")
 
         self.metric = metric
 
     def predict(self, sentences):
-        scores = [sent.rouge1(self.metic) for sent in sentences]
+        scores = np.array([sent.rouge1(self.metric) for sent in sentences])
 
         if self.normalize:
-            return scores / np.linalg.norm(scores)
+            return scores / scores.sum()
         else:
             return scores

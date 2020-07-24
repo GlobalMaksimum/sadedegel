@@ -17,7 +17,7 @@ class RandomSummarizer:
         np.random.seed(self.seed)
         self.normalize = normalize
 
-    def predict(self, sentences):
+    def predict(self, sentences) -> np.ndarray:
         if type(sentences) == list:
             n = len(sentences)
         else:
@@ -44,19 +44,19 @@ class LengthSummarizer:
     """
 
     def __init__(self, mode="token", normalize=True):
-        self.normalized = normalize
+        self.normalize = normalize
 
         if mode not in ['token', 'char']:
             raise Exception(f"mode should be one of 'token', 'char'")
 
         self.mode = mode
 
-    def predict(self, sentences):
+    def predict(self, sentences) -> np.ndarray:
 
         if self.mode == 'token':
-            scores = [len(sent.tokens) for sent in sentences]
+            scores = np.array([len(sent.tokens) for sent in sentences])
         else:
-            scores = [sum(len(token) for token in sent.tokens) for sent in sentences]
+            scores = np.array([sum(len(token) for token in sent.tokens) for sent in sentences])
 
         if self.normalize:
             return scores / scores.sum()
@@ -82,7 +82,7 @@ class PositionSummarizer:
 
         self.mode = mode
 
-    def predict(self, sentences):
+    def predict(self, sentences) -> np.ndarray:
         if type(sentences) == list:
             n = len(sentences)
         else:
@@ -126,5 +126,5 @@ class BandSummarizer:
 
         self.mode = mode
 
-    def predict(self, sentences):
+    def predict(self, sentences) -> np.ndarray:
         raise NotImplementedError("BandSummarizer is not completed yet.")
