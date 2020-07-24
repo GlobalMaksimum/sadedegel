@@ -1,6 +1,6 @@
 from enum import Enum
 from .tokenize import RegexpSentenceTokenizer
-from .summarize import FirstK
+from .summarize import PositionSummarizer
 
 
 class TokenizerEnum(Enum):
@@ -16,11 +16,11 @@ def tr_tokenizer():
 class NLPPipeline:
     def __init__(self, sent_tokenizer=RegexpSentenceTokenizer(),
                  tokenizer=TokenizerEnum.AUTO_TOKENIZER,
-                 summarizer=FirstK(0.5)):
+                 summarizer=None):
         self.sent_tok = sent_tokenizer
         self.summarizer = summarizer
 
-        if isinstance(summarizer, FirstK):
+        if isinstance(summarizer, PositionSummarizer):
             self.tokenizer = None
         else:
             if tokenizer == TokenizerEnum.AUTO_TOKENIZER:

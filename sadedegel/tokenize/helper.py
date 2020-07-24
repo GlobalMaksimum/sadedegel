@@ -1,12 +1,10 @@
-import re
-from joblib import load
-from pathlib import Path
-from os.path import dirname
-from loguru import logger
+from transformers import AutoTokenizer
+
 import re
 from typing import List
 
 from .ml.sbd import load_model
+from sadedegel.metrics import rouge1_score
 
 __tr_upper__ = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
 __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
@@ -169,6 +167,38 @@ class Span:
         return features
 
 
+class Sentences:
+    tokenizer = None
+
+    def __init__(self, id_: int, text: str, all_sentences: List):
+        if Sentences.tokenizer is None:
+            Sentences.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+
+        self.id = id_
+        self.text = text
+
+        self._tokens = None
+        self.all_sentences = all_sentences
+
+    @property
+    def tokens(self):
+        if self._tokens is None:
+            self._tokens = Sentences.tokenizer.tokenize(self.text)
+
+        return self._tokens
+
+    def rouge1(self, metric):
+        return rouge1_score(
+            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.all_sentences if sent.id != self.id]),
+            [tr_lower(t) for t in self.tokens], metric)
+
+    def __str__(self):
+        return self.text
+
+    def __repr__(self):
+        return self.text
+
+
 def is_eos(span: Span, sentences: List[str]) -> int:
     start = 0
     eos = []
@@ -210,6 +240,12 @@ class Doc:
 
         for i, eos in enumerate(eos_list):
             if i == 0:
-                self.sents.append(self.raw[:eos].strip())
+                self.sents.append(Sentences(i, self.raw[:eos].strip(), self.sents))
             else:
-                self.sents.append(self.raw[eos_list[i - 1] + 1:eos].strip())
+                self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self.sents))
+
+    def __str__(self):
+        return self.raw
+
+    def __repr__(self):
+        return self.raw
