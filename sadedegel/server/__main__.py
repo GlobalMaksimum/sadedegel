@@ -2,6 +2,7 @@ from fastapi.openapi.utils import get_openapi
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pydantic.typing import List
 from sadedegel.tokenize import Doc
@@ -42,6 +43,14 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins='*',
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/sadedegel/random")
