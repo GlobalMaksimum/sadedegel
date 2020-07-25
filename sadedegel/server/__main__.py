@@ -1,4 +1,5 @@
 from fastapi.openapi.utils import get_openapi
+from fastapi.middleware.cors import CORSMiddleware
 
 import uvicorn
 from fastapi import FastAPI
@@ -24,6 +25,21 @@ class Summary(BaseModel):
 
 app = FastAPI()
 
+origins = [
+    "https://www.hurriyet.com.tr",
+    "https://www.milliyet.com.tr",
+    "https://www.sozcu.com.tr",
+    "https://www.haberturk.com",
+    "https://www.sabah.com.tr"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
 
 def custom_openapi():
     if app.openapi_schema:
