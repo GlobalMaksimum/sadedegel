@@ -1,4 +1,4 @@
-<a href="http://sadedegel.ai"><img src="https://avatars0.githubusercontent.com/u/2204565?s=280&v=4" width="125" height="125" align="right" /></a>
+<a href="http://sadedegel.ai"><img src="https://sadedegel.ai/dist/img/logo-2.png?s=280&v=4" width="125" height="125" align="right" /></a>
 
 # SadedeGel: An extraction based Turkish news summarizer
 
@@ -45,9 +45,13 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
 ## Features
 
 * Several news datasets
-  * Raw corpus (`sadedegel.dataset.load_raw_corpus`)
-  * Sentences tokenized corpus (`sadedegel.dataset.load_sentences_corpus`)  
-  * Human annotated summary corpus (`sadedegel.dataset.load_summary_corpus`)   
+  * Basic corpus
+      * Raw corpus (`sadedegel.dataset.load_raw_corpus`)
+      * Sentences tokenized corpus (`sadedegel.dataset.load_sentences_corpus`)  
+      * Human annotated summary corpus (`sadedegel.dataset.load_summary_corpus`)   
+  * [Extended corpus](sadedegel/dataset/README.md)
+      * Raw corpus (`sadedegel.dataset.extended.load_extended_raw_corpus`)
+      * Sentences tokenized corpus (`sadedegel.dataset.extended.load_extended_sents_corpus`)
 * ML based sentence boundary detector (**SBD**) trained for Turkish language (`sadedegel.dataset`)
 * Various baseline summarizers
   * Position Summarizer
