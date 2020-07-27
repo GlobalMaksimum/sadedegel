@@ -18,7 +18,7 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.summarize', 'sadedegel.tokenize', 'sadedegel.tokenize.ml',
+    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize', 'sadedegel.tokenize', 'sadedegel.tokenize.ml',
               'sadedegel.server'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json'],
@@ -28,7 +28,7 @@ setup(
     install_requires=install_requires,
     # *strongly* suggested for sharings
     version=version(),
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     entry_points='''
         [console_scripts]
         sadedegel=sadedegel.__main__:cli
