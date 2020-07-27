@@ -4,6 +4,9 @@ from loguru import logger
 import json
 import re
 
+from .util import safe_json_load, safe_read
+
+
 
 def file_paths():
     base_path = dirname(__file__)
@@ -13,23 +16,6 @@ def file_paths():
     files = sorted(glob.glob(search_pattern))
 
     return files
-
-
-def safe_read(file: str):
-    try:
-        with open(file) as fp:
-            return fp.read()
-    except:
-        logger.exception(f"Error in reading {file}")
-        raise
-
-
-def safe_json_load(file: str):
-    try:
-        return json.loads(safe_read(file))
-    except:
-        logger.exception(f"JSON Decoding error in {file}")
-        raise
 
 
 def cleaner(doc: str):

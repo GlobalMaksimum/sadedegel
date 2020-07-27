@@ -1,3 +1,4 @@
+import pytest
 from .context import RegexpSentenceTokenizer, NLTKPunctTokenizer, Doc
 
 sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık sistemini uyaran tıbbi bitkiler, fiziksel,"
@@ -16,6 +17,7 @@ sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık
 text = "".join(sentences)
 
 
+@pytest.mark.skip()
 def test_punct_tokenizer():
     toker = NLTKPunctTokenizer()
 
@@ -42,9 +44,11 @@ def test_ml_sent_tokenizer_edge_cases():
 
     doc = Doc(doc_str)
 
-    assert doc.sents == ['Hz. İsa M.Ö. 0. yılda doğdu.', 'Doç. Dr. Mehmet Bey kanserin ilacını buldu!!!', 'Aşk…',
-                         "14 Şubat'ta olmasın…", "Kocatepe Mah.de, Güneş Sok.ta gerçekleşen olay herkesi şaşırttı!",
-                         "Alb. Gen. Mehmet Bey kendi evine saldırı düzenledi...",
-                         "K.K.T.C'de eşek nüfusu kontrol dışında!",
-                         "Av. İst. Prof. Mehmet Bey Tahtalıköy'e uğradı.",
-                         "123. Türkiye E-Sports turnuvası İstanbul'da gerçekleşti."]
+    assert [sent.text for sent in doc.sents] == ["Hz. İsa M.Ö. 0. yılda doğdu.",
+                                                 'Doç. Dr. Mehmet Bey kanserin ilacını buldu!!!', 'Aşk…',
+                                                 "14 Şubat'ta olmasın…",
+                                                 "Kocatepe Mah.de, Güneş Sok.ta gerçekleşen olay herkesi şaşırttı!",
+                                                 "Alb. Gen. Mehmet Bey kendi evine saldırı düzenledi...",
+                                                 "K.K.T.C'de eşek nüfusu kontrol dışında!",
+                                                 "Av. İst. Prof. Mehmet Bey Tahtalıköy'e uğradı.",
+                                                 "123. Türkiye E-Sports turnuvası İstanbul'da gerçekleşti."]

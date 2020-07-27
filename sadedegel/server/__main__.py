@@ -7,8 +7,9 @@ from pydantic import BaseModel
 from pydantic.typing import List
 from sadedegel.tokenize import Doc
 from math import ceil
-from sadedegel.summarize import RandomK, FirstK
+from sadedegel.summarize import RandomSummarizer, PositionSummarizer
 import click
+import numpy as np
 from sadedegel.about import __version__
 
 
@@ -62,7 +63,11 @@ async def random(doc: Document, ratio: float = 0.2):
 
     summary_length = max(1, ceil(len(sentences) * ratio))
 
-    return Summary(sentences=RandomK(summary_length)(sentences), length=len(sentences), summary_length=summary_length,
+    summary = RandomSummarizer().predict(sentences)
+    top_index = np.argsort(summary)[::-1][:summary_length]
+
+    return Summary(sentences=[s.text for i, s in enumerate(sentences) if i in top_index], length=len(sentences),
+                   summary_length=summary_length,
                    ratio=ratio)
 
 
@@ -75,7 +80,11 @@ async def firstk(doc: Document, ratio: float = 0.2):
 
     summary_length = max(1, ceil(len(sentences) * ratio))
 
-    return Summary(sentences=FirstK(summary_length)(sentences), length=len(sentences), summary_length=summary_length,
+    summary = PositionSummarizer().predict(sentences)
+    top_index = np.argsort(summary)[::-1][:summary_length]
+
+    return Summary(sentences=[s.text for i, s in enumerate(sentences) if i in top_index], length=len(sentences),
+                   summary_length=summary_length,
                    ratio=ratio)
 
 
