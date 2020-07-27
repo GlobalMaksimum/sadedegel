@@ -1,3 +1,4 @@
+import pytest
 from .context import RegexpSentenceTokenizer, NLTKPunctTokenizer, Doc
 
 sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık sistemini uyaran tıbbi bitkiler, fiziksel,"
@@ -16,6 +17,7 @@ sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık
 text = "".join(sentences)
 
 
+@pytest.mark.skip()
 def test_punct_tokenizer():
     toker = NLTKPunctTokenizer()
 
