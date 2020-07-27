@@ -58,7 +58,7 @@ def sentences(dataset_dir: str, tokenizer: str, force: bool):
     logger.info("Total number of files dumped is {}".format(n))
 
 
-@cli.command(help="Generate sentences from raw news text docs.")
+@cli.command(help="Validate raw & sentences datasets")
 @click.option("-v", count=True)
 def validate(v):
     from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
