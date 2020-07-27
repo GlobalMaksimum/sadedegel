@@ -10,6 +10,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
+[![Python Version](https://img.shields.io/pypi/pyversions/sadedegel?style=plastic)](https://img.shields.io/pypi/pyversions/sadedegel)
 [![Coverage](https://img.shields.io/codecov/c/gh/globalmaksimum/sadedegel?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
@@ -73,7 +74,7 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
 
 - **Operating system**: macOS / OS X · Linux · Windows (Cygwin, MinGW, Visual
   Studio)
-- **Python version**: 3.5+ (only 64 bit)
+- **Python version**: 3.6+ (only 64 bit)
 - **Package managers**: [pip] 
 
 [pip]: https://pypi.org/project/sadedegel/
