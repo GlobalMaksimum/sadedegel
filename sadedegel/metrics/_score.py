@@ -36,6 +36,7 @@ def rouge1_score(y_ref: List, y_cand: List, metric: str = "f1"):
 
     if type(y_cand) == list and type(y_cand) == list:
         if len(y_cand) == 0 or len(y_ref) == 0:
+            warnings.warn("Degenerate case with 0 length y_ref/y_cand encountered in Rouge1 scoring. Returning 1.0!")
             return 1.0
 
         if metric == "recall":
