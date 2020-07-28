@@ -2,26 +2,48 @@ from fastapi.openapi.utils import get_openapi
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pydantic.typing import List
-from sadedegel.tokenize import Doc
-from math import ceil
-from sadedegel.summarize import RandomSummarizer, PositionSummarizer
+
+from sadedegel.tokenize import Doc, Sentences
+from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer
 import click
 import numpy as np
 from sadedegel.about import __version__
+from enum import Enum
+from loguru import logger
 
 
-class Document(BaseModel):
-    text: str
+class TimeUnitEnum(str, Enum):
+    SECOND = 'second'
+    MINUTE = 'minute'
 
 
-class Summary(BaseModel):
+class Request(BaseModel):
+    doc: str
+    wpm: int = 170
+    duration: int = 5
+    unit: TimeUnitEnum = TimeUnitEnum.MINUTE
+
+
+class DocSummary(BaseModel):
+    sentence_count: int
+    word_count: int
+
+
+class Response(BaseModel):
     sentences: List[str]
-    length: int
-    ratio: float
-    summary_length: int
+    original: DocSummary
+    summary: DocSummary
+
+
+class APIInfo(BaseModel):
+    version: str
+    email: str
+    website: str
+    github: str
 
 
 app = FastAPI()
@@ -37,7 +59,7 @@ def custom_openapi():
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {
-        "url": "https://avatars0.githubusercontent.com/u/2204565?s=280&v=2"
+        "url": "https://sadedegel.ai/dist/img/logo-2.png?s=280&v=4"
     }
     app.openapi_schema = openapi_schema
     return app.openapi_schema
@@ -54,38 +76,99 @@ app.add_middleware(
 )
 
 
-@app.post("/sadedegel/random")
-async def random(doc: Document, ratio: float = 0.2):
-    """Baseline Random summarizer.
-        Returning random K sentence of the document.
+def summary_filter(sents, scores, word_count, limit=None):
+    rank = np.argsort(scores)[::-1]
+    logger.info(rank)
+
+    logger.info(limit)
+
+    if limit:
+        return sents[rank[word_count[rank].cumsum() <= limit]]
+    else:
+        return sents[rank]
+
+
+@app.get('/')
+async def home():
+    return RedirectResponse("http://sadedegel.ai")
+
+
+@app.get("/api/info", tags=["Information"], summary="sadedeGel metadata")
+async def info():
+    return APIInfo(version=__version__, email="info@sadedegel.ai", website="sadedegel.ai",
+                   github="https://github.com/GlobalMaksimum/sadedegel")
+
+
+def summarize(summarizer, sentences: List[Sentences], limit: float) -> Response:
+    word_count = np.array([len(s) for s in sentences], dtype=np.int)
+
+    scores = summarizer.predict(sentences)
+
+    logger.info(scores)
+    logger.info(word_count)
+
+    sentences_limited = summary_filter(np.array(sentences), scores, word_count, limit)
+
+    logger.info(sentences_limited.tolist())
+
+    return Response(sentences=[s.text for s in sentences_limited.tolist()],
+                    original=DocSummary(sentence_count=len(sentences), word_count=word_count.sum()),
+                    summary=DocSummary(sentence_count=len(sentences_limited),
+                                       word_count=np.array([len(s) for s in sentences_limited.tolist()],
+                                                           dtype=np.int).sum()))
+
+
+@app.post("/api/summarizer/random", tags=["Summarizer"], summary="Use RandomSummarizer")
+async def random(req: Request):
+    """Baseline [Random Summarizer](https://github.com/GlobalMaksimum/sadedegel/tree/master/sadedegel/summarize/README.md)
+
+            Picks up random sentences until total number of tokens is less than equal to `wpm x duration`
     """
-    sentences = Doc(doc.text).sents
 
-    summary_length = max(1, ceil(len(sentences) * ratio))
+    sentences = Doc(req.doc).sents
 
-    summary = RandomSummarizer().predict(sentences)
-    top_index = np.argsort(summary)[::-1][:summary_length]
+    if req.unit == TimeUnitEnum.MINUTE:
+        duration_in_min = req.duration
+    else:
+        duration_in_min = req.duration / 60.
 
-    return Summary(sentences=[s.text for i, s in enumerate(sentences) if i in top_index], length=len(sentences),
-                   summary_length=summary_length,
-                   ratio=ratio)
+    return summarize(RandomSummarizer(seed=None), sentences, req.wpm * duration_in_min)
 
 
-@app.post("/sadedegel/firstk")
-async def firstk(doc: Document, ratio: float = 0.2):
-    """Baseline FirstK summarizer.
-    Returning first K sentence of the document
+@app.post("/api/summarizer/firstk", tags=["Summarizer"],
+          summary="Use Position Summarizer to obtain a FirstK summarizer")
+async def firstk(req: Request):
+    """Baseline [Position Summarizer](https://github.com/GlobalMaksimum/sadedegel/tree/master/sadedegel/summarize/README.md)
+
+            Picks up first a few sentences until total number of tokens is less than equal to `wpm x duration`
     """
-    sentences = Doc(doc.text).sents
 
-    summary_length = max(1, ceil(len(sentences) * ratio))
+    sentences = Doc(req.doc).sents
 
-    summary = PositionSummarizer().predict(sentences)
-    top_index = np.argsort(summary)[::-1][:summary_length]
+    if req.unit == TimeUnitEnum.MINUTE:
+        duration_in_min = req.duration
+    else:
+        duration_in_min = req.duration / 60.
 
-    return Summary(sentences=[s.text for i, s in enumerate(sentences) if i in top_index], length=len(sentences),
-                   summary_length=summary_length,
-                   ratio=ratio)
+    return summarize(PositionSummarizer(), sentences, req.wpm * duration_in_min)
+
+
+@app.post("/api/summarizer/rouge1", tags=["Summarizer"],
+          summary="Use unsupervised Rouge1 Summarizer")
+async def firstk(req: Request):
+    """Baseline [Rouge1 Summarizer](https://github.com/GlobalMaksimum/sadedegel/tree/master/sadedegel/summarize/README.md)
+
+            Rank sentences based on their rouge1 score in Document and return a list of sentences until number of total tokens is less than equal to `wpm x duration`
+    """
+
+    sentences = Doc(req.doc).sents
+
+    if req.unit == TimeUnitEnum.MINUTE:
+        duration_in_min = req.duration
+    else:
+        duration_in_min = req.duration / 60.
+
+    return summarize(Rouge1Summarizer(), sentences, req.wpm * duration_in_min)
 
 
 @click.command()
