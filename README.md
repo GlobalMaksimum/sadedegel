@@ -5,11 +5,12 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.4.1 out now!**
+💫 **Version 0.4.2 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
+[![Python Version](https://img.shields.io/pypi/pyversions/sadedegel?style=plastic)](https://img.shields.io/pypi/pyversions/sadedegel)
 [![Coverage](https://img.shields.io/codecov/c/gh/globalmaksimum/sadedegel?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
@@ -73,7 +74,7 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
 
 - **Operating system**: macOS / OS X · Linux · Windows (Cygwin, MinGW, Visual
   Studio)
-- **Python version**: 3.5+ (only 64 bit)
+- **Python version**: 3.6+ (only 64 bit)
 - **Package managers**: [pip] 
 
 [pip]: https://pypi.org/project/sadedegel/
