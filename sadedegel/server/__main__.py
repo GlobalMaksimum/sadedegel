@@ -21,9 +21,12 @@ class TimeUnitEnum(str, Enum):
     MINUTE = 'minute'
 
 
-class Request(BaseModel):
+class BasicRequest(BaseModel):
     doc: str
     wpm: int = 170
+
+
+class Request(BasicRequest):
     duration: int = 5
     unit: TimeUnitEnum = TimeUnitEnum.MINUTE
 
@@ -31,6 +34,12 @@ class Request(BaseModel):
 class DocSummary(BaseModel):
     sentence_count: int
     word_count: int
+
+
+class RichSummary(DocSummary):
+    wpm: int
+    duration: float
+    unit: TimeUnitEnum
 
 
 class Response(BaseModel):
@@ -116,6 +125,22 @@ def summarize(summarizer, sentences: List[Sentences], limit: float) -> Response:
                     summary=DocSummary(sentence_count=len(sentences_limited),
                                        word_count=np.array([len(s) for s in sentences_limited.tolist()],
                                                            dtype=np.int).sum()))
+
+
+@app.post("/api/doc/statistics", tags=["Utility"], summary="Calculate approximate reading duration of a document")
+async def duration(req: BasicRequest):
+    """Calculates the approximate reading duration for the document based on reader read speed"""
+
+    sentences = Doc(req.doc).sents
+
+    word_count = sum((len(s) for s in sentences))
+
+    dur = (word_count / (req.wpm / 60))
+    unit = TimeUnitEnum.SECOND
+
+    logger.info(f"Total duration {dur}")
+
+    return RichSummary(sentence_count=len(sentences), word_count=word_count, wpm=req.wpm, duration=dur, unit=unit)
 
 
 @app.post("/api/summarizer/random", tags=["Summarizer"], summary="Use RandomSummarizer")
