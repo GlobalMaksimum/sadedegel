@@ -1,5 +1,6 @@
 from collections import Counter
 from typing import List
+import warnings
 
 _AVAILABLE_METRICS = ["f1", "recall", "precision"]
 
@@ -34,6 +35,8 @@ def rouge1_score(y_ref: List, y_cand: List, metric: str = "f1"):
         raise ValueError(f"metrics ({metric}) should be one of {_AVAILABLE_METRICS}")
 
     if type(y_cand) == list and type(y_cand) == list:
+        if len(y_cand) == 0 or len(y_ref) == 0:
+            return 1.0
 
         if metric == "recall":
             return _get_recall(y_ref, y_cand)
