@@ -198,6 +198,9 @@ class Sentences:
     def __repr__(self):
         return self.text
 
+    def __len__(self):
+        return len(self.tokens)
+
 
 def is_eos(span: Span, sentences: List[str]) -> int:
     start = 0
