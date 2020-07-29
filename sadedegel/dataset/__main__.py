@@ -62,14 +62,14 @@ def sentences(dataset_dir: str, tokenizer: str, force: bool):
 @click.option("-v", count=True)
 def validate(v):
     from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
-    from tqdm import tqdm
 
     click.secho("Corpus loading...")
     raw = load_raw_corpus(False)
     sents = load_sentence_corpus(False)
 
     click.secho(".done.", fg="green")
-    click.secho(f"Number of News Documents: {len(raw)}".rjust(50))
+    click.secho(f"Number of News Documents (raw): {len(raw)}".rjust(50))
+    click.secho(f"Number of News Documents (sents): {len(sents)}".rjust(50))
 
     click.secho("\nPerforming span checks...")
 
