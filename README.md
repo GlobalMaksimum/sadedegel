@@ -11,7 +11,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
 [![Python Version](https://img.shields.io/pypi/pyversions/sadedegel?style=plastic)](https://img.shields.io/pypi/pyversions/sadedegel)
-[![Coverage](https://img.shields.io/codecov/c/gh/globalmaksimum/sadedegel?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
+[![Coverage](https://codecov.io/gh/globalmaksimum/sadedegel/branch/master/graphs/badge.svg?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![License](https://img.shields.io/pypi/l/sadedegel)](https://github.com/GlobalMaksimum/sadedegel/blob/master/LICENSE)
