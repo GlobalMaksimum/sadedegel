@@ -35,11 +35,11 @@ def test_rouge1_summarizer_f1_all_lower():
     summ = Rouge1Summarizer(normalize=False)
 
     assert summ.predict(Doc('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(
-        np.array([0.30769188, 0.30769183, 0.46153804]))
+        np.array([0.30769231, 0.30769231, 0.46153846]))
 
 
 def test_rouge1_summarizer_f1_proper_case():
     summ = Rouge1Summarizer(normalize=False)
 
     assert summ.predict(Doc('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(
-        np.array([0.30769188, 0.30769183, 0.46153804]))
+        np.array([0.30769231, 0.30769231, 0.46153846]))

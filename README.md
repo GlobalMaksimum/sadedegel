@@ -5,13 +5,13 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.6 out now!**
+💫 **Version 0.6.1 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
 [![Python Version](https://img.shields.io/pypi/pyversions/sadedegel?style=plastic)](https://img.shields.io/pypi/pyversions/sadedegel)
-[![Coverage](https://img.shields.io/codecov/c/gh/globalmaksimum/sadedegel?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
+[![Coverage](https://codecov.io/gh/globalmaksimum/sadedegel/branch/master/graphs/badge.svg?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![License](https://img.shields.io/pypi/l/sadedegel)](https://github.com/GlobalMaksimum/sadedegel/blob/master/LICENSE)
@@ -96,11 +96,6 @@ source .env/bin/activate
 pip install sadedegel
 ```
 
-### conda
-
-Coming soon...
-
-
 ### Quickstart with SadedeGel
 
 To load SadedeGel, use `sadedegel.load()`
@@ -138,14 +133,19 @@ Doc(doc).sents
  'Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.']
 ```
 
-#### SadedeGel Server
+## SadedeGel Server
 In order to integrate with your applications we provide a quick summarizer server with sadedeGel.
 
 ```bash
 python3 -m sadedegel.server 
 ```
 
-Refer to self documenting APIs for details (http://localhost:8000/docs or http://localhost:8000/redoc by default)
+### SadedeGel Server on Heroku
+[SadedeGel Server](https://sadedegel.herokuapp.com/api/info) is hosted on free tier of [Heroku](https://heroku.com) cloud services.
+
+* [OpenAPI Documentation](https://sadedegel.herokuapp.com/docs)
+* [Redoc Documentation](https://sadedegel.herokuapp.com/redoc)
+* [Redirection to sadedegel.ai](https://sadedegel.herokuapp.com)
 
 ## PyLint, Flake8 and Bandit
 sadedeGel utilized [pylint](https://www.pylint.org/) for static code analysis, 
@@ -177,6 +177,16 @@ make test
 ### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
     * We have borrowed many document and style related stuff from their code base :smile:
+    
+* There are a few free-tier service providers we need to thank:
+  * [GitHub](https://github.com) for
+      * Hosting our projects.
+      * Making it possible to collobrate easily.
+      * Automating our SLM via [Github Actions](https://github.com/features/actions)
+  * [Google Cloud Google Storage Service](https://cloud.google.com/products/storage) for providing low cost storage buckets making it possible to store `sadedegel.dataset.extended` data.
+  * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
+  * [CodeConv](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
+  * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
     
 ### Machine Learning (ML), Deep Learning (DL) and Natural Language Processing (NLP)
 * Resources on Extractive Text Summarization:
