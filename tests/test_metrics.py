@@ -44,12 +44,18 @@ def test_rouge_f1_2():
                         ["the", "cat", "was", "found", "under", "the", "bed"],
                         metric="f1") == approx(expected_f1)
 
+
 def test_rouge1_empty_ycand():
-    assert rouge1_score([], ["test"], metric="f1") == 1.0
+    assert rouge1_score([], ["test"], metric="f1") == 0.0
 
 
 def test_rouge1_empty_yref():
-    assert rouge1_score(["test"], [], metric="f1") == 1.0
+    assert rouge1_score(["test"], [], metric="f1") == 0.0
+
 
 def test_rouge1_empty_all():
-    assert rouge1_score([], [], metric="f1") == 1.0
+    assert rouge1_score([], [], metric="f1") == 0.0
+
+
+def test_rouge1_no_common():
+    assert rouge1_score(["the", "cat"], ["a", "dog"], metric="f1") == 0.0
