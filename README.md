@@ -189,7 +189,7 @@ make test
   * [CodeConv](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
   * [binder](https://mybinder.org/) for 
-     * Allowing us to share our example [notebooks](sadedegel/notebook)
+     * Allowing us to share our example [notebooks](notebook/)
      * Hosting our learn by example boxes in [sadedegel.ai](http://sadedegel.ai) 
     
 ### Machine Learning (ML), Deep Learning (DL) and Natural Language Processing (NLP)
