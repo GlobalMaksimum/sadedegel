@@ -22,7 +22,7 @@ setup(
               'sadedegel.tokenize', 'sadedegel.tokenize.ml',
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
-        'sadedegel.dataset': ['raw/*.txt', 'sents/*.json'],
+        'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.tokenize.ml': ['model/sbd.pickle']
     },
     # Needed for dependencies
