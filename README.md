@@ -50,7 +50,7 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
   * Basic corpus
       * Raw corpus (`sadedegel.dataset.load_raw_corpus`)
       * Sentences tokenized corpus (`sadedegel.dataset.load_sentences_corpus`)  
-      * Human annotated summary corpus (`sadedegel.dataset.load_summary_corpus`)   
+      * Human annotated summary corpus (`sadedegel.dataset.load_annotated_corpus`)   
   * [Extended corpus](sadedegel/dataset/README.md)
       * Raw corpus (`sadedegel.dataset.extended.load_extended_raw_corpus`)
       * Sentences tokenized corpus (`sadedegel.dataset.extended.load_extended_sents_corpus`)
