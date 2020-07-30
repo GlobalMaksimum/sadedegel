@@ -1,5 +1,5 @@
-from .context import load_raw_corpus, load_sentence_corpus
 import pytest
+from .context import load_raw_corpus, load_sentence_corpus
 
 __corpus_length__ = 98
 

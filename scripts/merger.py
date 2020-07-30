@@ -1,17 +1,12 @@
-import click
-import glob
-import os.path
-from pprint import pprint
-import json
-import numpy as np
 from pathlib import Path
 from typing import Iterable
-from sadedegel.dataset._core import safe_json_load
-from tqdm import tqdm
-from sadedegel.dataset import load_sentence_corpus, file_paths
 from os.path import basename, splitext
 import sys
-from difflib import ndiff, context_diff
+from difflib import context_diff
+import click
+import numpy as np
+from sadedegel.dataset._core import safe_json_load
+from sadedegel.dataset import load_sentence_corpus, file_paths
 
 
 def file_diff(i1: Iterable, i2: Iterable):
@@ -49,7 +44,7 @@ def cli():
             anno = safe_json_load(anno_path)
 
             anno_sents = [s['content'] for s in anno['sentences']]
-            anno_label = np.array([s['deletedInRound'] for s in anno['sentences']])
+            _ = np.array([s['deletedInRound'] for s in anno['sentences']])
 
             refe_sents = reference[fn]
 
@@ -63,7 +58,6 @@ def cli():
                 sys.exit(1)
             else:
                 click.secho(f"MATCH: {fn}", fg="green")
-
 
         else:
             click.secho(f"Annotated corpus member {anno_path} not found.", fg="red")
