@@ -1,5 +1,4 @@
 # pylint: skip-file
-from transformers import AutoTokenizer, BertModel
 import numpy as np
 import pytest
 
