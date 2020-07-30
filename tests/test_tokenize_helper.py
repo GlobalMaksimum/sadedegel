@@ -1,4 +1,4 @@
-from .context import tr_upper, tr_lower, __tr_upper__, __tr_lower__, load_raw_corpus, Doc, flatten
+from .context import tr_upper, tr_lower, __tr_upper__, __tr_lower__, load_raw_corpus, Doc, flatten, Sentences
 
 
 def test_istitle():
@@ -43,3 +43,15 @@ def test_flattening_span_features():
     raw_corpus = load_raw_corpus()
 
     _ = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
+
+def test_sentences_eq_str():
+    s = Sentences(0, "test.", [])
+    assert s == "test."
+
+def test_sentences_ne_str():
+    s = Sentences(0, "test.", [])
+    assert s != "not test."
+
+def test_sentences_ne_nonstr():
+    s = Sentences(0, "test.", [])
+    assert s != 9090
