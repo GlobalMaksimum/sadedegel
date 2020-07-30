@@ -20,6 +20,14 @@ def test_first_normalized():
     assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
 
 
+def test_first_summ():
+    summarizer = PositionSummarizer()
+
+    doc = Doc("Ali gel. Ayşe gel. Ahmet git.")
+
+    assert summarizer(doc, k=2) == doc.sents[:2]
+
+
 def test_random_default():
     summarizer = RandomSummarizer(normalize=False)
 

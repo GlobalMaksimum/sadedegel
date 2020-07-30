@@ -5,7 +5,7 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.7.1 out now!**
+💫 **Version 0.8 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -50,7 +50,7 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
   * Basic corpus
       * Raw corpus (`sadedegel.dataset.load_raw_corpus`)
       * Sentences tokenized corpus (`sadedegel.dataset.load_sentences_corpus`)  
-      * Human annotated summary corpus (`sadedegel.dataset.load_summary_corpus`)   
+      * Human annotated summary corpus (`sadedegel.dataset.load_annotated_corpus`)   
   * [Extended corpus](sadedegel/dataset/README.md)
       * Raw corpus (`sadedegel.dataset.extended.load_extended_raw_corpus`)
       * Sentences tokenized corpus (`sadedegel.dataset.extended.load_extended_sents_corpus`)
@@ -188,6 +188,9 @@ make test
   * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
   * [CodeConv](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
+  * [binder](https://mybinder.org/) for 
+     * Allowing us to share our example [notebooks](notebook/)
+     * Hosting our learn by example boxes in [sadedegel.ai](http://sadedegel.ai) 
     
 ### Machine Learning (ML), Deep Learning (DL) and Natural Language Processing (NLP)
 * Resources on Extractive Text Summarization:
