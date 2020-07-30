@@ -154,7 +154,7 @@ def select_layer(bertOut: tuple, layers: List[int], return_cls: Any) -> np.ndarr
     if return_cls:
         cls_matrix = np.zeros((n_layers, n_sentences, 768))
         l_ix = 0
-        for l, layer in enumerate(bertOut):
+        for l, layer in enumerate(bertOut):  # noqa
             if l not in layers:
                 continue
             else:
@@ -167,7 +167,7 @@ def select_layer(bertOut: tuple, layers: List[int], return_cls: Any) -> np.ndarr
 
     else:
         token_matrix = np.zeros((n_layers, n_sentences, n_tokens - 2, 768))
-        for l, layer in enumerate(bertOut):
+        for l, layer in enumerate(bertOut):  # noqa
             l_ix = 0
             if l not in layers:
                 continue
