@@ -1,5 +1,7 @@
-import click
 from typing import Tuple
+import click
+import requests
+from .about import __version__, __herokuapp_url__
 
 
 def to_tuple(version_string: str) -> Tuple:
@@ -17,9 +19,6 @@ def cli():
 
 @cli.command()
 def info():
-    from .about import __version__, __herokuapp_url__
-    import requests
-
     most_recent_version = requests.get("https://pypi.python.org/pypi/sadedegel/json").json()['info']['version']
     most_recent_version = to_tuple(most_recent_version)
 
