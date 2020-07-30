@@ -1,0 +1,174 @@
+{
+  "sentences": [
+    {
+      "content": "Evsizler bu lokantayla hayata sarılıyor",
+      "deletedInRound": 1,
+      "id": 0
+    },
+    {
+      "content": "İstanbul’da 10 binden fazla evsiz olduğu düşünülüyor.",
+      "deletedInRound": 4,
+      "id": 1
+    },
+    {
+      "content": "Ama biz onları görmüyoruz.",
+      "deletedInRound": 1,
+      "id": 2
+    },
+    {
+      "content": "Çünkü dönüp de o tarafa bakmıyoruz.",
+      "deletedInRound": 1,
+      "id": 3
+    },
+    {
+      "content": "Son dönemde evsizlere dair azıcık bir farkındalık oluştuysa bu, her akşam Beyoğlu’ndaki evsizlere çorba dağıtılan Çorbada Tuzun Olsun hareketi sayesinde.",
+      "deletedInRound": 4,
+      "id": 4
+    },
+    {
+      "content": "Ayşe Tükrükçü de o projenin başlangıcında büyük emeği geçen gönüllülerden biri.",
+      "deletedInRound": 1,
+      "id": 5
+    },
+    {
+      "content": "Geçtiğimiz hafta, Tükrükçü’nün fikir annesi olduğu yeni bir proje daha hayata geçti: Hayata Sarıl Lokantası.",
+      "deletedInRound": 4,
+      "id": 6
+    },
+    {
+      "content": "Tükrükçü’nün asıl hayali evsizlere özel bir rehabilitasyon merkezi kurmak olsa da, Beyoğlu’ndaki lokanta bu yolda bir adım.",
+      "deletedInRound": 1,
+      "id": 7
+    },
+    {
+      "content": "Lokantaya ismini veren Hayata Sarıl Derneği şubat ayında kuruldu.",
+      "deletedInRound": 2,
+      "id": 8
+    },
+    {
+      "content": "Lokanta, derneğin hayata geçen ilk projesi.",
+      "deletedInRound": 1,
+      "id": 9
+    },
+    {
+      "content": "Projenin can suyu Grundig’in yaptığı 10 bin TL’lik bağıştı.",
+      "deletedInRound": 1,
+      "id": 10
+    },
+    {
+      "content": "Derneğin banka hesabının açılmasıyla damlaya damlaya göl oldu ve derneğin hesabında biriken kişisel bağışlar 20-25 bin TL’ye ulaştı.",
+      "deletedInRound": 2,
+      "id": 11
+    },
+    {
+      "content": "Bu parayla lokantanın yeri kiralandı.",
+      "deletedInRound": 1,
+      "id": 12
+    },
+    {
+      "content": "Lokantaya elektrik süpürgesinden tutun da derin dondurucu, kahve makinesi ve klimaya kadar tüm elektrikli aletleri Grundig verdi.",
+      "deletedInRound": 2,
+      "id": 13
+    },
+    {
+      "content": "Mutfak demirbaşlarını Öztiryakiler, fayansları Gorbon, bardakları Lav, tabakları House Cafe, tencereleri Aheste, masa ve sandalyeleri Leta, boyayı Jotun ücretsiz yolladı.",
+      "deletedInRound": 2,
+      "id": 14
+    },
+    {
+      "content": "Baktılar sokakta çok sık elektrik kesiliyor, jeneratöre ihtiyaç var, Aksa ücretsiz jeneratör yolladı.",
+      "deletedInRound": 2,
+      "id": 15
+    },
+    {
+      "content": "Mutfak önlüklerini Sobremesa yaptı.",
+      "deletedInRound": 2,
+      "id": 16
+    },
+    {
+      "content": "Bağış sistemi FonZip komisyon almadı.",
+      "deletedInRound": 2,
+      "id": 17
+    },
+    {
+      "content": "Kolektif House toplantılar ve etkinlikler için derneğe kapılarını ücretsiz açtı.",
+      "deletedInRound": 2,
+      "id": 18
+    },
+    {
+      "content": "Bu lokanta, özverili gönüllüler ve tüm bu desteklerle hayata geçti.",
+      "deletedInRound": 4,
+      "id": 19
+    },
+    {
+      "content": "Amaç evsizlere ve toplumda yok sayılan kişilere iş imkanı sağlayıp ayakları üzerinde durmalarını ve hayata yeniden sarılmalarını sağlamak.",
+      "deletedInRound": 3,
+      "id": 20
+    },
+    {
+      "content": "5 kişilik lokanta ekibinin 3’ü evsiz, toplumda yok sayılan kişiler.",
+      "deletedInRound": 3,
+      "id": 21
+    },
+    {
+      "content": "Lokanta her ay elemanlarına mutfak eğitimi veren Intema Yaşam tarafından denetlenecek.",
+      "deletedInRound": 2,
+      "id": 22
+    },
+    {
+      "content": "Ekipteki evsizler 2-3 aydır psikolojik destek almaya da başladılar.",
+      "deletedInRound": 3,
+      "id": 23
+    },
+    {
+      "content": "Dramla dolu hayatlarında her birinin travması ayrı.",
+      "deletedInRound": 3,
+      "id": 24
+    },
+    {
+      "content": "Biri 14 yaşından beri sokakta yaşıyor.",
+      "deletedInRound": 2,
+      "id": 25
+    },
+    {
+      "content": "Bir diğeri, ailesi tarafından reddedilmiş üniversite öğrencisi bir trans...",
+      "deletedInRound": 2,
+      "id": 26
+    },
+    {
+      "content": "İngilizce, Fransızca ve Latince biliyor ama trans olduğu için asla iş bulamıyor.",
+      "deletedInRound": 2,
+      "id": 27
+    },
+    {
+      "content": "Bu lokantada çalışmaya başlayana kadar sokakta kitap satarak biraz olsun ayakta durmaya çalışıyordu.",
+      "deletedInRound": 3,
+      "id": 28
+    },
+    {
+      "content": "Toplumda yok sayılan evsizler 6 ay Hayata Sarıl Lokantası’nda çalışacaklar, bu süre zarfında eğitimden çalışma deneyimine tüm gereçlerle donatılmış olacaklar.",
+      "deletedInRound": 4,
+      "id": 29
+    },
+    {
+      "content": "Ve 6’ncı ayın sonunda dernek onları başka işlere yerleştirecek; yerlerini de hayata sarılmak isteyen yenileri alacak.",
+      "deletedInRound": 4,
+      "id": 30
+    },
+    {
+      "content": "Lokantada gündüzleri insanlar ücretini ödeyerek yemeğini yiyecek; akşamları 20:30-21:30 arasında ise lokanta evsizlere ve toplumda yok sayılanlara açık olacak.",
+      "deletedInRound": 3,
+      "id": 31
+    },
+    {
+      "content": "Böylece, toplumda yok sayılan bu insanlar hep beraber bir lokantada oturacak, yakın zamana kadar onlar kadar çaresiz arkadaşlarındaki dönüşümü görecekler.",
+      "deletedInRound": 2,
+      "id": 32
+    },
+    {
+      "content": "Belki bu manzara, hayata ve hiç kimseye güveni kalmamış bu insanlara da umut olacak, “Ben de bunu yapabilirim” dedirtecek.",
+      "deletedInRound": 4,
+      "id": 33
+    }
+  ]
+}

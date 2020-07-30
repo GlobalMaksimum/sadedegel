@@ -60,16 +60,29 @@ def sentences(dataset_dir: str, tokenizer: str, force: bool):
 
 @cli.command(help="Validate raw & sentences datasets")
 @click.option("-v", count=True)
-def validate(v):
-    from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
+@click.option("--base-path", help="Base data path", default=None)
+def validate(v, base_path):
+    from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, load_annotated_corpus, file_paths, CorpusTypeEnum
 
     click.secho("Corpus loading...")
-    raw = load_raw_corpus(False)
-    sents = load_sentence_corpus(False)
+    raw = load_raw_corpus(False, base_path)
+    sents = load_sentence_corpus(False, base_path)
+    anno = load_annotated_corpus(False, base_path)
 
     click.secho(".done.", fg="green")
     click.secho(f"Number of News Documents (raw): {len(raw)}".rjust(50))
-    click.secho(f"Number of News Documents (sents): {len(sents)}".rjust(50))
+    click.secho(f"Number of News Documents (sentences): {len(sents)}".rjust(50))
+    click.secho(f"Number of News Documents (annotated): {len(anno)}".rjust(50))
+
+    if len(anno) != len(sents):
+        anno_files = file_paths(CorpusTypeEnum.ANNOTATED, True, True, base_path)
+        sent_files = file_paths(CorpusTypeEnum.SENTENCE, True, True, base_path)
+
+        click.secho("\nSymmetric Difference between sentences & annotated corpus.")
+
+        for diff in set(anno_files).symmetric_difference(set(sent_files)):
+            click.secho(f"{diff}".rjust(50))
+        click.secho(".warn", fg="yellow")
 
     click.secho("\nPerforming span checks...")
 
@@ -101,7 +114,26 @@ def validate(v):
 
     click.secho(".done", fg="green")
 
-    click.secho("\nDataset is {}".format(click.style("OK", fg="green")))
+    click.secho("\nComparing annotated corpus with sentences corpus...")
+
+    anno_names = file_paths(CorpusTypeEnum.ANNOTATED, noext=True, use_basename=True, base_path=base_path)
+    sents_names = file_paths(CorpusTypeEnum.SENTENCE, noext=True, use_basename=True, base_path=base_path)
+
+    anno_dict = dict((name, doc) for name, doc in zip(anno_names, anno))
+    sents_dict = dict((name, doc) for name, doc in zip(sents_names, sents))
+
+    match = 0
+
+    for _name, _anno in anno_dict.items():
+        sent = sents_dict[_name]
+
+        if sent['sentences'] != _anno['sentences']:
+            click.secho(f"\nSentences in annotated corpus {_name} doesn't match with document in sentence corpus.")
+            sys.exit(1)
+        else:
+            match += 1
+
+    click.secho(f".done ({match}/{len(anno_dict)})", fg="green")
 
 
 if __name__ == '__main__':

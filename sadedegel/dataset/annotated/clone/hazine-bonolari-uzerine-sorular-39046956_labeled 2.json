@@ -1,0 +1,299 @@
+{
+  "sentences": [
+    {
+      "content": "Hazine bonoları üzerine sorular",
+      "deletedInRound": 1,
+      "id": 0
+    },
+    {
+      "content": "Salih NEFTÇİ Bu hafta piyasa yine Hazine'nin dış borçlanmasını izleyeceğe benziyor.",
+      "deletedInRound": 1,
+      "id": 1
+    },
+    {
+      "content": "Dış borç bulma imkânları artarsa faizler biraz daha düşer, bonolar prim yapar.",
+      "deletedInRound": 3,
+      "id": 2
+    },
+    {
+      "content": "(Borsa ise Avrupa piyasalarına paralel bir yön belirler.)",
+      "deletedInRound": 1,
+      "id": 3
+    },
+    {
+      "content": "Demek ki gözler esas bono piyasasında olacak.",
+      "deletedInRound": 2,
+      "id": 4
+    },
+    {
+      "content": "Biz de bu amaçla bir okurumuzdan gelen (önemli) bazı soruları ele alıyoruz.",
+      "deletedInRound": 1,
+      "id": 5
+    },
+    {
+      "content": "YAZI Evvelsi gün bu köşede Hazine bonoları alınmalı mı? konusunu incelemiştik.",
+      "deletedInRound": 2,
+      "id": 6
+    },
+    {
+      "content": "Bir okurdan e-mail geldi.",
+      "deletedInRound": 3,
+      "id": 7
+    },
+    {
+      "content": "Konuyla ilgili soruları vardı.",
+      "deletedInRound": 1,
+      "id": 8
+    },
+    {
+      "content": "Piyasaların bu hafta içinde bulunduğu durumla yakından ilgili olan sorular.",
+      "deletedInRound": 1,
+      "id": 9
+    },
+    {
+      "content": "Benzer sorular diğer yatırımcıların da aklından geçmiş olabilir.",
+      "deletedInRound": 1,
+      "id": 10
+    },
+    {
+      "content": "Haftanın yorumunu bu sorular aracılığıyla tartışacağız.",
+      "deletedInRound": 2,
+      "id": 11
+    },
+    {
+      "content": "BİLEŞİK FAİZ Geçen haftanın kayda değer gelişmesi yüzde 146 faizle çıkan 5 Mayıs kağıtlarının hızla prim yapmasıydı.",
+      "deletedInRound": 1,
+      "id": 12
+    },
+    {
+      "content": "Cuma günü faizler yüzde 132'yi görmüştü.",
+      "deletedInRound": 1,
+      "id": 13
+    },
+    {
+      "content": "Okurumuz ilk sorusunu şöyle soruyor: Yüzde 146 net faizli 5 Mayıs 99 vadeli Hazine Bonosu nerede satılıyor?",
+      "deletedInRound": 4,
+      "id": 14
+    },
+    {
+      "content": "İş Bankası interaktif listesinde bu tarih için verilen 635 nolu bono sadece yüzde 102.83 faiz getiriyor.",
+      "deletedInRound": 4,
+      "id": 15
+    },
+    {
+      "content": "İş Bankası'yla telefonla da görüştüm böyle bir bonodan haberdar olmadıklarını söylediler.",
+      "deletedInRound": 4,
+      "id": 17
+    },
+    {
+      "content": "Bu soruya cevap çok.",
+      "deletedInRound": 1,
+      "id": 18
+    },
+    {
+      "content": "Bir kere, faiz tartışılırken yatırımcının bir yıl içinde ne elde etmiş olabileceği ölçüsünden hareket edilir.",
+      "deletedInRound": 2,
+      "id": 19
+    },
+    {
+      "content": "Yani şimdiki faizler bütün yıl devam ederse sene sonunda ne kadar kazanılır?",
+      "deletedInRound": 1,
+      "id": 20
+    },
+    {
+      "content": "Adı bileşik faiz.",
+      "deletedInRound": 4,
+      "id": 21
+    },
+    {
+      "content": "Ayrıca değişik vadelerdeki bonolar arasında bir kıyaslama yapmak için de faizlerin ‘‘bileşik’’ olarak verilmesi gerekiyor.",
+      "deletedInRound": 1,
+      "id": 22
+    },
+    {
+      "content": "Oysa bir bankayı arayıp sorduğunuzda oradaki memur size ‘‘basit faizi’’ söyleyecektir.",
+      "deletedInRound": 4,
+      "id": 23
+    },
+    {
+      "content": "Bileşik faizi öğrenmek isteyenler, ‘‘Bunun bileşiği neye geliyor?’’ diye bir ikinci soru sormak zorunda.",
+      "deletedInRound": 1,
+      "id": 24
+    },
+    {
+      "content": "Nitekim yüzde 103'ün bileşiğini alın.",
+      "deletedInRound": 4,
+      "id": 25
+    },
+    {
+      "content": "Yüzde 130 eder.",
+      "deletedInRound": 4,
+      "id": 26
+    },
+    {
+      "content": "Ama yine yüzde 146 değil.",
+      "deletedInRound": 3,
+      "id": 27
+    },
+    {
+      "content": "Neden?",
+      "deletedInRound": 1,
+      "id": 28
+    },
+    {
+      "content": "İki nedeni var.",
+      "deletedInRound": 1,
+      "id": 29
+    },
+    {
+      "content": "Bir kere yüzde 146, bononun piyasaya çıktığı anki faizi.",
+      "deletedInRound": 1,
+      "id": 30
+    },
+    {
+      "content": "Bono piyasasında iyimser bir hava oluşunca oyuncular alıma geçtiler ve hafta sonuna doğru faizler yüzde 132'ye geriledi.",
+      "deletedInRound": 2,
+      "id": 31
+    },
+    {
+      "content": "Bir de unutmayın, banka da üç beş kuruş para kazanacak.",
+      "deletedInRound": 1,
+      "id": 32
+    },
+    {
+      "content": "Yoksa bu işi niye yapsın.",
+      "deletedInRound": 1,
+      "id": 33
+    },
+    {
+      "content": "Neden pahalı bilgisayarlara, elektronik araçlara para yatırsın?",
+      "deletedInRound": 1,
+      "id": 34
+    },
+    {
+      "content": "RİSK İkinci soru da güncel.",
+      "deletedInRound": 1,
+      "id": 35
+    },
+    {
+      "content": "Evvelsi günkü yazıda, ‘‘Getiri yüksek, ama risk de yüksek’’ diye yazmıştık.",
+      "deletedInRound": 2,
+      "id": 36
+    },
+    {
+      "content": "Okur soruyor: Devletin hazinesinin bonosunun riskinden neyi kastediyorsunuz acaba?",
+      "deletedInRound": 4,
+      "id": 37
+    },
+    {
+      "content": "Hazine'nin, vadesinde parayı ödememesi söz konusu olabilir mi?",
+      "deletedInRound": 1,
+      "id": 38
+    },
+    {
+      "content": "Yoksa, olabilecek büyük bir devalüasyon sonucu belirttiğiniz yüksek gerçek (reel) getiri uçar gider mi?",
+      "deletedInRound": 1,
+      "id": 39
+    },
+    {
+      "content": "Bu takdirde getiri ve hatta ana para uçup gidecekse yüzde 30 gerçek getiriyi nasıl olur da ‘‘çok yüksek’’ olarak niteliyorsunuz?",
+      "deletedInRound": 1,
+      "id": 40
+    },
+    {
+      "content": "Bu bir çelişki değil mi?",
+      "deletedInRound": 1,
+      "id": 41
+    },
+    {
+      "content": "Söz konusu iki risk bütün bonolarda var.",
+      "deletedInRound": 1,
+      "id": 42
+    },
+    {
+      "content": "Bunu kabullenmek gerekiyor.",
+      "deletedInRound": 1,
+      "id": 43
+    },
+    {
+      "content": "Bu riskler bazen son derece düşük (Amerika'da olduğu gibi) ama bazen de biraz daha yüksek (Brezilya'da olduğu gibi).",
+      "deletedInRound": 1,
+      "id": 44
+    },
+    {
+      "content": "Gelelim, çelişki noktasına.",
+      "deletedInRound": 1,
+      "id": 45
+    },
+    {
+      "content": "Bu güzel sorulmuş bir soru.",
+      "deletedInRound": 1,
+      "id": 46
+    },
+    {
+      "content": "Paranın bir kısmının uçup gitme olasılığı olsa bile biz yine de yüzde 30 getiriye ‘‘yüksek’’ deriz.",
+      "deletedInRound": 4,
+      "id": 47
+    },
+    {
+      "content": "Çünkü ‘‘beklenen’’ getiri böyle.",
+      "deletedInRound": 2,
+      "id": 48
+    },
+    {
+      "content": "Paranın bir kısmının ‘‘uçup gitme’’ olasılığı düşük.",
+      "deletedInRound": 2,
+      "id": 49
+    },
+    {
+      "content": "Ama küçük bir olasılıkla, beklenmedik bir olay yaşanırsa ana paranızın bir kısmını kaybetmeniz yine de mümkün.",
+      "deletedInRound": 4,
+      "id": 50
+    },
+    {
+      "content": "Bunun adı da risk.",
+      "deletedInRound": 3,
+      "id": 51
+    },
+    {
+      "content": "Demek ki bir yanda getiriye bakarken diğer yanda da riskleri hesaba katmak gerekiyor.",
+      "deletedInRound": 1,
+      "id": 52
+    },
+    {
+      "content": "SONUÇ Okurun üçüncü sorusunu ise cevaplamadan aktarıyoruz.",
+      "deletedInRound": 1,
+      "id": 53
+    },
+    {
+      "content": "‘‘Bazı bankalar bir günlük mevduata yüzde 145 faiz verebilir’’ diye yazmıştık.",
+      "deletedInRound": 4,
+      "id": 54
+    },
+    {
+      "content": "Okur soruyor: Hazine Bonosu riskli ise, nasıl olur da yüzde 130-145'lik yıllık bileşik faiz veren bankalar risksiz olmaz.",
+      "deletedInRound": 4,
+      "id": 55
+    },
+    {
+      "content": "Bunu belirtmiyorsunuz...",
+      "deletedInRound": 1,
+      "id": 56
+    },
+    {
+      "content": "Doğru.",
+      "deletedInRound": 2,
+      "id": 57
+    },
+    {
+      "content": "Bir tahminle bitirelim.",
+      "deletedInRound": 1,
+      "id": 58
+    },
+    {
+      "content": "Beklenmedik olumsuz bir haber gelmezse 5 Mayıs bonolarının faizi bugün yüzde 130'un da altına inebilir.",
+      "deletedInRound": 4,
+      "id": 59
+    }
+  ]
+}

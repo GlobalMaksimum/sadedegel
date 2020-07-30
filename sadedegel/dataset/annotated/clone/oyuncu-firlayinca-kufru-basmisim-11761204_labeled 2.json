@@ -1,0 +1,269 @@
+{
+  "sentences": [
+    {
+      "content": "Oyuncu fırlayınca küfrü basmışım!",
+      "deletedInRound": 2,
+      "id": 1
+    },
+    {
+      "content": "Bu hayatı sizin için yaşıyorum herhalde.",
+      "deletedInRound": 2,
+      "id": 2
+    },
+    {
+      "content": "Düşündüm, bu tiyatro oyununun sonunu getirebilmemin başka bir sebebi olamaz: Dönüp size anlatayım diye sabretmiş olmalıyım.",
+      "deletedInRound": 1,
+      "id": 3
+    },
+    {
+      "content": "İzmirli genç bir topluluk “Yaz boyunca İstanbul’da bir oyun sergileyeceğiz, gelip izlemenizi istiyoruz” dedi.",
+      "deletedInRound": 1,
+      "id": 4
+    },
+    {
+      "content": "Yaşları 25-30 arasında değişen 10 kişilik bir ekip, Tiyatro Artı.",
+      "deletedInRound": 3,
+      "id": 5
+    },
+    {
+      "content": "Paul Auster’in New York Üçlemesi’nin içindeki Hayaletler öyküsünü temel alarak yazmışlar oyunu.",
+      "deletedInRound": 4,
+      "id": 6
+    },
+    {
+      "content": "İşin başındaki Ufuk beni uyardı: “Baştan söyleyeyim, bu tek kişilik bir oyun.”",
+      "deletedInRound": 3,
+      "id": 7
+    },
+    {
+      "content": "E çok izledik tek kişilik oyun.",
+      "deletedInRound": 2,
+      "id": 8
+    },
+    {
+      "content": "Hayır, izleyici olarak bir tek siz varsınız.",
+      "deletedInRound": 2,
+      "id": 9
+    },
+    {
+      "content": "Tek kişiye oynanıyor.",
+      "deletedInRound": 4,
+      "id": 10
+    },
+    {
+      "content": "Eyvah!",
+      "deletedInRound": 1,
+      "id": 11
+    },
+    {
+      "content": "Oyuncular elimi filan tutarak bir şeyler anlatıyor.",
+      "deletedInRound": 3,
+      "id": 12
+    },
+    {
+      "content": "Kabus!",
+      "deletedInRound": 1,
+      "id": 13
+    },
+    {
+      "content": "Durun başından alayım: İstiklal Caddesi’ndeki Tünel istasyonunun içine kurdukları masaya gittim.",
+      "deletedInRound": 3,
+      "id": 14
+    },
+    {
+      "content": "Bana bir mp3 çalar ve oyunun kurallarının yazdığı bir kağıt verdiler.",
+      "deletedInRound": 3,
+      "id": 15
+    },
+    {
+      "content": "Kurallar şöyle: “Mp3’ün ayarıyla hiçbir koşulda oynamayın.",
+      "deletedInRound": 3,
+      "id": 16
+    },
+    {
+      "content": "Önünüzdeki oyuncuyu gözünüzle takip edin.",
+      "deletedInRound": 3,
+      "id": 17
+    },
+    {
+      "content": "Bitişte mp3 çaları bize teslim edin!”",
+      "deletedInRound": 2,
+      "id": 18
+    },
+    {
+      "content": "Mp3 çaları kulağıma taktım ve yere yapıştırılmış çarpı işaretinin üstünde beklemeye başladım.",
+      "deletedInRound": 3,
+      "id": 19
+    },
+    {
+      "content": "Fonda otantik bir müzik...",
+      "deletedInRound": 2,
+      "id": 20
+    },
+    {
+      "content": "Buğulu sesli bir kadın içsel bir yolculuğa başlamak üzere olduğumu ve karşı kaldırımda duran siyahlı kızı izlemem gerektiğini söylüyordu.",
+      "deletedInRound": 4,
+      "id": 21
+    },
+    {
+      "content": "İçsel yolculuğa çıkmak için müsait değilim aslında ama çapının üstünde durduğuma göre yapacak bir şey yok.",
+      "deletedInRound": 2,
+      "id": 22
+    },
+    {
+      "content": "Siyahlı kız önde, ben arkada, yokuş aşağı gidiyoruz.",
+      "deletedInRound": 1,
+      "id": 23
+    },
+    {
+      "content": "Nereye?",
+      "deletedInRound": 1,
+      "id": 24
+    },
+    {
+      "content": "Hiç fikrim yok.",
+      "deletedInRound": 1,
+      "id": 25
+    },
+    {
+      "content": "Önce Galata’da bir eskici dükkanına girdik; çöp evin dükkan versiyonu gibi bir yer düşünün.",
+      "deletedInRound": 4,
+      "id": 26
+    },
+    {
+      "content": "Orada beni bekleyen başka bir oyuncu var!",
+      "deletedInRound": 3,
+      "id": 27
+    },
+    {
+      "content": "Karşısındaki iskemleye oturttu beni ve bir falcı edasıyla uzaklara baka baka bir şeyler fısıldadı.",
+      "deletedInRound": 1,
+      "id": 28
+    },
+    {
+      "content": "Hiçbir şey anlamadım.",
+      "deletedInRound": 1,
+      "id": 29
+    },
+    {
+      "content": "Sonra rehberim rolündeki siyahlı kız beni aldı Kuledibi’ndeki bir taş atölyesine götürdü.",
+      "deletedInRound": 4,
+      "id": 30
+    },
+    {
+      "content": "Dansöz kıyafeti giymiş bir başka oyuncuyla da orada karşılaştım.",
+      "deletedInRound": 4,
+      "id": 31
+    },
+    {
+      "content": "O da aşkının peşinden giderken kendini kaybeden bir adamın hikayesini anlattı.",
+      "deletedInRound": 3,
+      "id": 32
+    },
+    {
+      "content": "Sinirlerim giderek bozuluyor ama devam.",
+      "deletedInRound": 1,
+      "id": 33
+    },
+    {
+      "content": "Üçüncü durak Galata otoparkının yanındaki metruk bir bina.",
+      "deletedInRound": 4,
+      "id": 34
+    },
+    {
+      "content": "Duvarın arkasından keçileri kaçırmış bir evsiz taklidi yapan başka bir oyuncu fırlamasın mı?",
+      "deletedInRound": 4,
+      "id": 35
+    },
+    {
+      "content": "Çok ayıp oldu ama bastım küfrü.",
+      "deletedInRound": 1,
+      "id": 36
+    },
+    {
+      "content": "Refleks olarak yani...",
+      "deletedInRound": 1,
+      "id": 37
+    },
+    {
+      "content": "Rehberim olan siyahlı kız ve evsiz çatlak hiç bozuntuya vermedi zaten.",
+      "deletedInRound": 2,
+      "id": 38
+    },
+    {
+      "content": "Diğer duraklar da şöyleydi: Karaköy yolunda saz çalan bir adam, Felek Han otelinde hasta yatan bir kadın ve bana bir tünel jetonu vererek yolculuğumun bittiğini haber veren son oyuncuyla karşılaştığım Kamondo Merdivenleri...",
+      "deletedInRound": 3,
+      "id": 39
+    },
+    {
+      "content": "55 dakikanın sonunda kulağımdaki mp3 çaları Ufuk’a teslim ederken “Oyuncular bir ara sizin bırakacağınızı sanmışlar.",
+      "deletedInRound": 4,
+      "id": 40
+    },
+    {
+      "content": "Sarsılmışsınız galiba” dedi.",
+      "deletedInRound": 2,
+      "id": 41
+    },
+    {
+      "content": "Sarsılmadım Ufukcum, bittim.",
+      "deletedInRound": 1,
+      "id": 42
+    },
+    {
+      "content": "Bir yandan da amaçlarına ulaştılar çünkü Auster’in Hayaletler kitabı da okuyucuda zaman zaman tuzaklarla dolu bir şaka hissi uyandırıyor.",
+      "deletedInRound": 4,
+      "id": 43
+    },
+    {
+      "content": "Derseniz ki, ben yürekliyim, sokak ortasında yapılan ani şovlardan utanmam sıkılmam, biraz heyecan iyi gelir, öyleyse hemen randevu alın: www.tiyatroarti.net.",
+      "deletedInRound": 1,
+      "id": 44
+    },
+    {
+      "content": "Daha önce böyle bir tiyatro oyunu izlememiş olduğunuzu garanti ediyorum.",
+      "deletedInRound": 3,
+      "id": 45
+    },
+    {
+      "content": "Geyik bilimler akademisi “Geyik bilim” olarak adlandırabileceğim bir türle karşılaştım bir kaç gün önce.",
+      "deletedInRound": 4,
+      "id": 46
+    },
+    {
+      "content": "Santralistanbul’da Görsel İdeoloji başlıklı bir sempozyum vardı.",
+      "deletedInRound": 2,
+      "id": 47
+    },
+    {
+      "content": "Konuşmacılardan Ali Şimşek’in başlığı şuydu: “Alt sınıfları groteskleştirmek ya da görünür kılmak.”",
+      "deletedInRound": 4,
+      "id": 48
+    },
+    {
+      "content": "Başlık süper fiyakalı da, ne anlattı 20 dakika boyunca?",
+      "deletedInRound": 3,
+      "id": 49
+    },
+    {
+      "content": "Recep İvedik’in suşi yiyip kusmasını, olmadık yerde osurmasını, Avrupa Yakası’ndaki Burhan Altıntop karakterinin kolunun altındaki çek çantasının neyi sembolize ettiğini, laptop’unun üstüne bile dantel yerleştirmesinin ne manaya geldiğini...",
+      "deletedInRound": 3,
+      "id": 50
+    },
+    {
+      "content": "İyi de bunları çözmek için akademisyen olmaya hacet yok.",
+      "deletedInRound": 2,
+      "id": 51
+    },
+    {
+      "content": "Halk olarak durumumuzun farkındayız ki gülüyoruz değil mi?",
+      "deletedInRound": 3,
+      "id": 52
+    },
+    {
+      "content": "Sizin bu işin bilimini yapan biri olarak farklı bir bakış açısı getirmeniz veya tarihi bir referansla zihnimi açmanız gerekmiyor mu?",
+      "deletedInRound": 3,
+      "id": 53
+    }
+  ]
+}

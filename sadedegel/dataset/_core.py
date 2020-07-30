@@ -1,21 +1,42 @@
 import glob
-from os.path import dirname, join
+from os.path import dirname, join, expanduser, basename, splitext
 from loguru import logger
-import json
+import numpy as np
 import re
-
+from enum import Enum
 from .util import safe_json_load, safe_read
+from pathlib import Path
 
 
+class CorpusTypeEnum(Enum):
+    RAW = ('raw', '*.txt')
+    SENTENCE = ('sents', '*.json')
+    ANNOTATED = ('annotated', '*.json')
 
-def file_paths():
-    base_path = dirname(__file__)
+    def __init__(self, dir, pattern):
+        self.dir = dir
+        self.pattern = pattern
 
-    search_pattern = join(base_path, 'raw', '*.txt')
 
-    files = sorted(glob.glob(search_pattern))
+def file_paths(corpus_type: CorpusTypeEnum = CorpusTypeEnum.RAW, noext=False, use_basename=False, base_path=None):
+    if base_path is None:
+        base_path = dirname(__file__)
 
-    return files
+    if corpus_type in CorpusTypeEnum:
+        search_pattern = Path(base_path).expanduser() / corpus_type.dir
+
+        logger.debug(f"Search pattern for {corpus_type}: {search_pattern}")
+        files = search_pattern.glob(corpus_type.pattern)
+    else:
+        raise ValueError(f"Ensure that corpus_type is a one of raw, sentence or annotated")
+
+    if use_basename:
+        if noext:
+            return sorted([splitext(basename(fn))[0] for fn in files])
+        else:
+            return sorted([basename(fn) for fn in files])
+    else:
+        return sorted(files)
 
 
 def cleaner(doc: str):
@@ -36,7 +57,7 @@ def load_raw_corpus(return_iter: bool = True, base_path=None, clean=True):
     if base_path is None:
         base_path = dirname(__file__)
 
-    search_pattern = join(base_path, 'raw', '*.txt')
+    search_pattern = join(expanduser(base_path), 'raw', '*.txt')
 
     logger.debug("Search path {}".format(search_pattern))
 
@@ -70,7 +91,7 @@ def load_sentence_corpus(return_iter: bool = True, base_path=None):
     if base_path is None:
         base_path = dirname(__file__)
 
-    search_pattern = join(base_path, 'sents', '*.json')
+    search_pattern = join(expanduser(base_path), 'sents', '*.json')
 
     logger.debug("Search path {}".format(search_pattern))
 
@@ -80,3 +101,19 @@ def load_sentence_corpus(return_iter: bool = True, base_path=None):
         return map(safe_json_load, files)
     else:
         return [safe_json_load(file) for file in files]
+
+
+def load_annotated_corpus(return_iter: bool = True, base_path=None):
+    """Load corpus of sample news tokenized into sentences and scored based on human annotation"""
+
+    files = file_paths(CorpusTypeEnum.ANNOTATED, base_path)
+
+    corpus = []
+
+    for fn in files:
+        d = safe_json_load(fn)
+
+        corpus.append(dict(sentences=[s['content'] for s in d['sentences']],
+                           relevance=np.array([s['deletedInRound'] for s in d['sentences']])))
+
+    return corpus
