@@ -1,6 +1,7 @@
 import numpy as np
 from ._base import ExtractiveSummarizer
 
+
 class Rouge1Summarizer(ExtractiveSummarizer):
     """Assign a higher importance score based on ROUGE1 score of the sentences within the document.
 

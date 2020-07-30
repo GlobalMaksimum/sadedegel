@@ -1,7 +1,7 @@
 from pytest import approx
 import numpy as np
 from tests.context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Rouge1Summarizer
-from tests.context import Doc,Sentences
+from tests.context import Doc
 
 
 def list_equal(a: list, b: list) -> bool:
@@ -13,10 +13,12 @@ def test_first_default():
 
     assert list_equal(summarizer.predict([0, 1, 2]), [2, 1, 0])
 
+
 def test_first_normalized():
     summarizer = PositionSummarizer()
 
     assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
+
 
 def test_first_summ():
     summarizer = PositionSummarizer()
