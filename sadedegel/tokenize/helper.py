@@ -201,6 +201,8 @@ class Sentences:
     def __len__(self):
         return len(self.tokens)
 
+    def __eq__(self, s):
+        return self.text == s # no need for type checking, will return false for non-strings
 
 def is_eos(span: Span, sentences: List[str]) -> int:
     start = 0
