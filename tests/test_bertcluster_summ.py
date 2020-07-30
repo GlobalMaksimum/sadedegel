@@ -1,12 +1,11 @@
 # pylint: skip-file
-from transformers import AutoTokenizer, BertModel
 import numpy as np
 import pytest
 
 
 @pytest.mark.skip()
 def test_jsonFileTokenizer():
-    tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+    tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")  # noqa: F821
     jfile = '../work/Labeled/bitmemis-evlilikler-375881_labeled.json'
     jtok = JsonFileTokenizer(jfile, tokenizer)  # noqa: F821
     tensors = jtok.prepare_for_batch_inference()
@@ -19,8 +18,8 @@ def test_jsonFileTokenizer():
 
 @pytest.mark.skip()
 def test_bert_cluster_model():
-    tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-    model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
+    tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")  # noqa: F821
+    model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)  # noqa: F821
 
     summarizer = AnnotatedExtractiveSummarizer(tokenizer, model, k=4, layers=[11], random_state=42,  # noqa: E126 F821
                                                doEval=True)
@@ -45,8 +44,8 @@ def test_bert_cluster_model():
 
 @pytest.mark.skip()
 def test_bert_cluster_scorer():
-    tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-    model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
+    tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")  # noqa: F821
+    model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)  # noqa: F821
 
     summarizer = AnnotatedExtractiveSummarizer(tokenizer, model, k=4, layers=[11], random_state=42,  # noqa: E126 F821
                                                doEval=True)

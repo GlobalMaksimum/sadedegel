@@ -40,7 +40,7 @@ def file_paths(corpus_type: CorpusTypeEnum = CorpusTypeEnum.RAW, noext=False, us
 
 
 def cleaner(doc: str):
-    return re.sub('\d+\s+[a-zA-ZŞşğĞüÜıİ]+\s+\d{4}\s+PAYLAŞ\s+yorum\s+yaz(\s+a)?', '', doc, flags=re.I)
+    return re.sub(r'\d+\s+[a-zA-ZŞşğĞüÜıİ]+\s+\d{4}\s+PAYLAŞ\s+yorum\s+yaz(\s+a)?', '', doc, flags=re.I)
 
 
 def load_raw_corpus(return_iter: bool = True, base_path=None, clean=True):
