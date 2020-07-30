@@ -1,5 +1,31 @@
+## SadedeGel Model
+
+We model a human annotator for summarization task as follows:
+1. A human annotator reads a news document and 
+choose to drop out some sentences in it (any number in any round) based on his/her language prior knowledge.
+2. He/She reads left over document again and repeat 1. until no sentences left.
+
+We keep track of human annotator behaviour with [SadedeGel Annotator](https://github.com/GlobalMaksimum/sadedegel-annotator) 
+by recoding the **Round** of each sentences in which it is eliminated.
+
+Later a sentence is eleminated, higher its relative score is within a given news document. 
 
 ## Summarizer Performance 
+
+Given this [Model Definition](#sadedegel-model), 
+we use a ranking metric ([Normalized Discounted Cumulative Gain]) 
+to evaluate different summarizers over independent dataset(s).
+
+[Normalized Discounted Cumulative Gain] is a very intuitive metric by its definition. 
+It simply measures an algorithm's success based on the ratio of two things
+
+* Algorithm's choice of k-best sentences among M sentences (total `relevance` score obtained with this k sentence).
+* Best possible k-best sentences selection among M sentences (Best possible total `relevance` score that can be obtained with k sentences).
+
+[Normalized Discounted Cumulative Gain]: https://en.wikipedia.org/wiki/Discounted_cumulative_gain
+
+
+### Performance Table
 
 | Method             |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |--------------------|---------------|---------------|---------------|
