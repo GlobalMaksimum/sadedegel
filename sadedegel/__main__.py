@@ -1,21 +1,49 @@
 import click
-from .core import load
+from typing import Tuple
 
 
-@click.command
+def to_tuple(version_string: str) -> Tuple:
+    return tuple(version_string.split('.'))
+
+
+def to_str(version_tuple: Tuple) -> str:
+    return ".".join(version_tuple)
+
+
+@click.group()
 def cli():
     pass
 
 
 @cli.command()
-@click.argument('doc')
-def summarize(doc):
-    summarizer = load()
+def info():
+    from .about import __version__, __herokuapp_url__
+    import requests
 
-    summary = summarizer(doc)
+    most_recent_version = requests.get("https://pypi.python.org/pypi/sadedegel/json").json()['info']['version']
+    most_recent_version = to_tuple(most_recent_version)
 
-    click.echo(summary)
+    click.echo(f"sadedeGel (@PyPI): {click.style(to_str(most_recent_version), fg='green')}")
+
+    installed_version = to_tuple(__version__)
+
+    if installed_version < most_recent_version:
+        color = "yellow"
+    else:
+        color = "green"
+
+    click.echo(f"sadedeGel (installed): {click.style(to_str(installed_version), fg=color)}")
+
+    heroku_version = requests.get(f"{__herokuapp_url__}/api/info").json()['version']
+    heroku_version = to_tuple(heroku_version)
+
+    if heroku_version < most_recent_version:
+        color = "yellow"
+    else:
+        color = "green"
+
+    click.echo(f"sadedeGel Server (__herokuapp_url__): {click.style(to_str(heroku_version), fg=color)}")
 
 
 if __name__ == '__main__':
-    summarize()  # pylint: disable=E1120
+    cli()  # pylint: disable=E1120
