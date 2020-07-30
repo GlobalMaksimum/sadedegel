@@ -1,7 +1,8 @@
 import numpy as np
+from ._base import ExtractiveSummarizer
 
 
-class RandomSummarizer:
+class RandomSummarizer(ExtractiveSummarizer):
     """Assign a random importance score to each sentences.
 
     seed: int, optional(default=42)
@@ -31,7 +32,7 @@ class RandomSummarizer:
             return scores
 
 
-class LengthSummarizer:
+class LengthSummarizer(ExtractiveSummarizer):
     """Assign a higher importance score to longer sentences.
 
     mode : {'token', 'char'}, default='token'
@@ -64,7 +65,7 @@ class LengthSummarizer:
             return scores
 
 
-class PositionSummarizer:
+class PositionSummarizer(ExtractiveSummarizer):
     """Assign a higher importance score based on relative position in documentation.
 
     mode : {'first', 'last'}, default='first'
@@ -99,7 +100,7 @@ class PositionSummarizer:
             return scores
 
 
-class BandSummarizer:
+class BandSummarizer(ExtractiveSummarizer):
     """Split document into bands of length k.
 
     Scoring scheme has two parts:
