@@ -3,7 +3,7 @@ from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from math import ceil
 from ._base import ExtractiveSummarizer
-from ..tokenize.helper import Doc
+from ..bblock import Doc
 
 
 class KMeansSummarizer(ExtractiveSummarizer):

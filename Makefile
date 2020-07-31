@@ -63,4 +63,4 @@ lint:
 	@bandit -r --ini setup.cfg
 
 clean:
-	rm -rf .pytest_cache .coverage .pytest_cache coverage.xml build dist sadedegel.egg-info sadedegel/tokenize/ml/model/sbd.test.pickle
+	rm -rf .pytest_cache .coverage .pytest_cache coverage.xml build dist sadedegel.egg-info sadedegel/ml/model/sbd.test.pickle

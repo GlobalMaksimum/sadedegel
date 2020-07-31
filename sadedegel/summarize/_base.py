@@ -1,7 +1,7 @@
 from typing import List, Union
 import numpy as np
 from abc import ABC, abstractmethod
-from ..tokenize.helper import Doc, Sentences
+from ..bblock import Doc, Sentences
 
 
 class ExtractiveSummarizer(ABC):

@@ -1,7 +1,7 @@
 from pytest import approx
 import numpy as np
 from tests.context import Rouge1Summarizer
-from sadedegel.tokenize import Doc
+from sadedegel.bblock import Doc
 
 
 def test_rouge1_summarizer_precision_all_lower():
