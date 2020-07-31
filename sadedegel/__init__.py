@@ -1,1 +1,1 @@
-from .core import load  # noqa: F401
+from .bblock import Doc, Sentences  # noqa: F401

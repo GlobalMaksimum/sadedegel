@@ -9,7 +9,7 @@ from tqdm import tqdm
 from ..dataset import load_annotated_corpus
 from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, AutoKMeansSummarizer, \
     DecomposedKMeansSummarizer
-from ..tokenize.helper import Sentences, Doc
+from sadedegel.bblock import Sentences, Doc
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
