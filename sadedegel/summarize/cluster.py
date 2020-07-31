@@ -15,7 +15,7 @@ class KMeansSummarizer(ExtractiveSummarizer):
 
     def predict(self, doc):
         if type(doc) != Doc:
-            raise Exception(f"KMeansSummarizer.predict accepts only Doc type because of bert_embeddings dependency.")
+            raise ValueError(f"KMeansSummarizer.predict accepts only Doc type because of bert_embeddings dependency.")
 
         effective_n_clusters = min(self.n_clusters, len(doc))
 
