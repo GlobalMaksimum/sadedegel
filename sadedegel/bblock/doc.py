@@ -18,7 +18,10 @@ class Span:
         self.value = span
 
     def __str__(self):
-        return self.value
+        return self.text
+
+    def __repr__(self):
+        return self.text
 
     @property
     def text(self):
