@@ -97,7 +97,7 @@ def summary_filter(sents, scores, word_count, limit=None):
         return sents[rank]
 
 
-@app.get('/')
+@app.get("/", include_in_schema=False)
 async def home():
     return RedirectResponse("http://sadedegel.ai")
 
