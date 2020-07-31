@@ -22,7 +22,7 @@ def file_paths(corpus_type: CorpusTypeEnum = CorpusTypeEnum.RAW, noext=False, us
     if base_path is None:
         base_path = dirname(__file__)
 
-    if corpus_type in CorpusTypeEnum:
+    if type(corpus_type) == CorpusTypeEnum:
         search_pattern = Path(base_path).expanduser() / corpus_type.dir
 
         logger.debug(f"Search pattern for {corpus_type}: {search_pattern}")
