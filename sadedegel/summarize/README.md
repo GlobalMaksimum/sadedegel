@@ -27,11 +27,19 @@ It simply measures an algorithm's success based on the ratio of two things
 
 ### Performance Table
 
-| Method             |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
-|--------------------|---------------|---------------|---------------|
-| Random             |      0.551282 |      0.650239 |      0.767942 |
-| FirstK             |      0.503327 |      0.615367 |      0.741094 |
-| LastK              |      0.604835 |      0.697297 |      0.801343 |
-| Rouge1 (f1)        |      0.67267  |      0.752952 |      0.844675 |
-| Rouge1 (precision) |      0.529314 |      0.650443 |      0.774472 |
-| Rouge1 (recall)    |      0.675343 |      0.754626 |      0.845244 |
+#### Release 0.9
+* KMeans
+* AutoKMeansSummarizer
+* DecomposedKMeansSummarize
+
+| Method                     |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|----------------------------|---------------|---------------|---------------|
+| Random                     |      0.551282 |      0.650239 |      0.767942 |
+| FirstK                     |      0.503327 |      0.615367 |      0.741094 |
+| LastK                      |      0.604835 |      0.697297 |      0.801343 |
+| Rouge1 (f1)                |      0.67267  |      0.752952 |      0.844675 |
+| Rouge1 (precision)         |      0.529314 |      0.650443 |      0.774472 |
+| Rouge1 (recall)            |      0.675343 |      0.754626 |      0.845244 |
+| KMeans                     |      0.65688  |      0.743172 |      0.833607 |
+| AutoKMeansSummarizer       |      0.657585 |      0.741666 |      0.832376 |
+| DecomposedKMeansSummarizer |      0.655008 |      0.743582 |      0.833087 |
