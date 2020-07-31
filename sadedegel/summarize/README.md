@@ -2,13 +2,13 @@
 
 We model a human annotator for summarization task as follows:
 1. A human annotator reads a news document and 
-choose to drop out some sentences in it (any number in any round) based on his/her language prior knowledge.
-2. He/She reads left over document again and repeat 1. until no sentences left.
+choose to drop out some sentences in it (any number in any round) based on his/her prior knowledge of language and news' domain.
+2. Annotator reads left over document again and repeat 1. until no sentences are left in the news document.
 
 We keep track of human annotator behaviour with [SadedeGel Annotator](https://github.com/GlobalMaksimum/sadedegel-annotator) 
 by recoding the **Round** of each sentences in which it is eliminated.
 
-Later a sentence is eleminated, higher its relative score is within a given news document. 
+Later a sentence is eliminated, higher its relative score is within a given news document. 
 
 ## Summarizer Performance 
 
@@ -19,8 +19,9 @@ to evaluate different summarizers over independent dataset(s).
 [Normalized Discounted Cumulative Gain] is a very intuitive metric by its definition. 
 It simply measures an algorithm's success based on the ratio of two things
 
-* Algorithm's choice of k-best sentences among M sentences (total `relevance` score obtained with this k sentence).
-* Best possible k-best sentences selection among M sentences (Best possible total `relevance` score that can be obtained with k sentences).
+* Algorithm's choice of best k sentences among M sentences (total `relevance` score obtained with this k sentence).
+* Best k sentences among M sentences with respect to 
+ground truth human annotation (Best possible total `relevance` score that can be obtained with k sentences).
 
 [Normalized Discounted Cumulative Gain]: https://en.wikipedia.org/wiki/Discounted_cumulative_gain
 
