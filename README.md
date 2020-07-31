@@ -5,7 +5,7 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.8 out now!**
+💫 **Version 0.9 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -31,7 +31,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 ## 💬 Where to ask questions
 
-The SadedeGel project is maintained by [@globalmaksmum](https://github.com/GlobalMaksimum) AI team members
+The SadedeGel project is maintained by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
 [@dafajon](https://github.com/dafajon),
 [@askarbozcan](https://github.com/askarbozcan),
 [@mccakir](https://github.com/mccakir) and 
@@ -186,7 +186,7 @@ make test
       * Automating our SLM via [Github Actions](https://github.com/features/actions)
   * [Google Cloud Google Storage Service](https://cloud.google.com/products/storage) for providing low cost storage buckets making it possible to store `sadedegel.dataset.extended` data.
   * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
-  * [CodeConv](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
+  * [CodeCov](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
   * [binder](https://mybinder.org/) for 
      * Allowing us to share our example [notebooks](notebook/)
