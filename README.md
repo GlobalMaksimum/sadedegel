@@ -5,7 +5,7 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.8 out now!**
+💫 **Version 0.9 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
