@@ -66,6 +66,6 @@ def test_raise_for_metric():
         assert rouge1_score(["the", "cat"], ["a", "dog"], metric="intercluster-distance") == 0.0
 
 
-def test_raise_for_metric():
+def test_raise_for_input_type():
     with raises(ValueError, match="should be of list type.$"):
         assert rouge1_score(iter(["the", "cat"]), ["a", "dog"], metric="f1") == 0.0
