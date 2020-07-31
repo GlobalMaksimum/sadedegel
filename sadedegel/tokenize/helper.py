@@ -2,9 +2,12 @@ from transformers import AutoTokenizer
 
 import re
 from typing import List
+import numpy as np
+import torch
 
 from .ml.sbd import load_model
 from sadedegel.metrics import rouge1_score
+from loguru import logger
 
 __tr_upper__ = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
 __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
@@ -21,6 +24,10 @@ def tr_upper(s: str) -> str:
     return s.replace("i", "İ").upper()
 
 
+def pad(l, padded_length):
+    return l + [0 for _ in range(padded_length - len(l))]
+
+
 def flatten(l2: List[List]):
     flat = []
     for l in l2:
@@ -28,6 +35,64 @@ def flatten(l2: List[List]):
             flat.append(e)
 
     return flat
+
+
+def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.ndarray:
+    """Selects and averages layers from BERT output.
+
+    Parameters:
+        bert_out: tuple
+            Tuple containing output of 12 intermediate layers after feeding a document.
+
+        layers: List[int]
+            List that contains which layer to choose. max = 11, min = 0.
+
+        return_cls: bool
+            Whether to use CLS token embedding as sentence embedding instead of averaging token embeddings.
+
+    Returns:
+        numpy.ndarray (n_sentences, embedding_size) Embedding size if default to 768.
+
+    """
+    n_layers = len(layers)
+    n_sentences = bert_out[0].shape[0]
+    n_tokens = bert_out[0].shape[1]
+
+    if not (min(layers) > -1 and max(layers) < 12):
+        raise Exception(f"Value for layer should be in 0-11 range")
+
+    if return_cls:
+        cls_matrix = np.zeros((n_layers, n_sentences, 768))
+        l_ix = 0
+        for l, layer in enumerate(bert_out):
+            if l not in layers:
+                continue
+            else:
+                l_ix = l_ix + 1
+            for s, sentence in enumerate(layer):
+                cls_tensor = sentence[0].numpy()
+                cls_matrix[l_ix - 1, s, :] = cls_tensor
+        layer_mean_cls = np.mean(cls_matrix, axis=0)
+
+        return layer_mean_cls
+
+    else:
+        token_matrix = np.zeros((n_layers, n_sentences, n_tokens - 2, 768))
+        for l, layer in enumerate(bert_out):
+            l_ix = 0
+            if l not in layers:
+                continue
+            else:
+                l_ix = l_ix + 1
+            for s, sentence in enumerate(layer):
+                for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
+                    token_tensor = sentence[t].numpy()
+                    token_matrix[l_ix - 1, s, t, :] = token_tensor
+
+        tokenwise_mean = np.mean(token_matrix, axis=2)
+        layer_mean_token = np.mean(tokenwise_mean, axis=0)
+
+        return layer_mean_token
 
 
 class Span:
@@ -177,13 +242,33 @@ class Sentences:
         self.id = id_
         self.text = text
 
+        self._input_ids = None
         self._tokens = None
         self.all_sentences = all_sentences
+        self._bert = None
+
+    @property
+    def bert(self):
+        return self._bert
+
+    @bert.setter
+    def bert(self, bert):
+        self._bert = bert
+
+    @property
+    def input_ids(self):
+        if self._input_ids is None:
+            self._input_ids = Sentences.tokenizer(self.text)['input_ids']
+
+        return self._input_ids
 
     @property
     def tokens(self):
-        if self._tokens is None:
-            self._tokens = Sentences.tokenizer.tokenize(self.text)
+        return self.tokens_with_special_symbols[1:-1]
+
+    @property
+    def tokens_with_special_symbols(self):
+        self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
 
         return self._tokens
 
@@ -222,33 +307,91 @@ def is_eos(span: Span, sentences: List[str]) -> int:
 
 class Doc:
     sbd = None
+    model = None
 
-    def __init__(self, raw: str):
-        if Doc.sbd is None:
+    def __init__(self, raw: str, sents=None):
+        if Doc.sbd is None and sents is None:
+            logger.info("Loading ML based SBD")
             Doc.sbd = load_model()
 
         self.raw = raw
-
-        _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
-
-        self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
-
-        y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
-
-        # logger.info(y_pred)
-
-        eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
-
+        self._bert = None
         self.sents = []
 
-        for i, eos in enumerate(eos_list):
-            if i == 0:
-                self.sents.append(Sentences(i, self.raw[:eos].strip(), self.sents))
-            else:
-                self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self.sents))
+        if sents is None:
+            _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
+
+            self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
+
+            y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
+
+            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
+
+            for i, eos in enumerate(eos_list):
+                if i == 0:
+                    self.sents.append(Sentences(i, self.raw[:eos].strip(), self.sents))
+                else:
+                    self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self.sents))
+        else:
+            for i, s in enumerate(sents):
+                self.sents.append(Sentences(i, s, self.sents))
 
     def __str__(self):
         return self.raw
 
     def __repr__(self):
         return self.raw
+
+    def __len__(self):
+        return len(self.sents)
+
+    def max_length(self):
+        """Maximum length of a sentence including special symbols."""
+        return max(len(s.tokens_with_special_symbols) for s in self.sents)
+
+    def padded_matrix(self, return_numpy=False, return_mask=True):
+        """Returns a 0 padded numpy.array or torch.tensor
+              One row for each sentence
+              One column for each token (pad 0 if length of sentence is shorter than the max length)
+
+        :param return_numpy: Whether to return numpy.array or torch.tensor
+        :param return_mask: Whether to return padding mask
+        :return:
+        """
+        max_len = self.max_length()
+
+        if not return_numpy:
+            mat = torch.tensor([pad(s.input_ids, max_len) for s in self.sents])
+
+            if return_mask:
+                return mat, (mat > 0).to(int)
+            else:
+                return mat
+        else:
+            mat = np.array([pad(s.input_ids, max_len) for s in self.sents])
+
+            if return_mask:
+                return mat, (mat > 0).astype(int)
+            else:
+                return mat
+
+    @property
+    def bert_embeddings(self):
+        if self._bert is None:
+            inp, mask = self.padded_matrix()
+
+            if Doc.model is None:
+                logger.info("Loading BertModel")
+                from transformers import BertModel
+
+                Doc.model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
+                Doc.model.eval()
+
+            with torch.no_grad():
+                outputs = Doc.model(inp, mask)
+
+            twelve_layers = outputs[2][1:]
+
+            self._bert = select_layer(twelve_layers, [11], return_cls=False)
+
+        return self._bert
