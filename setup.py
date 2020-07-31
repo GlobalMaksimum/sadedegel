@@ -18,7 +18,7 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
+    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
               'sadedegel.tokenize', 'sadedegel.ml',
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
