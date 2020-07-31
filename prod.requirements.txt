@@ -1,5 +1,6 @@
 loguru>=0.4.1
 click
+torch==1.5.1
 transformers
 
 smart-open>=2.0.0

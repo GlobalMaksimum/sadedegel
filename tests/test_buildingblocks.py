@@ -1,5 +1,5 @@
 import numpy as np
-import torch # noqa # pylint: disable=import-error
+import torch
 from .context import Doc
 
 
