@@ -1,4 +1,3 @@
-import pytest
 from .context import RegexpSentenceTokenizer, NLTKPunctTokenizer, Doc
 
 sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık sistemini uyaran tıbbi bitkiler, fiziksel,"
