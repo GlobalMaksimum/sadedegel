@@ -16,7 +16,7 @@ class Rouge1Summarizer(ExtractiveSummarizer):
     def __init__(self, metric='f1', normalize=True):
         self.normalize = normalize
         if metric not in ['f1', 'precision', 'recall']:
-            raise Exception(f"mode should be one of 'f1', 'precision','recall'")
+            raise ValueError(f"mode should be one of 'f1', 'precision','recall'")
 
         self.metric = metric
 

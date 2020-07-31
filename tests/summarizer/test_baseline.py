@@ -1,8 +1,7 @@
 import pytest
 from pytest import approx, raises
 import numpy as np
-from tests.context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Rouge1Summarizer
-from tests.context import Doc
+from .context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Doc
 
 
 def list_equal(a: list, b: list) -> bool:
@@ -63,10 +62,11 @@ def test_first_summ():
     assert summarizer(doc, k=2) == doc.sents[:2]
 
 
-def test_random_default():
+@pytest.mark.parametrize("input", [range(2), [0, 1, ]])
+def test_random_default(input):
     summarizer = RandomSummarizer(normalize=False)
 
-    assert summarizer.predict([0, 1]) == approx(np.array([0.37454012, 0.95071431]))
+    assert summarizer.predict(input) == approx(np.array([0.37454012, 0.95071431]))
 
 
 def test_random_normalized():
