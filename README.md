@@ -201,3 +201,4 @@ make test
 * Other NLP related references
 
     * [ROUGE: A Package for Automatic Evaluation of Summaries](https://www.aclweb.org/anthology/W04-1013.pdf)
+    * [Speech and Language Processing, Second Edition](https://web.stanford.edu/~jurafsky/slp3/)
