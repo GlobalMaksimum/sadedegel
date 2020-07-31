@@ -3,7 +3,7 @@
  Sentence tokenizer (also known as sentence boundary detection(SBD)) is one of the key components of 
  our extraction-based summarizer:
  
- 1. Extraction-based algorithm picks up a subset of all sentences in document. In return, it is crucial to detect sentences correctly.
+ 1. Extraction-based algorithm picks up a subset of all sentences in document. In return, it is crucial to detect and split sentences correctly.
  2. 
  
  ## SBD Evaluation
@@ -61,9 +61,9 @@ python3 -m sadedegel.tokenize diff
 
 ## Rebuild Model
 
-You can change our feature set or classifier pipeline in any way you like to obtain better models.
+You can change our feature set or classifier pipeline in anyway you like to obtain better models.
 
-To retrain the existing `sbd` model use
+To re-train the existing `sbd` model use
 
 ```bash
 python3 -m sadedegel.tokenize build

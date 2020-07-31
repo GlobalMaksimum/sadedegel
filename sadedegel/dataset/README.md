@@ -15,15 +15,15 @@ raw = load_raw_corpus()
 sents = load_sentence_corpus()
 ```
 
-There are 3 parts of this corpus
-1. **Raw Corpus** is made of `txt` files consisting raw news documents scraped by [Sadedegel Scraper](https://github.com/GlobalMaksimum/sadedegel-scraper)
-2. **Sentences Corpus** is made of `json` files consisting sentence boundary detected documents in raw corpus. 
-Boundary detection is initialized by a automatic (ML/rule based) sentence tokenizer but corrected by human annotators  
+The corpus consits of three parts.
+1. **Raw Corpus** is contains `txt` files each having raw news documents scraped by [SadedeGel Scraper](https://github.com/GlobalMaksimum/sadedegel-scraper)
+2. **Sentences Corpus** has `json` files containing sentence boundary detected documents in raw corpus. 
+Boundary detection is initialized by an automatic (ML/rule based) sentence tokenizer; but corrected by human annotators  
 
     * Refer to [Sentences Corpus Tokenize](#sentence-corpus-tokenize)
     * Refer to [Sentences Corpus Validate](#sentence-corpus-validate)
 
-3. **Annotated Corpus** is made of `json` files. TODO
+3. **Annotated Corpus** contains `json` files. TODO
 
 ### Sentence Corpus Tokenize
 
@@ -38,7 +38,7 @@ python -m sadedegel.dataset tokenize
 Validation process ensures that hand annotated sentence tokenization does not violate any of the following span rule
 
 1. All sentences should cover a span in corresponding raw document.
-2. All sentences spans should be stored in order at `sentences` (of list type) member of `json` document.
+2. All sentences spans should be stored in order under `sentences` (of list type value) key of `json` document.
 
 ```bash
 python -m sadedegel.dataset validate
