@@ -5,10 +5,9 @@ import click
 from tabulate import tabulate
 import numpy as np
 from sklearn.metrics import ndcg_score
-from tqdm import tqdm
 from ..dataset import load_annotated_corpus
 from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer
+    DecomposedKMeansSummarizer, LengthSummarizer
 from sadedegel.bblock import Sentences, Doc
 
 
@@ -29,6 +28,7 @@ def cli():
 @cli.command()
 @click.option("-f", "--table-format", default="github")
 def evaluate(table_format):
+    """Evaluate all summarizers in sadedeGel"""
     anno = load_annotated_corpus()
 
     scores = defaultdict(list)
@@ -36,6 +36,8 @@ def evaluate(table_format):
                              ('LastK', PositionSummarizer('last')), ('Rouge1 (f1)', Rouge1Summarizer()),
                              ('Rouge1 (precision)', Rouge1Summarizer('precision')),
                              ('Rouge1 (recall)', Rouge1Summarizer('recall')),
+                             ('Length (char)', LengthSummarizer('token')),
+                             ('Length (token)', LengthSummarizer('char')),
                              ('KMeans', KMeansSummarizer()),
                              ('AutoKMeansSummarizer', AutoKMeansSummarizer()),
                              ('DecomposedKMeansSummarizer', DecomposedKMeansSummarizer())]:

@@ -38,6 +38,8 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | Random                     |      0.551282 |      0.650239 |      0.767942 |
 | FirstK                     |      0.503327 |      0.615367 |      0.741094 |
 | LastK                      |      0.604835 |      0.697297 |      0.801343 |
+| Length (char)              |      0.675079 |      0.755471 |      0.845785 |
+| Length (token)             |      0.675259 |      0.755405 |      0.849197 |
 | Rouge1 (f1)                |      0.67267  |      0.752952 |      0.844675 |
 | Rouge1 (precision)         |      0.529314 |      0.650443 |      0.774472 |
 | Rouge1 (recall)            |      0.675343 |      0.754626 |      0.845244 |
