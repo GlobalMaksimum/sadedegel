@@ -48,7 +48,7 @@ class LengthSummarizer(ExtractiveSummarizer):
         self.normalize = normalize
 
         if mode not in ['token', 'char']:
-            raise Exception(f"mode should be one of 'token', 'char'")
+            raise ValueError(f"mode should be one of 'token', 'char'")
 
         self.mode = mode
 
@@ -79,7 +79,7 @@ class PositionSummarizer(ExtractiveSummarizer):
     def __init__(self, mode='first', normalize=True):
         self.normalize = normalize
         if mode not in ['first', 'last']:
-            raise Exception(f"mode should be one of 'first', 'last'")
+            raise ValueError(f"mode should be one of 'first', 'last'")
 
         self.mode = mode
 
@@ -118,12 +118,12 @@ class BandSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    def __init__(self, k=3, mode='first', normalized=True):
+    def __init__(self, mode='first', k=3, normalized=True):
         self.normalized = normalized
         self.k = k
 
         if mode not in ['first', 'last']:
-            raise Exception(f"mode should be one of 'first', 'last'")
+            raise ValueError(f"mode should be one of 'first', 'last'")
 
         self.mode = mode
 

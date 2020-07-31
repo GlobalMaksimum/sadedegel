@@ -1,4 +1,5 @@
-from pytest import approx
+import pytest
+from pytest import approx, raises
 import numpy as np
 from tests.context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Rouge1Summarizer
 from tests.context import Doc
@@ -8,16 +9,50 @@ def list_equal(a: list, b: list) -> bool:
     return all((_a == _b) for _a, _b in zip(a, b))
 
 
-def test_first_default():
+@pytest.mark.parametrize("input", [range(3), [0, 1, 2]])
+def test_first_default(input):
     summarizer = PositionSummarizer(normalize=False)
 
-    assert list_equal(summarizer.predict([0, 1, 2]), [2, 1, 0])
+    assert list_equal(summarizer.predict(input), [2, 1, 0])
 
 
 def test_first_normalized():
     summarizer = PositionSummarizer()
 
     assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
+
+
+@pytest.mark.parametrize("input", [range(3), [0, 1, 2]])
+def test_last(input):
+    summarizer = PositionSummarizer('last', normalize=False)
+
+    assert list_equal(summarizer.predict(input), [0, 1, 2])
+
+
+def test_last_normalized():
+    summarizer = PositionSummarizer('last')
+
+    assert summarizer.predict([0, 1, 2]) == approx([0, 1 / 3, 2 / 3])
+
+
+def test_pos_summarizer_unknown_mode():
+    with raises(ValueError):
+        _ = PositionSummarizer('unknown')
+
+
+def test_length_summarizer_unknown_mode():
+    with raises(ValueError):
+        _ = LengthSummarizer('unknown')
+
+
+def test_band_summarizer_unknown_mode():
+    with raises(ValueError):
+        _ = BandSummarizer('unknown')
+
+
+def test_band_summarizer_not_implemented_yet():
+    with raises(NotImplementedError):
+        BandSummarizer('first').predict([0, 1, 2])
 
 
 def test_first_summ():
