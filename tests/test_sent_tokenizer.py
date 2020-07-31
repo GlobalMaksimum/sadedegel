@@ -14,10 +14,9 @@ sentences = [("7 mucize bitki 18 Şubat 2018 PAYLAŞ Yorum yaz A Bağışıklık
              " ‘Soğuk algınlığı savaşçısı’ olarak Avrupa ve Amerika’da gıda takviyesi olarak kullanılıyor."
              ]
 
-text = "".join(sentences)
+text = " ".join(sentences)
 
 
-@pytest.mark.skip()
 def test_punct_tokenizer():
     toker = NLTKPunctTokenizer()
 

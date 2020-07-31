@@ -55,7 +55,7 @@ def evaluate(v):
 
     iou_eval("RegexpSentenceTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
-    y_pred = [Doc(doc).sents for doc in raw]
+    y_pred = [[s.text for s in Doc(doc).sents] for doc in raw]
 
     iou_eval("MLBasedTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
