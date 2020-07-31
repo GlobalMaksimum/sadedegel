@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pydantic.typing import List
 
-from sadedegel.tokenize import Doc, Sentences
+from sadedegel.bblock import Doc, Sentences
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer
 import click
 import numpy as np
