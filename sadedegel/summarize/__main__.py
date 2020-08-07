@@ -63,7 +63,8 @@ def evaluate(table_format):
 
     # TODO: Sample weigth of instances.
     print(
-        tabulate(table, headers=['Method', 'ndcg(k=0.1)', 'ndcg(k=0.5)', 'ndcg(k=0.8)'], tablefmt=table_format))
+        tabulate(table, headers=['Method', 'ndcg(k=0.1)', 'ndcg(k=0.5)', 'ndcg(k=0.8)'], tablefmt=table_format,
+                 floatfmt=".4f"))
 
 
 if __name__ == '__main__':
