@@ -35,14 +35,14 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 | Method                     |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |----------------------------|---------------|---------------|---------------|
-| Random                     |      0.551282 |      0.650239 |      0.767942 |
-| FirstK                     |      0.503327 |      0.615367 |      0.741094 |
-| LastK                      |      0.604835 |      0.697297 |      0.801343 |
-| Length (char)              |      0.675079 |      0.755471 |      0.845785 |
-| Length (token)             |      0.675259 |      0.755405 |      0.849197 |
-| Rouge1 (f1)                |      0.67267  |      0.752952 |      0.844675 |
-| Rouge1 (precision)         |      0.529314 |      0.650443 |      0.774472 |
-| Rouge1 (recall)            |      0.675343 |      0.754626 |      0.845244 |
-| KMeans                     |      0.65688  |      0.743172 |      0.833607 |
-| AutoKMeansSummarizer       |      0.657585 |      0.741666 |      0.832376 |
-| DecomposedKMeansSummarizer |      0.655008 |      0.743582 |      0.833087 |
+| Random                     |        0.5513 |        0.6502 |        0.7679 |
+| FirstK                     |        0.5033 |        0.6154 |        0.7411 |
+| LastK                      |        0.6048 |        0.6973 |        0.8013 |
+| Rouge1 (f1)                |        0.6727 |        0.7530 |        0.8447 |
+| Rouge1 (precision)         |        0.5293 |        0.6504 |        0.7745 |
+| Rouge1 (recall)            |    **0.6753** |        0.7546 |        0.8452 |
+| Length (char)              |        0.6751 |      **0.7555** |      0.8458 |
+| Length (token)             |        0.6753 |        0.7554 |    **0.8492** |
+| KMeans                     |        0.6569 |        0.7432 |        0.8336 |
+| AutoKMeansSummarizer       |        0.6576 |        0.7417 |        0.8324 |
+| DecomposedKMeansSummarizer |        0.6550 |        0.7436 |        0.8331 |
