@@ -1,15 +1,14 @@
 loguru>=0.4.1
-click
+click>=7.1.2
 torch==1.5.1
-transformers
+transformers==3.0.0
 
 smart-open>=2.0.0
-wheel
 
-tqdm
+tqdm>=4.46.1
 
-uvicorn
-fastapi
-sklearn
+uvicorn==0.11.5
+fastapi==0.54.1
+sklearn==0.23.1
 nltk>=3.4.5
-tabulate
+tabulate==0.8.7
