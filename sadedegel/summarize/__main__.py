@@ -6,7 +6,7 @@ from tabulate import tabulate
 import numpy as np
 from sklearn.metrics import ndcg_score
 from ..dataset import load_annotated_corpus
-from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer
+from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, LexRankSummarizer
 from ..tokenize.helper import Sentences
 
 
@@ -33,7 +33,8 @@ def evaluate(table_format):
     for name, summarizer in [('Random', RandomSummarizer()), ('FirstK', PositionSummarizer()),
                              ('LastK', PositionSummarizer('last')), ('Rouge1 (f1)', Rouge1Summarizer()),
                              ('Rouge1 (precision)', Rouge1Summarizer('precision')),
-                             ('Rouge1 (recall)', Rouge1Summarizer('recall'))]:
+                             ('Rouge1 (recall)', Rouge1Summarizer('recall')),
+                             ('LexRank', LexRankSummarizer())]:
         for doc in anno:
             y_true = [doc['relevance']]
 
