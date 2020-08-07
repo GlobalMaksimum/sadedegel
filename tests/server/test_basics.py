@@ -56,7 +56,7 @@ def test_random_summarizer_nosentence():
 
     assert response.status_code == 200
     assert 'sentences' in response.json()
-    assert len(response.json()['sentences']) == 0
+    assert len(response.json()['sentences']) == 1
 
 
 testdata = [('/api/summarizer/random', 'https://www.hurriyet.com.tr', 'POST'),

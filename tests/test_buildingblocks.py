@@ -64,3 +64,13 @@ def test_span(test_for):
         assert [str(s) for s in spans] == ['Ali', 'topu', 'tut.']
     else:
         assert str(spans) == "[Ali, topu, tut.]"
+
+
+def test_doc_with_no_sentence():
+    raw = "söz konusu adreste bulunan yolda yağmurdan dolayı çamur ve toprak bulunmaktadır"
+
+    d = Doc(raw)
+
+    assert d.sents[0].tokens == \
+           Doc(None, ["söz konusu adreste bulunan yolda yağmurdan dolayı çamur ve toprak bulunmaktadır"]).sents[
+               0].tokens

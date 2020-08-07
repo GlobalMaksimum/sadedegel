@@ -228,11 +228,15 @@ class Doc:
 
             eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
 
-            for i, eos in enumerate(eos_list):
-                if i == 0:
-                    self.sents.append(Sentences(i, self.raw[:eos].strip(), self.sents))
-                else:
-                    self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self.sents))
+            if len(eos_list) > 0:
+                for i, eos in enumerate(eos_list):
+                    if i == 0:
+                        self.sents.append(Sentences(i, self.raw[:eos].strip(), self.sents))
+                    else:
+                        self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self.sents))
+            else:
+                self.sents.append(Sentences(0, self.raw.strip(), self.sents))
+
         else:
             for i, s in enumerate(sents):
                 self.sents.append(Sentences(i, s, self.sents))
