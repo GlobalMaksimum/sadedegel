@@ -117,3 +117,17 @@ def load_annotated_corpus(return_iter: bool = True, base_path=None):
                            relevance=np.array([s['deletedInRound'] for s in d['sentences']])))
 
     return corpus
+
+
+def load_stopwords(base_path = None):
+    """ Return Turkish stopwords as list from file. """
+    if base_path is None:
+        base_path = dirname(__file__)
+
+    text_path = Path(base_path) / "stopwords" / "turkce-stop-words.txt"
+
+    with open(text_path, "r") as fp:
+        stopwords = fp.readlines()
+
+    stopwords = [s.rstrip() for s in stopwords]
+    return stopwords
