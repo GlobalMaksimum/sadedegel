@@ -12,3 +12,4 @@ fastapi
 sklearn
 nltk>=3.4.5
 tabulate
+lexrank
