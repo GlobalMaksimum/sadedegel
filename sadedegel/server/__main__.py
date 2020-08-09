@@ -92,7 +92,9 @@ def summary_filter(sents, scores, word_count, limit=None):
     logger.info(limit)
 
     if limit:
-        return sents[rank[word_count[rank].cumsum() <= limit]]
+        selected_sents_idx = rank[word_count[rank].cumsum() <= limit]
+        selected_sents_idx.sort() # sort in ascending order to preserve order
+        return sents[selected_sents_idx]
     else:
         return sents[rank]
 
