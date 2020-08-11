@@ -1,4 +1,4 @@
 FROM python:3.8-slim
-RUN pip install sadedegel
+RUN pip install sadedegel==0.11.3
 
 CMD python -m sadedegel.server --port $PORT
