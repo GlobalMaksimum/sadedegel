@@ -59,6 +59,22 @@ def test_random_summarizer_nosentence():
     assert len(response.json()['sentences']) == 1
 
 
+@pytest.mark.parametrize("summarizer, ", ['random', 'rouge1', 'firstk'])
+def test_in_order(summarizer):
+    doc = "aa aa aa. bb bb cc. aa bb."
+    sents = ['aa aa aa.', 'bb bb cc.', 'aa bb.']
+
+    response = client.post(f"/api/summarizer/{summarizer}", json=dict(
+        doc=doc, wpm=4,
+        duration=3))
+
+    assert response.status_code == 200 and 'sentences' in response.json()
+
+    indexes = [sents.index(s) for s in response.json()['sentences']]
+
+    assert indexes == sorted(indexes)
+
+
 testdata = [('/api/summarizer/random', 'https://www.hurriyet.com.tr', 'POST'),
             ('/', 'https://www.hurriyet.com.tr', 'GET'),
             ('/api/summarizer/random', 'http://0.0.0.0:8000/sadedegel', 'POST'),
