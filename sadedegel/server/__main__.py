@@ -86,17 +86,20 @@ app.add_middleware(
 
 
 def summary_filter(sents, scores, word_count, limit=None):
-    rank = np.argsort(scores)[::-1]
-    logger.info(rank)
+    if not (len(sents) == len(scores) and len(scores) == len(word_count)):
+        raise ValueError(
+            f"Number of elements int sents ({len(sents)}), scores ({len(scores)}) and word_count ({len(word_count)}) should match.")
 
-    logger.info(limit)
+    rank = np.argsort(scores)[::-1]
 
     if limit:
         selected_sents_idx = rank[word_count[rank].cumsum() <= limit]
-        selected_sents_idx.sort() # sort in ascending order to preserve order
-        return sents[selected_sents_idx]
     else:
-        return sents[rank]
+        selected_sents_idx = rank
+
+    selected_sents_idx.sort()  # sort in ascending order to preserve order
+
+    return sents[selected_sents_idx]
 
 
 @app.get("/", include_in_schema=False)
