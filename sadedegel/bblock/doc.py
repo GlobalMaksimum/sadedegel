@@ -187,7 +187,8 @@ class Sentences:
 
     @property
     def tokens_with_special_symbols(self):
-        self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
+        if self._tokens is None:
+            self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
 
         return self._tokens
 
