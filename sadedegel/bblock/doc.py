@@ -1,13 +1,15 @@
-from transformers import AutoTokenizer
-
 import re
-from typing import List
-import numpy as np
+from typing import List, Union
+
 import torch
-from sadedegel.metrics import rouge1_score
+from transformers import AutoTokenizer  # type:ignore
+
+import numpy as np  # type:ignore
+
 from loguru import logger
 
 from ..ml.sbd import load_model
+from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 
 
@@ -154,7 +156,7 @@ class Span:
 class Sentences:
     tokenizer = None
 
-    def __init__(self, id_: int, text: str, all_sentences: List):
+    def __init__(self, id_: int, text: str, doc):
         if Sentences.tokenizer is None:
             Sentences.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
 
@@ -163,7 +165,8 @@ class Sentences:
 
         self._input_ids = None
         self._tokens = None
-        self.all_sentences = all_sentences
+        self.document = doc
+        self.all_sentences = doc.sents
         self._bert = None
 
     @property
@@ -211,16 +214,17 @@ class Doc:
     sbd = None
     model = None
 
-    def __init__(self, raw: str, sents=None):
-        if Doc.sbd is None and sents is None:
+    def __init__(self, raw: Union[str, None]):
+        if Doc.sbd is None and raw is not None:
             logger.info("Loading ML based SBD")
             Doc.sbd = load_model()
 
         self.raw = raw
         self._bert = None
         self.sents = []
+        self.spans = None
 
-        if sents is None:
+        if raw is not None:
             _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
 
             self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
@@ -232,15 +236,23 @@ class Doc:
             if len(eos_list) > 0:
                 for i, eos in enumerate(eos_list):
                     if i == 0:
-                        self.sents.append(Sentences(i, self.raw[:eos].strip(), self.sents))
+                        self.sents.append(Sentences(i, self.raw[:eos].strip(), self))
                     else:
-                        self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self.sents))
+                        self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self))
             else:
-                self.sents.append(Sentences(0, self.raw.strip(), self.sents))
+                self.sents.append(Sentences(0, self.raw.strip(), self))
 
-        else:
-            for i, s in enumerate(sents):
-                self.sents.append(Sentences(i, s, self.sents))
+    @classmethod
+    def from_sentences(cls, sentences: List[str]):
+
+        d = Doc(None)
+
+        for i, s in enumerate(sentences):
+            d.sents.append(Sentences(i, s, d))
+
+        d.raw = "\n".join(sentences)
+
+        return d
 
     def __str__(self):
         return self.raw
