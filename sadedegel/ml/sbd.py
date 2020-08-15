@@ -1,14 +1,11 @@
-from sklearn.linear_model import PassiveAggressiveClassifier
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction import FeatureHasher
-from sklearn.feature_extraction import DictVectorizer
-
-from sklearn.pipeline import Pipeline
 from os.path import dirname
 from pathlib import Path
-from joblib import dump, load
+
+from sklearn.ensemble import RandomForestClassifier  # type: ignore
+from sklearn.feature_extraction import DictVectorizer  # type: ignore
+from sklearn.pipeline import Pipeline  # type: ignore
+from joblib import dump, load  # type: ignore
+
 from loguru import logger
 
 
