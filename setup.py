@@ -33,5 +33,10 @@ setup(
     entry_points='''
         [console_scripts]
         sadedegel=sadedegel.__main__:cli
+        sadedegel-dataset=sadedegel.dataset.__main__:cli
+        sadedegel-dataset-extended=sadedegel.dataset.extended.__main__:cli
+        sadedegel-summarize=sadedegel.summarize.__main__:cli
+        sadedegel-sbd=sadedegel.tokenize.__main__:cli
+        sadedegel-server=sadedegel.server.__main__:server
     '''
 )

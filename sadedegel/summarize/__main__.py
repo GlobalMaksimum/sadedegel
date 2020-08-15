@@ -6,8 +6,8 @@ from tqdm import tqdm  # type: ignore
 
 import click
 from tabulate import tabulate
-import numpy as np # type: ignore
-from sklearn.metrics import ndcg_score # type: ignore
+import numpy as np  # type: ignore
+from sklearn.metrics import ndcg_score  # type: ignore
 
 from ..dataset import load_annotated_corpus
 from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, AutoKMeansSummarizer, \
@@ -24,7 +24,7 @@ def to_sentence_list(sents: List[str]) -> List[Sentences]:
     return l
 
 
-@click.group()
+@click.group(help="SadedeGel summarizer commandline")
 def cli():
     pass
 
