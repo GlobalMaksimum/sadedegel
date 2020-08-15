@@ -1,5 +1,7 @@
+from typing import List
 import numpy as np
 from ._base import ExtractiveSummarizer
+from ..bblock import Sentences
 
 
 class RandomSummarizer(ExtractiveSummarizer):
@@ -18,7 +20,7 @@ class RandomSummarizer(ExtractiveSummarizer):
         np.random.seed(self.seed)
         self.normalize = normalize
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         if type(sentences) == list:
             n = len(sentences)
         else:
@@ -52,7 +54,7 @@ class LengthSummarizer(ExtractiveSummarizer):
 
         self.mode = mode
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
 
         if self.mode == 'token':
             scores = np.array([len(sent.tokens) for sent in sentences])
@@ -83,7 +85,7 @@ class PositionSummarizer(ExtractiveSummarizer):
 
         self.mode = mode
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         if type(sentences) == list:
             n = len(sentences)
         else:
@@ -127,5 +129,5 @@ class BandSummarizer(ExtractiveSummarizer):
 
         self.mode = mode
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         raise NotImplementedError("BandSummarizer is not completed yet.")
