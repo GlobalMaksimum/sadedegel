@@ -8,7 +8,7 @@ import click
 from typing import List
 
 
-@click.group()
+@click.group(help="sadedeGel SBD commandline")
 def tokenize():
     pass
 

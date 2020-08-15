@@ -1,1 +1,1 @@
-sadedegel>=0.11.3
+sadedegel>=0.12

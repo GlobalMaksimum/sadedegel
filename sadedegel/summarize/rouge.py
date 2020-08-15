@@ -1,5 +1,7 @@
-import numpy as np
+from typing import List
+import numpy as np  # type: ignore
 from ._base import ExtractiveSummarizer
+from ..bblock import Sentences
 
 
 class Rouge1Summarizer(ExtractiveSummarizer):
@@ -20,7 +22,7 @@ class Rouge1Summarizer(ExtractiveSummarizer):
 
         self.metric = metric
 
-    def predict(self, sentences):
+    def _predict(self, sentences: List[Sentences]):
         scores = np.array([sent.rouge1(self.metric) for sent in sentences])
 
         if self.normalize:

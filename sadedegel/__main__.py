@@ -12,13 +12,14 @@ def to_str(version_tuple: Tuple) -> str:
     return ".".join(version_tuple)
 
 
-@click.group()
+@click.group(help="SadedeGel commandline")
 def cli():
     pass
 
 
 @cli.command()
 def info():
+    """SadedeGel version information in details"""
     most_recent_version = requests.get("https://pypi.python.org/pypi/sadedegel/json").json()['info']['version']
     most_recent_version = to_tuple(most_recent_version)
 
@@ -41,7 +42,7 @@ def info():
     else:
         color = "green"
 
-    click.echo(f"sadedeGel Server (__herokuapp_url__): {click.style(to_str(heroku_version), fg=color)}")
+    click.echo(f"sadedeGel Server ({__herokuapp_url__}): {click.style(to_str(heroku_version), fg=color)}")
 
 
 if __name__ == '__main__':

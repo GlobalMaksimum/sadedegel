@@ -1,9 +1,12 @@
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.pipeline import Pipeline
+from typing import List
 from math import ceil
+
+from sklearn.cluster import KMeans  # type: ignore
+from sklearn.decomposition import PCA  # type: ignore
+from sklearn.pipeline import Pipeline  # type: ignore
+
 from ._base import ExtractiveSummarizer
-from ..bblock import Doc
+from ..bblock import Sentences
 
 
 class KMeansSummarizer(ExtractiveSummarizer):
@@ -13,9 +16,11 @@ class KMeansSummarizer(ExtractiveSummarizer):
         self.n_clusters = n_clusters
         self.random_state = random_state
 
-    def predict(self, doc):
-        if type(doc) != Doc:
-            raise ValueError(f"KMeansSummarizer.predict accepts only Doc type because of bert_embeddings dependency.")
+    def _predict(self, sentences: List[Sentences]):
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
+
+        doc = sentences[0].document
 
         effective_n_clusters = min(self.n_clusters, len(doc))
 
@@ -37,9 +42,11 @@ class AutoKMeansSummarizer(ExtractiveSummarizer):
         self.min_n_cluster = min_n_cluster
         self.random_state = random_state
 
-    def predict(self, doc):
-        if type(doc) != Doc:
-            raise Exception(f"KMeansSummarizer.predict accepts only Doc type because of bert_embeddings dependency.")
+    def _predict(self, sentences: List[Sentences]):
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
+
+        doc = sentences[0].document
 
         effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
 
@@ -66,9 +73,11 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
         self.n_components = n_components
         self.random_state = random_state
 
-    def predict(self, doc):
-        if type(doc) != Doc:
-            raise Exception(f"KMeansSummarizer.predict accepts only Doc type because of bert_embeddings dependency.")
+    def _predict(self, sentences: List[Sentences]):
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
+
+        doc = sentences[0].document
 
         effective_n_clusters = min(self.n_clusters, len(doc))
         effective_n_components = min(self.n_components, len(doc))

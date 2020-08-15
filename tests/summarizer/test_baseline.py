@@ -8,7 +8,7 @@ def list_equal(a: list, b: list) -> bool:
     return all((_a == _b) for _a, _b in zip(a, b))
 
 
-@pytest.mark.parametrize("input", [range(3), [0, 1, 2]])
+@pytest.mark.parametrize("input", [['0', '1', '2']])
 def test_first_default(input):
     summarizer = PositionSummarizer(normalize=False)
 
@@ -18,10 +18,10 @@ def test_first_default(input):
 def test_first_normalized():
     summarizer = PositionSummarizer()
 
-    assert summarizer.predict([0, 1, 2]) == approx([2 / 3, 1 / 3, 0])
+    assert summarizer.predict(['0', '1', '2']) == approx([2 / 3, 1 / 3, 0])
 
 
-@pytest.mark.parametrize("input", [range(3), [0, 1, 2]])
+@pytest.mark.parametrize("input", [['0', '1', '2']])
 def test_last(input):
     summarizer = PositionSummarizer('last', normalize=False)
 
@@ -31,7 +31,7 @@ def test_last(input):
 def test_last_normalized():
     summarizer = PositionSummarizer('last')
 
-    assert summarizer.predict([0, 1, 2]) == approx([0, 1 / 3, 2 / 3])
+    assert summarizer.predict(['0', '1', '2']) == approx([0, 1 / 3, 2 / 3])
 
 
 def test_pos_summarizer_unknown_mode():
@@ -51,7 +51,7 @@ def test_band_summarizer_unknown_mode():
 
 def test_band_summarizer_not_implemented_yet():
     with raises(NotImplementedError):
-        BandSummarizer('first').predict([0, 1, 2])
+        BandSummarizer('first').predict(['0', '1', '2'])
 
 
 def test_first_summ():
@@ -62,7 +62,7 @@ def test_first_summ():
     assert summarizer(doc, k=2) == doc.sents[:2]
 
 
-@pytest.mark.parametrize("input", [range(2), [0, 1, ]])
+@pytest.mark.parametrize("input", [['0', '1']])
 def test_random_default(input):
     summarizer = RandomSummarizer(normalize=False)
 
@@ -72,7 +72,7 @@ def test_random_default(input):
 def test_random_normalized():
     summarizer = RandomSummarizer(normalize=True)
 
-    assert summarizer.predict([0, 1]) == approx(np.array([0.28261752, 0.71738248]))
+    assert summarizer.predict(['0', '1']) == approx(np.array([0.28261752, 0.71738248]))
 
 
 def test_token_length_summarizer():
