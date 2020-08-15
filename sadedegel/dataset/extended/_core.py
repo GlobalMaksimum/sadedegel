@@ -15,7 +15,7 @@ __download_message__ = """Ensure that you have properly downloaded extended corp
         """
 
 
-def check_directory_structure(path: str) -> False:
+def check_directory_structure(path: str) -> bool:
     if not Path(expanduser(path)).exists():
         click.secho(f"{path} not found.\n", fg="red")
         click.secho(__download_message__, fg="red")

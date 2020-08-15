@@ -62,6 +62,6 @@ def building_doc_using_sents():
              "Av. İst. Prof. Mehmet Bey Tahtalıköy'e uğradı.",
              "123. Türkiye E-Sports turnuvası İstanbul'da gerçekleşti."]
 
-    doc = Doc(None, sents)
+    doc = Doc.from_sentences(sents)
 
     assert [sent.text for sent in doc.sents] == sents

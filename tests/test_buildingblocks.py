@@ -71,5 +71,5 @@ def test_doc_with_no_sentence():
 
     d = Doc(raw)
 
-    assert d.sents[0].tokens == Doc(None, [("söz konusu adreste bulunan yolda yağmurdan "
-                                            "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+    assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
+                                                     "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
