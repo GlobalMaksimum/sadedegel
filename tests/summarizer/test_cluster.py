@@ -25,7 +25,6 @@ def test_decomposed_kmeans(normalized):
 
 
 def test_kmeans_parameter_error():
-    with raises(ValueError):
-        d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
+    d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
 
-        KMeansSummarizer().predict(d.sents)
+    assert len(KMeansSummarizer().predict(d.sents)) == 3
