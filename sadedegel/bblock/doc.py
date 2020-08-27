@@ -3,6 +3,7 @@ from typing import List, Union
 
 import torch
 from transformers import AutoTokenizer  # type:ignore
+import warnings
 
 import numpy as np  # type:ignore
 
@@ -11,7 +12,8 @@ from loguru import logger
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
-
+from ._core import word_tokenize
+from .._config import get_config
 
 class Span:
     def __init__(self, i: int, span, doc):
@@ -154,12 +156,15 @@ class Span:
 
 
 class Sentences:
-    tokenizer = None
 
+    config = get_config()["Tokenizer"]
+    
     def __init__(self, id_: int, text: str, doc):
-        if Sentences.tokenizer is None:
-            Sentences.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-
+        if Sentences.config is not None:
+            Sentences.tokenizer = get_config()['Tokenizer']
+            Sentences.tokenizer_type = str(Sentences.tokenizer)
+        else:
+            raise RuntimeError("Tokenizer type is not defined. Please set tokenizer with Sentences.set_config(\"Tokenizer\",[\"simple\"|\"bert\"]). ")
         self.id = id_
         self.text = text
 
@@ -168,6 +173,7 @@ class Sentences:
         self.document = doc
         self.all_sentences = doc.sents
         self._bert = None
+        self.toks = None
 
     @property
     def bert(self):
@@ -179,20 +185,23 @@ class Sentences:
 
     @property
     def input_ids(self):
-        if self._input_ids is None:
-            self._input_ids = Sentences.tokenizer(self.text)['input_ids']
-
+        self.tokens_with_special_symbols
         return self._input_ids
 
     @property
     def tokens(self):
-        return self.tokens_with_special_symbols[1:-1]
+        if Sentences.tokenizer_type == 'bert':
+            toks = self.tokens_with_special_symbols[1:-1]
+        elif Sentences.tokenizer_type == 'simple':
+            toks = self.tokens_with_special_symbols 
+        
+        return toks
 
     @property
     def tokens_with_special_symbols(self):
         if self._tokens is None:
-            self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
-
+            self._tokens, self._input_ids = Sentences.tokenizer.tokenize(self.text)
+ 
         return self._tokens
 
     def rouge1(self, metric):
@@ -209,7 +218,13 @@ class Sentences:
     def __len__(self):
         return len(self.tokens)
 
+    @classmethod
+    def set_config(cls,attr,tok_type):
+        cls.config[attr] = tok_type
+        if str(tok_type) == 'simple':
+            warnings.warn('Vocab for simple tokenizer is not yet implemented with word2vec. Please do not attempt to get embeddings.')
 
+        
 class Doc:
     sbd = None
     model = None
