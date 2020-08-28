@@ -15,6 +15,8 @@ class RandomSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
+    _tags = ExtractiveSummarizer._tags + ['baseline']
+
     def __init__(self, seed=42, normalize=True):
         self.seed = seed
         np.random.seed(self.seed)
@@ -45,6 +47,8 @@ class LengthSummarizer(ExtractiveSummarizer):
         If ``False``, return a raw score vector.
         Otherwise, return a score vector that adds up to 1.
     """
+
+    _tags = ExtractiveSummarizer._tags + ['baseline']
 
     def __init__(self, mode="token", normalize=True):
         self.normalize = normalize
@@ -77,6 +81,8 @@ class PositionSummarizer(ExtractiveSummarizer):
         If ``False``, return a raw score vector.
         Otherwise, return a score vector that adds up to 1.
     """
+
+    _tags = ExtractiveSummarizer._tags + ['baseline']
 
     def __init__(self, mode='first', normalize=True):
         self.normalize = normalize
@@ -119,6 +125,8 @@ class BandSummarizer(ExtractiveSummarizer):
         If ``False``, return a raw score vector.
         Otherwise, return a score vector that adds up to 1.
     """
+
+    _tags = ExtractiveSummarizer._tags + ['baseline']
 
     def __init__(self, mode='first', k=3, normalized=True):
         self.normalized = normalized

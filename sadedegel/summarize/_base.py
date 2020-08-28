@@ -22,6 +22,8 @@ def get_sentences_list(X: Union[Doc, List[Sentences], List[str]]):
 
 class ExtractiveSummarizer(ABC):
 
+    _tags = ['extractive']
+
     @abstractmethod
     def _predict(self, sents: List[Sentences]) -> np.ndarray:
         pass
@@ -54,3 +56,10 @@ class ExtractiveSummarizer(ABC):
 
         summ = [sents[i] for i in topk_inds]
         return summ
+
+    def __contains__(self,tag:str) -> bool:
+        """
+            Check whether instance tags contain a given tag for filtering summarizers.
+        """
+
+        return True if tag in self._tags else False

@@ -15,6 +15,8 @@ class Rouge1Summarizer(ExtractiveSummarizer):
         Otherwise, return L2 normalized score vector.
     """
 
+    _tags = ExtractiveSummarizer._tags + ['selfsupervised'] 
+
     def __init__(self, metric='f1', normalize=True):
         self.normalize = normalize
         if metric not in ['f1', 'precision', 'recall']:
