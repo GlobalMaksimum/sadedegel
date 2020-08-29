@@ -1,4 +1,4 @@
-from .context import tr_upper, tr_lower, __tr_upper__, __tr_lower__, load_raw_corpus, Doc, flatten, Sentences
+from .context import tr_upper, tr_lower, __tr_upper__, __tr_lower__, load_raw_corpus, Doc, flatten
 
 
 def test_istitle():
@@ -44,14 +44,17 @@ def test_flattening_span_features():
 
     _ = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
 
+
 def test_sentences_eq_str():
-    s = Sentences(0, "test.", [])
-    assert s == "test."
+    d = Doc.from_sentences(["Bütün hayvanlar eşittir.", "Ama bazıları daha eşittir."])
+    assert d.sents[0] == "Bütün hayvanlar eşittir."
+
 
 def test_sentences_ne_str():
-    s = Sentences(0, "test.", [])
-    assert s != "not test."
+    d = Doc.from_sentences(["Bütün hayvanlar eşittir.", "Ama bazıları daha eşittir."])
+    assert d.sents[0] != "Ama bazıları daha eşittir."
+
 
 def test_sentences_ne_nonstr():
-    s = Sentences(0, "test.", [])
-    assert s != 9090
+    d = Doc.from_sentences(["Bütün hayvanlar eşittir.", "Ama bazıları daha eşittir."])
+    assert d.sents[1] != d

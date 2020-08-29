@@ -209,8 +209,9 @@ class Sentences:
     def __len__(self):
         return len(self.tokens)
 
-    def __eq__(self, s):
-        return self.text == s # no need for type checking, will return false for non-strings
+    def __eq__(self, s: str):
+        return self.text == s  # no need for type checking, will return false for non-strings
+
 
 class Doc:
     sbd = None
