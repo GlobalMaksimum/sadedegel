@@ -5,7 +5,7 @@
 SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.8 out now!**
+💫 **Version 0.12 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -31,7 +31,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 ## 💬 Where to ask questions
 
-The SadedeGel project is maintained by [@globalmaksmum](https://github.com/GlobalMaksimum) AI team members
+The SadedeGel project is maintained by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
 [@dafajon](https://github.com/dafajon),
 [@askarbozcan](https://github.com/askarbozcan),
 [@mccakir](https://github.com/mccakir) and 
@@ -102,21 +102,22 @@ pip install sadedegel
 To load SadedeGel, use `sadedegel.load()`
 
 ```python
-import sadedegel
-from sadedegel.dataset import load_sentence_corpus, load_raw_corpus
+from sadedegel import Doc
+from sadedegel.dataset import load_raw_corpus
+from sadedegel.summarize import Rouge1Summarizer
 
-nlp = sadedegel.load()
-tokenized = load_sentence_corpus()
 raw = load_raw_corpus()
 
-summary = nlp(raw[0])
-summary = nlp(tokenized[0], sentence_tokenizer=False)
+d = Doc(next(raw))
+
+summarizer = Rouge1Summarizer()
+summarizer(d, k=5)
 ```
 
 To use our ML based sentence boundary detector
 
 ```python
-from sadedegel.tokenize import Doc
+from sadedegel import Doc
 
 doc = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
 "daha büyük ölçekte. Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu. IBM 650 Model I adını taşıyan bilgisayarın "
@@ -175,6 +176,12 @@ make test
 ```
 
 ## References
+### Our Community Contributors
+
+We would like to thank our community contributors for their bug/enhancement requests and questions to make sadedeGel better everyday
+
+* [Burak Işıklı](https://github.com/burakisikli)
+
 ### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
     * We have borrowed many document and style related stuff from their code base :smile:
@@ -186,7 +193,7 @@ make test
       * Automating our SLM via [Github Actions](https://github.com/features/actions)
   * [Google Cloud Google Storage Service](https://cloud.google.com/products/storage) for providing low cost storage buckets making it possible to store `sadedegel.dataset.extended` data.
   * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
-  * [CodeConv](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
+  * [CodeCov](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
   * [binder](https://mybinder.org/) for 
      * Allowing us to share our example [notebooks](notebook/)
@@ -201,3 +208,4 @@ make test
 * Other NLP related references
 
     * [ROUGE: A Package for Automatic Evaluation of Summaries](https://www.aclweb.org/anthology/W04-1013.pdf)
+    * [Speech and Language Processing, Second Edition](https://web.stanford.edu/~jurafsky/slp3/)

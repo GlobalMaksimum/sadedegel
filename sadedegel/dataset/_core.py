@@ -22,7 +22,7 @@ def file_paths(corpus_type: CorpusTypeEnum = CorpusTypeEnum.RAW, noext=False, us
     if base_path is None:
         base_path = dirname(__file__)
 
-    if corpus_type in CorpusTypeEnum:
+    if type(corpus_type) == CorpusTypeEnum:
         search_pattern = Path(base_path).expanduser() / corpus_type.dir
 
         logger.debug(f"Search pattern for {corpus_type}: {search_pattern}")
@@ -108,12 +108,12 @@ def load_annotated_corpus(return_iter: bool = True, base_path=None):
 
     files = file_paths(CorpusTypeEnum.ANNOTATED, base_path)
 
-    corpus = []
+    def to_dict(d):
+        return dict(sentences=[s['content'] for s in d['sentences']],
+                    relevance=np.array([s['deletedInRound'] for s in d['sentences']]))
 
-    for fn in files:
-        d = safe_json_load(fn)
-
-        corpus.append(dict(sentences=[s['content'] for s in d['sentences']],
-                           relevance=np.array([s['deletedInRound'] for s in d['sentences']])))
-
-    return corpus
+    if return_iter:
+        return map(to_dict,
+                   map(safe_json_load, files))
+    else:
+        return [to_dict(safe_json_load(file)) for file in files]

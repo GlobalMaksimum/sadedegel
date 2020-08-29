@@ -1,7 +1,6 @@
-from pytest import approx
+from pytest import approx, raises
 import numpy as np
-from tests.context import Rouge1Summarizer
-from sadedegel.tokenize import Doc
+from .context import Rouge1Summarizer, Doc
 
 
 def test_rouge1_summarizer_precision_all_lower():
@@ -49,3 +48,8 @@ def test_rouge1_summarize_text():
     doc = Doc('ali topu tut. oya ip atla. ahmet topu at.')
 
     assert summ(doc, k=1) == [doc.sents[2]]
+
+
+def test_rouge1_summarizer_unknown_mode():
+    with raises(ValueError):
+        _ = Rouge1Summarizer('unknown')

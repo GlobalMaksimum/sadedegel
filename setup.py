@@ -18,12 +18,12 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
-              'sadedegel.tokenize', 'sadedegel.tokenize.ml',
+    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
+              'sadedegel.tokenize', 'sadedegel.ml',
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
-        'sadedegel.tokenize.ml': ['model/sbd.pickle']
+        'sadedegel.ml': ['model/sbd.pickle']
     },
     # Needed for dependencies
     install_requires=install_requires,
@@ -33,5 +33,10 @@ setup(
     entry_points='''
         [console_scripts]
         sadedegel=sadedegel.__main__:cli
+        sadedegel-dataset=sadedegel.dataset.__main__:cli
+        sadedegel-dataset-extended=sadedegel.dataset.extended.__main__:cli
+        sadedegel-summarize=sadedegel.summarize.__main__:cli
+        sadedegel-sbd=sadedegel.tokenize.__main__:cli
+        sadedegel-server=sadedegel.server.__main__:server
     '''
 )

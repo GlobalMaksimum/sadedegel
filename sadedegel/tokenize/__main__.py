@@ -1,14 +1,14 @@
 from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
 from sadedegel.tokenize import NLTKPunctTokenizer, RegexpSentenceTokenizer, Doc
-from sadedegel.tokenize.helper import flatten, is_eos
-from sadedegel.tokenize.ml import create_model, save_model
+from sadedegel.bblock.util import flatten, is_eos
+from sadedegel.ml import create_model, save_model
 from sklearn.model_selection import cross_val_score
 
 import click
 from typing import List
 
 
-@click.group()
+@click.group(help="sadedeGel SBD commandline")
 def tokenize():
     pass
 
@@ -55,7 +55,7 @@ def evaluate(v):
 
     iou_eval("RegexpSentenceTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
-    y_pred = [Doc(doc).sents for doc in raw]
+    y_pred = [[s.text for s in Doc(doc).sents] for doc in raw]
 
     iou_eval("MLBasedTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 

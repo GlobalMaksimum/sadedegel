@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Union, Iterator, List
 
 import re
+import nltk
 
 alphabets = "([A-Za-z])"
 prefixes = "(Mr|St|Mrs|Ms|Dr)[.]"
@@ -17,14 +18,6 @@ class SentencesTokenizer(object, metaclass=ABCMeta):
 
     def __call__(self, doc: str) -> List[str]:
         return self._split(doc)
-
-    def tokenize(self, corpus: Union[Iterator[str], List[str]], return_iter: bool = True):
-
-        if return_iter:
-            for doc in corpus:
-                yield self._split(doc)
-        else:
-            return list(self.tokenize(corpus, False))
 
     @abstractmethod
     def _split(self, text):
@@ -77,7 +70,6 @@ class NLTKPunctTokenizer(SentencesTokenizer):
     def __init__(self):
         super().__init__()
 
-        import nltk
         self.sent_detector = nltk.data.load('tokenizers/punkt/turkish.pickle')
 
     def _split(self, text: str) -> List[str]:

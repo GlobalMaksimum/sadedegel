@@ -1,4 +1,4 @@
-from pytest import approx
+from pytest import approx, raises
 from .context import rouge1_score
 
 
@@ -59,3 +59,13 @@ def test_rouge1_empty_all():
 
 def test_rouge1_no_common():
     assert rouge1_score(["the", "cat"], ["a", "dog"], metric="f1") == 0.0
+
+
+def test_raise_for_metric():
+    with raises(ValueError):
+        assert rouge1_score(["the", "cat"], ["a", "dog"], metric="intercluster-distance") == 0.0
+
+
+def test_raise_for_input_type():
+    with raises(ValueError, match="should be of list type.$"):
+        assert rouge1_score(iter(["the", "cat"]), ["a", "dog"], metric="f1") == 0.0
