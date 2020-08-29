@@ -15,7 +15,7 @@ class RandomSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    _tags = ExtractiveSummarizer._tags + ['baseline']
+    tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, seed=42, normalize=True):
         self.seed = seed
@@ -48,7 +48,7 @@ class LengthSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    _tags = ExtractiveSummarizer._tags + ['baseline']
+    tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, mode="token", normalize=True):
         self.normalize = normalize
@@ -82,7 +82,7 @@ class PositionSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    _tags = ExtractiveSummarizer._tags + ['baseline']
+    tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, mode='first', normalize=True):
         self.normalize = normalize
@@ -126,7 +126,7 @@ class BandSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    _tags = ExtractiveSummarizer._tags + ['baseline']
+    tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, mode='first', k=3, normalized=True):
         self.normalized = normalized

@@ -10,8 +10,7 @@ from ..bblock import Sentences
 
 
 class KMeansSummarizer(ExtractiveSummarizer):
-
-    _tags = ExtractiveSummarizer._tags + ['cluster'] 
+    tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_clusters=2, random_state=42, normalize=True):
         self.normalize = normalize
@@ -38,7 +37,7 @@ class KMeansSummarizer(ExtractiveSummarizer):
 class AutoKMeansSummarizer(ExtractiveSummarizer):
     """Kmeans cluster automatically deciding on the number of clusters to be used based on document length."""
 
-    _tags = ExtractiveSummarizer._tags + ['cluster'] 
+    tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_cluster_to_length=0.05, min_n_cluster=2, random_state=42, normalize=True):
         self.normalize = normalize
@@ -71,7 +70,7 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
          before clustering to obtain highest variance in vector fed into clustering
     """
 
-    _tags = ExtractiveSummarizer._tags + ['cluster'] 
+    tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_clusters=2, n_components=48, random_state=42, normalize=True):
         self.normalize = normalize
