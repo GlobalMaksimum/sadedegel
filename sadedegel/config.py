@@ -52,7 +52,7 @@ def check_value(f):
 @check_value
 def set_config(config: str, value: Any):
     if config == "word_tokenizer":
-        Sentences.set_tokenizer(value)
+        Sentences.set_word_tokenizer(value)
 
 
 @contextmanager
@@ -72,16 +72,16 @@ def tokenizer_context(tokenizer_name, warning=False):
 
 
 @check_config
-def get_config(config: str): # pylint: disable=inconsistent-return-statements
+def get_config(config: str):  # pylint: disable=inconsistent-return-statements
     if config == "word_tokenizer":
-        return str(Sentences.tokenizer)
+        return str(Sentences.word_tokenizer)
 
 
 @check_config
-def describe_config(config: str, print_desc=False) -> Union[None, str]: # pylint: disable=inconsistent-return-statements
+def describe_config(config: str, print_desc=False) -> Union[None, str]:  \
+        # pylint: disable=inconsistent-return-statements
     valid_values_fragment = "\n".join(configs[config].description)
     config_doc = f"""{configs[config].description}
-                     
                      Valid values are {valid_values_fragment}
                  """
 

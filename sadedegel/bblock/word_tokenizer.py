@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Union, Tuple
-from transformers import AutoTokenizer
-from ._core import word_tokenize
+from .word_tokenizer_helper import word_tokenize
 
 
 class BaseTokenizer(ABC):
@@ -18,9 +17,12 @@ class BaseTokenizer(ABC):
 
 
 class BertTokenizer(BaseTokenizer):
+    name = "BERT Tokenizer"
 
     def __init__(self, keep_special_tokens=True):
         super(BertTokenizer, self).__init__()
+
+        from transformers import AutoTokenizer
         self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
         self.special = None
         self.tokens = None
@@ -54,10 +56,12 @@ class BertTokenizer(BaseTokenizer):
         return self.tokens, self.token_type_ids
 
     def __str__(self):
-        return "BERT Tokenizer"
+        return self.name
 
 
 class SimpleTokenizer(BaseTokenizer):
+    name = "Simple Tokenizer"
+
     def __init__(self):
         super(SimpleTokenizer, self).__init__()
         self.tokenizer = word_tokenize
@@ -67,12 +71,21 @@ class SimpleTokenizer(BaseTokenizer):
     def _tokenize(self, text: str) -> List[str]:
         self.tokens = self.tokenizer(text)
         self.token_type_ids = [0] * len(self.tokens)
-        
+
         return self.tokens, self.token_type_ids
 
     def __str__(self) -> str:
-        return "Simple Tokenizer"
+        return self.name
 
 
-_word_tokenizers = {'bert': BertTokenizer(),
-                    'simple': SimpleTokenizer()}
+def get_tokenizer_instance_by_name(tokenizer_name: str) -> BaseTokenizer:
+    if tokenizer_name == SimpleTokenizer.name:
+        return SimpleTokenizer()
+    elif tokenizer_name == BertTokenizer.name:
+        return BertTokenizer()
+    else:
+        raise ValueError(f"No word tokenizer is available with name: {tokenizer_name}")
+
+
+def get_default_word_tokenizer() -> BaseTokenizer:
+    return get_tokenizer_instance_by_name(BertTokenizer.name)

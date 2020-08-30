@@ -2,7 +2,7 @@ import re
 from typing import List, Union
 
 import torch
-from transformers import AutoTokenizer  # type:ignore
+import warnings
 
 import numpy as np  # type:ignore
 
@@ -11,6 +11,7 @@ from loguru import logger
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from .word_tokenizer import get_tokenizer_instance_by_name, get_default_word_tokenizer
 
 
 class Span:
@@ -154,12 +155,9 @@ class Span:
 
 
 class Sentences:
-    tokenizer = None
+    word_tokenizer = get_default_word_tokenizer()
 
     def __init__(self, id_: int, text: str, doc):
-        if Sentences.tokenizer is None:
-            Sentences.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-
         self.id = id_
         self.text = text
 
@@ -168,6 +166,12 @@ class Sentences:
         self.document = doc
         self.all_sentences = doc.sents
         self._bert = None
+        self.toks = None
+
+    @staticmethod
+    def set_word_tokenizer(tokenizer_name):
+        if tokenizer_name != Sentences.word_tokenizer.name:
+            Sentences.word_tokenizer = get_tokenizer_instance_by_name(tokenizer_name)
 
     @property
     def bert(self):
@@ -180,7 +184,7 @@ class Sentences:
     @property
     def input_ids(self):
         if self._input_ids is None:
-            self._input_ids = Sentences.tokenizer(self.text)['input_ids']
+            self._input_ids = Sentences.word_tokenizer(self.text)['input_ids']
 
         return self._input_ids
 
