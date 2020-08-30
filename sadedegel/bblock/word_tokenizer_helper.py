@@ -1,4 +1,4 @@
-from .util import tr_lower, tr_upper, space_pad
+from .util import space_pad
 import re
 import string
 
@@ -71,8 +71,7 @@ c = compose(
     lambda t: time_re.sub(space_pad(metatoken_hhmm), t),
     lambda t: carplate_re.sub(space_pad(metatoken_plate), t),
 
-    lambda t: space.sub(" ", t),
-    lambda t: tr_lower(t)
+    lambda t: space.sub(" ", t)
 )
 
 prefix_re = re.compile('^[-]+')
@@ -86,7 +85,7 @@ def tokenize_substring(text: str):
 def word_tokenize_iter(text: str):
     for substring in c(text).split(' '):
         for t in tokenize_substring(substring):
-            if t not in puncts and len(t) > 0:
+            if len(t) > 0:
                 yield t
 
 
