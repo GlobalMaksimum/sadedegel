@@ -3,6 +3,8 @@ __all__ = ['set_config', 'get_config', 'describe_config', 'get_all_configs']
 from typing import Any, Union
 from functools import wraps
 from collections import namedtuple
+from contextlib import contextmanager
+import warnings
 from .bblock.doc import Sentences
 from .bblock.word_tokenizer import BertTokenizer, SimpleTokenizer
 
@@ -17,7 +19,8 @@ configs = {
 
 def check_config(f):
     @wraps(f)
-    def wrapper(config, *args, **kwds):
+    def wrapper(*args, **kwds):
+        config = args[0]
         if config not in configs:
             raise Exception((f"{config} is not a valid configuration for sadegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
@@ -28,12 +31,14 @@ def check_config(f):
 
 def check_value(f):
     @wraps(f)
-    def wrapper(config, value, *args, **kwds):
+    def wrapper(*args, **kwds):
+        config, value = args[0], args[1]
         cfg = configs.get(config, None)
 
         if cfg:
             if value not in cfg.valid_values:
-                raise Exception(f"Valid values for {config} are {', '.join(cfg.valid_values)}.")
+                raise Exception(
+                    f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
         else:
             raise Exception((f"{config} is not a valid configuration for sadegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
@@ -48,6 +53,22 @@ def check_value(f):
 def set_config(config: str, value: Any):
     if config == "word_tokenizer":
         Sentences.set_tokenizer(value)
+
+
+@contextmanager
+def tokenizer_context(tokenizer_name, warning=False):
+    current = Sentences.tokenizer.name
+
+    if warning and current != tokenizer_name:
+        warnings.warn(f"Changing tokenizer to {tokenizer_name}")
+
+    try:
+        set_config("word_tokenizer", tokenizer_name)
+        yield
+    except Exception:
+        raise
+    finally:
+        set_config("word_tokenizer", current)
 
 
 @check_config
