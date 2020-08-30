@@ -155,7 +155,7 @@ class Span:
 
 
 class Sentences:
-    word_tokenizer = get_default_word_tokenizer()
+    tokenizer = get_default_word_tokenizer()
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -170,8 +170,8 @@ class Sentences:
 
     @staticmethod
     def set_word_tokenizer(tokenizer_name):
-        if tokenizer_name != Sentences.word_tokenizer.name:
-            Sentences.word_tokenizer = get_tokenizer_instance_by_name(tokenizer_name)
+        if tokenizer_name != Sentences.tokenizer.name:
+            Sentences.tokenizer = get_tokenizer_instance_by_name(tokenizer_name)
 
     @property
     def bert(self):
@@ -183,21 +183,32 @@ class Sentences:
 
     @property
     def input_ids(self):
-        if self._input_ids is None:
-            self._input_ids = Sentences.word_tokenizer(self.text)['input_ids']
+        if Sentences.tokenizer.name == "BERT Tokenizer":
+            if self._input_ids is None:
+                self._input_ids = Sentences.tokenizer(self.text)['input_ids']
 
-        return self._input_ids
+            return self._input_ids
+        else:
+            raise NotImplementedError(("input_ids are not available with Simple Tokenizer."
+                                       "Use sadedegel.set_config('word_tokenizer', 'BERT Tokenizer') to change."))
 
     @property
     def tokens(self):
-        return self.tokens_with_special_symbols[1:-1]
+        if Sentences.tokenizer.name == "BERT Tokenizer":
+            return self.tokens_with_special_symbols[1:-1]
+        else:
+            return self.tokenizer.tokenize(self.text)
 
     @property
     def tokens_with_special_symbols(self):
-        if self._tokens is None:
-            self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
+        if Sentences.tokenizer.name == "BERT Tokenizer":
+            if self._tokens is None:
+                self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
 
-        return self._tokens
+            return self._tokens
+        else:
+            raise NotImplementedError(("input_ids are not available with Simple Tokenizer."
+                                       "Use sadedegel.set_config('word_tokenizer', 'BERT Tokenizer') to change."))
 
     def rouge1(self, metric):
         return rouge1_score(

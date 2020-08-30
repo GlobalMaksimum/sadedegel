@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import pytest
 from pytest import raises
-from .context import Doc, BertTokenizer, SimpleTokenizer, set_config, Sentences , tokenizer_context
+from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context
 
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.name, SimpleTokenizer.name])

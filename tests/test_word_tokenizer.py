@@ -1,5 +1,5 @@
 import pytest
-from .context import Doc, SimpleTokenizer, BertTokenizer, set_config, tokenizer_context
+from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context
 
 
 def test_bert_tokenizer_init():

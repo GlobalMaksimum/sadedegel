@@ -12,4 +12,4 @@ from sadedegel.bblock.util import flatten, is_eos  # noqa # pylint: disable=unus
 from sadedegel.ml import create_model, load_model, save_model  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.metrics import rouge1_score # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.server.__main__ import app # noqa # pylint: disable=unused-import, wrong-import-position
-from sadedegel import set_config, tokenizer_context # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel import tokenizer_context # noqa # pylint: disable=unused-import, wrong-import-position

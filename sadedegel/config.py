@@ -65,8 +65,6 @@ def tokenizer_context(tokenizer_name, warning=False):
     try:
         set_config("word_tokenizer", tokenizer_name)
         yield
-    except Exception:
-        raise
     finally:
         set_config("word_tokenizer", current)
 
@@ -74,7 +72,7 @@ def tokenizer_context(tokenizer_name, warning=False):
 @check_config
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
     if config == "word_tokenizer":
-        return str(Sentences.word_tokenizer)
+        return str(Sentences.tokenizer)
 
 
 @check_config
