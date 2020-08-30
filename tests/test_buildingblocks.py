@@ -1,22 +1,37 @@
 import numpy as np
 import torch
 import pytest
-from .context import Doc
+from pytest import raises
+from .context import Doc, BertTokenizer, SimpleTokenizer, set_config, Sentences , tokenizer_context
 
 
-def test_tokens():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.name, SimpleTokenizer.name])
+def test_tokens(tokenizer):
+    with tokenizer_context(tokenizer):
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-    s0 = d.sents[0]
+        s0 = d.sents[0]
 
-    assert s0.tokens == ['Ali', 'topu', 'tut', '.']
-    assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
+        assert s0.tokens == ['Ali', 'topu', 'tut', '.']
+
+        if tokenizer == SimpleTokenizer.name:
+            with raises(NotImplementedError):
+                assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
+        else:
+            assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
 
 
-def test_bert_embedding_generation():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.name, SimpleTokenizer.name])
+def test_bert_embedding_generation(tokenizer):
+    with tokenizer_context(tokenizer):
 
-    assert d.bert_embeddings.shape == (2, 768)
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+        if tokenizer == SimpleTokenizer.name:
+            with raises(NotImplementedError):
+                assert d.bert_embeddings.shape == (2, 768)
+        else:
+            assert d.bert_embeddings.shape == (2, 768)
 
 
 testdata = [(True, True),

@@ -1,4 +1,5 @@
-from .context import Doc, SimpleTokenizer, BertTokenizer, set_config
+import pytest
+from .context import Doc, SimpleTokenizer, BertTokenizer, set_config, tokenizer_context
 
 
 def test_bert_tokenizer_init():
@@ -14,31 +15,33 @@ def test_simple_tokenizer_init():
 def test_bert_tokenizer():
     bt = BertTokenizer()
     text = "Havaalanında bekliyoruz."
-    tokens, _ = bt.tokenize(text)
-    assert tokens == ['[CLS]', 'Havaalanı', '##nda', 'bekliyoruz', '.', '[SEP]']
+    tokens = bt.tokenize(text)
+    assert tokens == ['Havaalanı', '##nda', 'bekliyoruz', '.']
 
 
-def test_simple_tokenizer():
+@pytest.mark.parametrize("text, tokens_true", [("Havaalanında bekliyoruz.", ['Havaalanında', 'bekliyoruz', '.']),
+                                               ('Ali topu tut.', ['Ali', 'topu', 'tut', '.'])])
+def test_simple_tokenizer(text, tokens_true):
     st = SimpleTokenizer()
-    text = "Havaalanında bekliyoruz."
-    tokens, _ = st.tokenize(text)
-    assert tokens == ['havaalanında', 'bekliyoruz']
+    tokens_pred = st.tokenize(text)
+    assert tokens_pred == tokens_true
 
 
 def test_simple_tokenization_sentences():
     text = 'Merhaba dünya. Barış için geldik.'
 
-    set_config("word_tokenizer", SimpleTokenizer.name)
-    doc = Doc(text)
+    with tokenizer_context(SimpleTokenizer.name):
+        doc = Doc(text)
 
-    assert doc.sents[0].tokens == ['merhaba', 'dünya']
-    assert doc.sents[1].tokens == ['barış', 'için', 'geldik']
+        assert doc.sents[0].tokens == ['Merhaba', 'dünya', '.']
+        assert doc.sents[1].tokens == ['Barış', 'için', 'geldik', '.']
 
 
 def test_bert_tokenization_sents():
     text = 'Merhaba dünya. Barış için geldik.'
-    set_config("word_tokenizer", BertTokenizer.name)
-    doc = Doc(text)
 
-    assert doc.sents[0].tokens == ['Merhaba', 'dünya', '.']
-    assert doc.sents[1].tokens == ['Barış', 'için', 'geldik', '.']
+    with tokenizer_context(BertTokenizer.name):
+        doc = Doc(text)
+
+        assert doc.sents[0].tokens == ['Merhaba', 'dünya', '.']
+        assert doc.sents[1].tokens == ['Barış', 'için', 'geldik', '.']
