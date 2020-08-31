@@ -1,4 +1,4 @@
-from pytest import raises
+from pytest import warns
 import pytest
 from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer, Doc, SimpleTokenizer, \
     BertTokenizer, tokenizer_context
@@ -12,7 +12,7 @@ def test_kmeans(normalized, tokenizer, method):
         d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
 
         if tokenizer == SimpleTokenizer.__name__:
-            with raises(NotImplementedError):
+            with warns(UserWarning, match="Changing tokenizer to"):
                 assert len(method(normalize=normalized).predict(d)) == 3
         else:
             assert len(method(normalize=normalized).predict(d)) == 3
