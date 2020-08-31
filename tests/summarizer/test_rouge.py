@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from .context import Rouge1Summarizer, Doc, tokenizer_context, SimpleTokenizer, BertTokenizer
 
-tokenizer_parameter = [pytest.param(SimpleTokenizer.name, marks=pytest.mark.xfail), BertTokenizer.name]
+tokenizer_parameter = [pytest.param(SimpleTokenizer.__name__, marks=pytest.mark.xfail), BertTokenizer.__name__]
 
 
 @pytest.mark.parametrize("tokenizer", tokenizer_parameter)

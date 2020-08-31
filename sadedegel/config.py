@@ -13,7 +13,7 @@ Configuration = namedtuple("Configuration", "config, description, valid_values")
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
-                                    valid_values=[BertTokenizer.name, SimpleTokenizer.name])
+                                    valid_values=[BertTokenizer.__name__, SimpleTokenizer.__name__])
 }
 
 
@@ -57,7 +57,7 @@ def set_config(config: str, value: Any):
 
 @contextmanager
 def tokenizer_context(tokenizer_name, warning=False):
-    current = Sentences.tokenizer.name
+    current = Sentences.tokenizer.__name__
 
     if warning and current != tokenizer_name:
         warnings.warn(f"Changing tokenizer to {tokenizer_name}")
@@ -72,11 +72,11 @@ def tokenizer_context(tokenizer_name, warning=False):
 @check_config
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
     if config == "word_tokenizer":
-        return str(Sentences.tokenizer)
+        return Sentences.tokenizer.__name__
 
 
 @check_config
-def describe_config(config: str, print_desc=False) -> Union[None, str]:  \
+def describe_config(config: str, print_desc=False) -> Union[None, str]: \
         # pylint: disable=inconsistent-return-statements
     valid_values_fragment = "\n".join(configs[config].description)
     config_doc = f"""{configs[config].description}

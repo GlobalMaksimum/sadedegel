@@ -5,7 +5,7 @@ from pytest import raises
 from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context
 
 
-@pytest.mark.parametrize("tokenizer", [BertTokenizer.name, SimpleTokenizer.name])
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
 def test_tokens(tokenizer):
     with tokenizer_context(tokenizer):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
@@ -14,20 +14,16 @@ def test_tokens(tokenizer):
 
         assert s0.tokens == ['Ali', 'topu', 'tut', '.']
 
-        if tokenizer == SimpleTokenizer.name:
-            with raises(NotImplementedError):
-                assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
-        else:
-            assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
+        assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
 
 
-@pytest.mark.parametrize("tokenizer", [BertTokenizer.name, SimpleTokenizer.name])
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
 def test_bert_embedding_generation(tokenizer):
     with tokenizer_context(tokenizer):
 
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-        if tokenizer == SimpleTokenizer.name:
+        if tokenizer == SimpleTokenizer.__name__:
             with raises(NotImplementedError):
                 assert d.bert_embeddings.shape == (2, 768)
         else:
