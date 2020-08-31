@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Union, Iterator, List
+from typing import List
 
 import re
 import nltk
