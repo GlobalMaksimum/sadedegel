@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Union, Tuple, Dict
 from .word_tokenizer_helper import word_tokenize
+import warnings
 
 
 class WordTokenizer(ABC):
@@ -24,6 +25,10 @@ class WordTokenizer(ABC):
             if normalized_name == "bert":
                 WordTokenizer.__instances[normalized_name] = BertTokenizer()
             elif normalized_name == "simple":
+                warnings.warn(
+                    ("Note that SimpleTokenizer is pretty new in sadedeGel. "
+                     "If you experience any problems, open up a issue "
+                     "(https://github.com/GlobalMaksimum/sadedegel/issues/new)") )
                 WordTokenizer.__instances[normalized_name] = SimpleTokenizer()
             else:
                 raise Exception(
