@@ -6,7 +6,6 @@ from collections import namedtuple
 from contextlib import contextmanager
 import warnings
 from .bblock.doc import Sentences
-from .bblock.word_tokenizer import BertTokenizer, SimpleTokenizer
 
 Configuration = namedtuple("Configuration", "config, description, valid_values")
 
