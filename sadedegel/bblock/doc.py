@@ -2,7 +2,6 @@ import re
 from typing import List, Union
 
 import torch
-import warnings
 
 import numpy as np  # type:ignore
 
@@ -164,6 +163,7 @@ class Sentences:
         self._tokens = None
         self.document = doc
         self._bert = None
+        self.toks = None
 
     @staticmethod
     def set_word_tokenizer(tokenizer_name):

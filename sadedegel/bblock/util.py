@@ -15,6 +15,8 @@ def tr_lower(s: str) -> str:
 def tr_upper(s: str) -> str:
     return s.replace("i", "İ").upper()
 
+def space_pad(token):
+    return " "+token+" "
 
 def space_pad(token):
     return " " + token + " "
