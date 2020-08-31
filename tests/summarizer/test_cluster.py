@@ -1,30 +1,18 @@
-from pytest import raises
+from pytest import warns
 import pytest
-from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer, Doc
+from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer, Doc, SimpleTokenizer, \
+    BertTokenizer, tokenizer_context
 
 
 @pytest.mark.parametrize("normalized", [True, False])
-def test_kmeans(normalized):
-    d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
+@pytest.mark.parametrize("tokenizer", [SimpleTokenizer.__name__, BertTokenizer.__name__])
+@pytest.mark.parametrize("method", [KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer])
+def test_kmeans(normalized, tokenizer, method):
+    with tokenizer_context(tokenizer):
+        d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
 
-    assert len(KMeansSummarizer(normalize=normalized).predict(d)) == 3
-
-
-@pytest.mark.parametrize("normalized", [True, False])
-def test_autokmeans(normalized):
-    d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
-
-    assert len(AutoKMeansSummarizer(normalize=normalized).predict(d)) == 3
-
-
-@pytest.mark.parametrize("normalized", [True, False])
-def test_decomposed_kmeans(normalized):
-    d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
-
-    assert len(DecomposedKMeansSummarizer(normalize=normalized).predict(d)) == 3
-
-
-def test_kmeans_parameter_error():
-    d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
-
-    assert len(KMeansSummarizer().predict(d.sents)) == 3
+        if tokenizer == SimpleTokenizer.__name__:
+            with warns(UserWarning, match="Changing tokenizer to"):
+                assert len(method(normalize=normalized).predict(d)) == 3
+        else:
+            assert len(method(normalize=normalized).predict(d)) == 3
