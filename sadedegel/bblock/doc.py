@@ -2,7 +2,6 @@ import re
 from typing import List, Union
 
 import torch
-from transformers import AutoTokenizer  # type:ignore
 
 import numpy as np  # type:ignore
 
@@ -11,6 +10,7 @@ from loguru import logger
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
 
 
 class Span:
@@ -154,20 +154,21 @@ class Span:
 
 
 class Sentences:
-    tokenizer = None
+    tokenizer = get_default_word_tokenizer()
 
     def __init__(self, id_: int, text: str, doc):
-        if Sentences.tokenizer is None:
-            Sentences.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-
         self.id = id_
         self.text = text
 
-        self._input_ids = None
         self._tokens = None
         self.document = doc
-        self.all_sentences = doc.sents
         self._bert = None
+        self.toks = None
+
+    @staticmethod
+    def set_word_tokenizer(tokenizer_name):
+        if tokenizer_name != Sentences.tokenizer.__name__:
+            Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
 
     @property
     def bert(self):
@@ -179,25 +180,22 @@ class Sentences:
 
     @property
     def input_ids(self):
-        if self._input_ids is None:
-            self._input_ids = Sentences.tokenizer(self.text)['input_ids']
-
-        return self._input_ids
+        return Sentences.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
     @property
     def tokens(self):
-        return self.tokens_with_special_symbols[1:-1]
-
-    @property
-    def tokens_with_special_symbols(self):
         if self._tokens is None:
-            self._tokens = Sentences.tokenizer.convert_ids_to_tokens(self.input_ids)
+            self._tokens = Sentences.tokenizer(self.text)
 
         return self._tokens
 
+    @property
+    def tokens_with_special_symbols(self):
+        return ['[CLS]'] + self.tokens + ['[SEP]']
+
     def rouge1(self, metric):
         return rouge1_score(
-            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.all_sentences if sent.id != self.id]),
+            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document.sents if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
     def __str__(self):
@@ -208,6 +206,9 @@ class Sentences:
 
     def __len__(self):
         return len(self.tokens)
+
+    def __eq__(self, s: str):
+        return self.text == s  # no need for type checking, will return false for non-strings
 
 
 class Doc:

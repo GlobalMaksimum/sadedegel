@@ -43,3 +43,18 @@ def test_flattening_span_features():
     raw_corpus = load_raw_corpus()
 
     _ = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
+
+
+def test_sentences_eq_str():
+    d = Doc.from_sentences(["Bütün hayvanlar eşittir.", "Ama bazıları daha eşittir."])
+    assert d.sents[0] == "Bütün hayvanlar eşittir."
+
+
+def test_sentences_ne_str():
+    d = Doc.from_sentences(["Bütün hayvanlar eşittir.", "Ama bazıları daha eşittir."])
+    assert d.sents[0] != "Ama bazıları daha eşittir."
+
+
+def test_sentences_ne_nonstr():
+    d = Doc.from_sentences(["Bütün hayvanlar eşittir.", "Ama bazıları daha eşittir."])
+    assert d.sents[1] != d

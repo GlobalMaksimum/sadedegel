@@ -7,9 +7,11 @@ from sklearn.pipeline import Pipeline  # type: ignore
 
 from ._base import ExtractiveSummarizer
 from ..bblock import Sentences
+from ..config import tokenizer_context
 
 
 class KMeansSummarizer(ExtractiveSummarizer):
+    tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_clusters=2, random_state=42, normalize=True):
         self.normalize = normalize
@@ -17,24 +19,27 @@ class KMeansSummarizer(ExtractiveSummarizer):
         self.random_state = random_state
 
     def _predict(self, sentences: List[Sentences]):
-        if len(sentences) == 0:
-            raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        with tokenizer_context('bert', warning=True):
+            if len(sentences) == 0:
+                raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-        doc = sentences[0].document
+            doc = sentences[0].document
 
-        effective_n_clusters = min(self.n_clusters, len(doc))
+            effective_n_clusters = min(self.n_clusters, len(doc))
 
-        scores = 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
-            doc.bert_embeddings).min(axis=1) + 1e-10)
+            scores = 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
+                doc.bert_embeddings).min(axis=1) + 1e-10)
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+            if self.normalize:
+                return scores / scores.sum()
+            else:
+                return scores
 
 
 class AutoKMeansSummarizer(ExtractiveSummarizer):
     """Kmeans cluster automatically deciding on the number of clusters to be used based on document length."""
+
+    tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_cluster_to_length=0.05, min_n_cluster=2, random_state=42, normalize=True):
         self.normalize = normalize
@@ -43,20 +48,21 @@ class AutoKMeansSummarizer(ExtractiveSummarizer):
         self.random_state = random_state
 
     def _predict(self, sentences: List[Sentences]):
-        if len(sentences) == 0:
-            raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        with tokenizer_context('bert', warning=True):
+            if len(sentences) == 0:
+                raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-        doc = sentences[0].document
+            doc = sentences[0].document
 
-        effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
+            effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
 
-        scores = 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
-            doc.bert_embeddings).min(axis=1) + 1e-10)
+            scores = 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
+                doc.bert_embeddings).min(axis=1) + 1e-10)
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+            if self.normalize:
+                return scores / scores.sum()
+            else:
+                return scores
 
 
 class DecomposedKMeansSummarizer(ExtractiveSummarizer):
@@ -67,6 +73,8 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
          before clustering to obtain highest variance in vector fed into clustering
     """
 
+    tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
+
     def __init__(self, n_clusters=2, n_components=48, random_state=42, normalize=True):
         self.normalize = normalize
         self.n_clusters = n_clusters
@@ -74,21 +82,22 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
         self.random_state = random_state
 
     def _predict(self, sentences: List[Sentences]):
-        if len(sentences) == 0:
-            raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        with tokenizer_context('bert', warning=True):
+            if len(sentences) == 0:
+                raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-        doc = sentences[0].document
+            doc = sentences[0].document
 
-        effective_n_clusters = min(self.n_clusters, len(doc))
-        effective_n_components = min(self.n_components, len(doc))
+            effective_n_clusters = min(self.n_clusters, len(doc))
+            effective_n_components = min(self.n_components, len(doc))
 
-        pipeline = Pipeline(
-            [('pca', PCA(effective_n_components)),
-             ('kmeans', KMeans(effective_n_clusters, random_state=self.random_state))])
+            pipeline = Pipeline(
+                [('pca', PCA(effective_n_components)),
+                 ('kmeans', KMeans(effective_n_clusters, random_state=self.random_state))])
 
-        scores = 1 / (pipeline.fit_transform(doc.bert_embeddings).min(axis=1) + 1e-10)
+            scores = 1 / (pipeline.fit_transform(doc.bert_embeddings).min(axis=1) + 1e-10)
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+            if self.normalize:
+                return scores / scores.sum()
+            else:
+                return scores
