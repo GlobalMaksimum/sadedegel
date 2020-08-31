@@ -18,16 +18,11 @@ class Rouge1Summarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['self-supervised', 'ml']
 
     def __init__(self, metric='f1', normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
         if metric not in ['f1', 'precision', 'recall']:
             raise ValueError(f"mode should be one of 'f1', 'precision','recall'")
 
         self.metric = metric
 
     def _predict(self, sentences: List[Sentences]):
-        scores = np.array([sent.rouge1(self.metric) for sent in sentences])
-
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return np.array([sent.rouge1(self.metric) for sent in sentences])

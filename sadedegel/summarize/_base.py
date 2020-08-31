@@ -23,6 +23,9 @@ def get_sentences_list(X: Union[Doc, List[Sentences], List[str]]):
 class ExtractiveSummarizer(ABC):
     tags = ['extractive']
 
+    def __init__(self, normalize=True):
+        self.normalize = normalize
+
     @abstractmethod
     def _predict(self, sents: List[Sentences]) -> np.ndarray:
         pass
@@ -44,16 +47,23 @@ class ExtractiveSummarizer(ABC):
         """
         sents = get_sentences_list(sents)
 
-        return self._predict(sents)
+        scores = self._predict(sents)
+
+        if self.normalize:
+            return scores / scores.sum()
+        else:
+            return scores
 
     def __call__(self, sents: Union[Doc, List[Sentences], List[str]], k: int) -> List[Sentences]:
-        sents = get_sentences_list(sents)
 
+        sents = get_sentences_list(sents)
         scores = self.predict(sents)
+
         topk_inds = np.argpartition(scores, k)[-k:]  # returns indices of k top sentences
         topk_inds.sort()  # fix the order of sentences
 
         summ = [sents[i] for i in topk_inds]
+
         return summ
 
     def __contains__(self, tag: str) -> bool:
