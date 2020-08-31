@@ -13,7 +13,7 @@ Configuration = namedtuple("Configuration", "config, description, valid_values")
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
-                                    valid_values=[BertTokenizer.__name__, SimpleTokenizer.__name__])
+                                    valid_values=None)
 }
 
 
@@ -49,7 +49,6 @@ def check_value(f):
 
 
 @check_config
-@check_value
 def set_config(config: str, value: Any):
     if config == "word_tokenizer":
         Sentences.set_word_tokenizer(value)
