@@ -14,7 +14,7 @@ class KMeansSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_clusters=2, random_state=42, normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
         self.n_clusters = n_clusters
         self.random_state = random_state
 
@@ -27,13 +27,8 @@ class KMeansSummarizer(ExtractiveSummarizer):
 
             effective_n_clusters = min(self.n_clusters, len(doc))
 
-            scores = 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
+            return 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
                 doc.bert_embeddings).min(axis=1) + 1e-10)
-
-            if self.normalize:
-                return scores / scores.sum()
-            else:
-                return scores
 
 
 class AutoKMeansSummarizer(ExtractiveSummarizer):
@@ -42,7 +37,8 @@ class AutoKMeansSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_cluster_to_length=0.05, min_n_cluster=2, random_state=42, normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
+
         self.n_cluster_to_length = n_cluster_to_length
         self.min_n_cluster = min_n_cluster
         self.random_state = random_state
@@ -56,13 +52,8 @@ class AutoKMeansSummarizer(ExtractiveSummarizer):
 
             effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
 
-            scores = 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
+            return 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
                 doc.bert_embeddings).min(axis=1) + 1e-10)
-
-            if self.normalize:
-                return scores / scores.sum()
-            else:
-                return scores
 
 
 class DecomposedKMeansSummarizer(ExtractiveSummarizer):
@@ -76,7 +67,7 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
     def __init__(self, n_clusters=2, n_components=48, random_state=42, normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
         self.n_clusters = n_clusters
         self.n_components = n_components
         self.random_state = random_state
@@ -95,9 +86,4 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
                 [('pca', PCA(effective_n_components)),
                  ('kmeans', KMeans(effective_n_clusters, random_state=self.random_state))])
 
-            scores = 1 / (pipeline.fit_transform(doc.bert_embeddings).min(axis=1) + 1e-10)
-
-            if self.normalize:
-                return scores / scores.sum()
-            else:
-                return scores
+            return 1 / (pipeline.fit_transform(doc.bert_embeddings).min(axis=1) + 1e-10)

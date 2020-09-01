@@ -18,9 +18,9 @@ class RandomSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, seed=42, normalize=True):
+        super().__init__(normalize)
         self.seed = seed
         np.random.seed(self.seed)
-        self.normalize = normalize
 
     def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         if type(sentences) == list:
@@ -28,12 +28,7 @@ class RandomSummarizer(ExtractiveSummarizer):
         else:
             n = len(list(sentences))
 
-        scores = np.random.random(n)
-
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return np.random.random(n)
 
 
 class LengthSummarizer(ExtractiveSummarizer):
@@ -51,7 +46,7 @@ class LengthSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, mode="token", normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
 
         if mode not in ['token', 'char']:
             raise ValueError(f"mode should be one of 'token', 'char'")
@@ -65,10 +60,7 @@ class LengthSummarizer(ExtractiveSummarizer):
         else:
             scores = np.array([sum(len(token) for token in sent.tokens) for sent in sentences])
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return scores
 
 
 class PositionSummarizer(ExtractiveSummarizer):
@@ -85,7 +77,8 @@ class PositionSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['baseline']
 
     def __init__(self, mode='first', normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
+
         if mode not in ['first', 'last']:
             raise ValueError(f"mode should be one of 'first', 'last'")
 
@@ -102,10 +95,7 @@ class PositionSummarizer(ExtractiveSummarizer):
         else:
             scores = np.arange(n)
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return scores
 
 
 class BandSummarizer(ExtractiveSummarizer):
@@ -128,8 +118,8 @@ class BandSummarizer(ExtractiveSummarizer):
 
     tags = ExtractiveSummarizer.tags + ['baseline']
 
-    def __init__(self, mode='first', k=3, normalized=True):
-        self.normalized = normalized
+    def __init__(self, mode='first', k=3, normalize=True):
+        super().__init__(normalize)
         self.k = k
 
         if mode not in ['first', 'last']:

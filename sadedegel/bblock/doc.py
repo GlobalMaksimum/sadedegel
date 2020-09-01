@@ -100,8 +100,7 @@ class Span:
         # if word_m1.istitle() and not is_first_span:
         #     features["PREV_TITLE"] = 1
 
-        """NOTE: 'Beşiktaş’ın' is not title by python :/
-        """
+        # NOTE: 'Beşiktaş’ın' is not title by python :/
         m = re.search(r'\w+', word)
 
         if m:
@@ -127,9 +126,9 @@ class Span:
         if '.' in word:
 
             if any(tr_lower(word).startswith(abbrv) for abbrv in __tr_lower_abbrv__):
-                features[f"PREFIX_IS_ABBRV"] = True
+                features["PREFIX_IS_ABBRV"] = True
             if any(tr_lower(word).endswith(abbrv) for abbrv in __tr_lower_abbrv__):
-                features[f"SUFFIX_IS_ABBRV"] = True
+                features["SUFFIX_IS_ABBRV"] = True
             else:
                 prefix = word.split('.', maxsplit=1)[0]
                 features["PREFIX_IS_DIGIT"] = prefix.isdigit()

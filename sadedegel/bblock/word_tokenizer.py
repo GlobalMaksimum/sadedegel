@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Union, Tuple, Dict
+from typing import List
 from .word_tokenizer_helper import word_tokenize
 import warnings
 
@@ -28,7 +28,7 @@ class WordTokenizer(ABC):
                 warnings.warn(
                     ("Note that SimpleTokenizer is pretty new in sadedeGel. "
                      "If you experience any problems, open up a issue "
-                     "(https://github.com/GlobalMaksimum/sadedegel/issues/new)") )
+                     "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
                 WordTokenizer.__instances[normalized_name] = SimpleTokenizer()
             else:
                 raise Exception(
@@ -64,7 +64,7 @@ class SimpleTokenizer(WordTokenizer):
     def _tokenize(self, text: str) -> List[str]:
         return self.tokenizer(text)
 
-    def convert_tokens_to_ids(self, ids: List[int]) -> List[str]:
+    def convert_tokens_to_ids(self, ids: List[str]) -> List[int]:
         raise NotImplementedError("convert_tokens_to_ids is not implemented for SimpleTokenizer yet. Use BERTTokenizer")
 
 
