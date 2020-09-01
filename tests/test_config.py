@@ -2,11 +2,11 @@ from .context import get_all_configs, describe_config
 
 
 def test_all_configs():
-    assert type(get_all_configs()) == dict
+    assert isinstance(get_all_configs(), dict)
 
 
 def test_describe_config_str():
-    assert type(describe_config('word_tokenizer')) == str
+    assert isinstance(describe_config('word_tokenizer'), str)
 
 
 def test_describe_config_print(capsys):
