@@ -1,6 +1,6 @@
 __all__ = ['set_config', 'get_config', 'describe_config', 'get_all_configs']
 
-from typing import Any, Union
+from typing import Any
 from functools import wraps
 from collections import namedtuple
 from contextlib import contextmanager
@@ -74,8 +74,7 @@ def get_config(config: str):  # pylint: disable=inconsistent-return-statements
 
 
 @check_config
-def describe_config(config: str, print_desc=False) -> Union[
-    None, str]:  # pylint: disable=inconsistent-return-statements
+def describe_config(config: str, print_desc=False):  # pylint: disable=inconsistent-return-statements
 
     if configs[config].valid_values is not None:
         valid_values_fragment = "\n\nValid values are\n" + "\n".join(configs[config].valid_values)
