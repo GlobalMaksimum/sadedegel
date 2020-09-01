@@ -2,7 +2,7 @@
 
 # SadedeGel: An extraction based Turkish news summarizer
 
-SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
+SadedeGel is a library for unsupervised extraction-based news summarization using several old and new NLP techniques.
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
 💫 **Version 0.13 out now!**
