@@ -1,4 +1,4 @@
-<a href="http://sadedegel.ai"><img src="https://avatars0.githubusercontent.com/u/2204565?s=280&v=4" width="125" height="125" align="right" /></a>
+<a href="http://sadedegel.ai"><img src="https://sadedegel.ai/dist/img/logo-2.png?s=280&v=4" width="125" height="125" align="right" /></a>
 
 # Contribute to sadedeGel
 
@@ -18,6 +18,7 @@ overview of how things are organised and most importantly, how to get involved.
 3. [Code conventions](#code-conventions)
 4. [Adding tests](#adding-tests)
 5. [Dataset](#dataset)
+6. [Hotfix Checklist](#hotfix-checklist)
 
 ## Issues and bug reports
 
@@ -178,3 +179,14 @@ For a minimal control for sanity check use
 ```bash
 python -m sadedel.dataset -m validate
 ```
+
+## Hotfix Checklist
+
+- [ ] Start by creeating your hotfix branch usign `git flow hotfix start 0.<minor-release>.<next-hotfix-release>`. Ensure that your hotfix name confirms [SemVer](https://semver.org/) rules.
+- [ ] Make your changes accordingly and commit. Note to use `[resolves #issue-number]` to let Github close your issue automatically.
+- [ ] Ensure that you also update `__version__` variable in `sadedegel/about.py` with your hotfix release.
+- [ ] Run unit tests
+- [ ] Run linter, bandit and flake checks.
+- [ ] Finish hotfix using `git flow hotfix finish 0.<minor-release>.<next-hotfix-release>`. Use *Release notes are available on Github* as the default tag message.
+- [ ] Push your code for auto testing `git push origin develop master`
+- [ ] Push your tag using `git push origin --tags` so that we can create release notes based on that tag
