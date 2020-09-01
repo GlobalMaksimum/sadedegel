@@ -75,7 +75,6 @@ def get_config(config: str):  # pylint: disable=inconsistent-return-statements
 
 @check_config
 def describe_config(config: str, print_desc=False):  # pylint: disable=inconsistent-return-statements
-
     if configs[config].valid_values is not None:
         valid_values_fragment = "\n\nValid values are\n" + "\n".join(configs[config].valid_values)
     else:
