@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+        <meta charset="UTF-8" />
+        <link href="favicon.ico" rel="shortcut icon" type="image/ico" />
+        <title>
+            Sadedegel | Haber içerikleri için özelleşmiş metin özetleyici.
+        </title>
+        <link rel="preconnect" href="https://fonts.googleapis.com/" />
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com/" />
+        <link rel="stylesheet" href="/assets/css/bootstrap.min.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
+        />
+        <link rel="stylesheet" href="/assets/css/site.css" />
+        <link rel="stylesheet" href="/assets/css/index.css" />
+        <link rel="stylesheet" href="/assets/css/default.min.css" />
+        <link rel="stylesheet" href="/assets/css/3024-day.css" />
+        {% feed_meta %} {% seo %}
+    </head>
+
+    <body>
+        {% if jekyll.environment == "production" %}
+        <script src="my-analytics-script.js"></script>
+        {% endif %}
+        <header id="site-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <nav class="navbar navbar-expand-lg navbar-light"></nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <section id="home-hero">{% include home.html %}</section>
+        <section class="features">
+            <div class="container">
+                <div class="row">{{ content }}</div>
+            </div>
+        </section>
+        <footer id="site-footer" class="text-center">
+            {% include footer.html %}
+        </footer>
+        <div class="floatButton">
+            <a href="#examples">
+                <strong>Örneklere</strong>
+                <span>göz atın</span>
+            </a>
+        </div>
+        <script src="/assets/js/jquery-3.2.1.js"></script>
+        <script src="/assets/js/popper.js"></script>
+        <script src="/assets/js/bootstrap.js"></script>
+        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js"></script>
+        <script src="/assets/js/highlightjs-line-numbers.js"></script>
+        <script src="/assets/js/core.js"></script>
+        <script src="/assets/js/juniper.js"></script>
+        <script async defer>
+            new Juniper({
+                repo: "GlobalMaksimum/Sadedegel",
+                branch: "develop",
+                theme: "3024-day",
+            });
+            //
+            hljs.initHighlightingOnLoad();
+            hljs.initLineNumbersOnLoad();
+            $(".juniper-input div.CodeMirror").append(function () {
+                return $(this).parent().siblings(".juniper-button");
+            });
+            $(".juniper-button")
+                .text("Başlat")
+                .append(
+                    '<i class="fa play-button fa-play" aria-hidden="true"></i>'
+                )
+                .click(function () {
+                    console.log($(this).parent().parent().parent());
+                    $(this)
+                        .parent()
+                        .parent()
+                        .parent()
+                        .find(".juniper-output")
+                        .show();
+                });
+            window.addEventListener("load", function () {
+                setTimeout(function () {
+                    $(".floatButton").addClass("clicked");
+                }, 1000);
+            });
+        </script>
+    </body>
+</html>
