@@ -4,7 +4,7 @@ name: Dorukhan
 lastName: Afacan
 github: https://github.com/dafajon
 linkedin: https://www.linkedin.com/in/dorukhan-afacan-4b707249/
-img: assets/img/crew/004.svg
+img: /sadedegel/assets/img/crew/004.svg
 ---
 
 Data Scientist - Global Maksimum Data and Information Technologies
