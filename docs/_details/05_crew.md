@@ -10,7 +10,7 @@ title: Biz Kimiz?
 {% for author in site.authors%}
 <div class="col-md-3">
     <div class="card">
-        <img class="card-img-top" src="/{{author.img}}" alt="{{author.name}} {{author.lastName}}">
+        <img class="card-img-top" src="{{author.img}}" alt="{{author.name}} {{author.lastName}}">
         <div class="card-body">
             <h5 class="card-title">{{author.name}} {{author.lastName}}</h5>
             <p class="card-text">{{author.content | markdownalize}}</p>
