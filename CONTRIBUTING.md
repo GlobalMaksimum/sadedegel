@@ -182,11 +182,10 @@ python -m sadedel.dataset -m validate
 
 ## Hotfix Checklist
 
+- [ ] Start by creating an issue and ensure that what you are fixing is documented very clearly
 - [ ] Start by creeating your hotfix branch usign `git flow hotfix start 0.<minor-release>.<next-hotfix-release>`. Ensure that your hotfix name confirms [SemVer](https://semver.org/) rules.
 - [ ] Make your changes accordingly and commit. Note to use `[resolves #issue-number]` to let Github close your issue automatically.
 - [ ] Ensure that you also update `__version__` variable in `sadedegel/about.py` with your hotfix release.
 - [ ] Run unit tests
 - [ ] Run linter, bandit and flake checks.
-- [ ] Finish hotfix using `git flow hotfix finish 0.<minor-release>.<next-hotfix-release>`. Use *Release notes are available on Github* as the default tag message.
-- [ ] Push your code for auto testing `git push origin develop master`
-- [ ] Push your tag using `git push origin --tags` so that we can create release notes based on that tag
+- [ ] Once all done push your branch to github. Ensure that remove naming confirms `hotfix/0.<minor-release>.<next-hotfix-release>` for commit masters' future investigation.

@@ -33,7 +33,7 @@ def cli():
 @click.option("-f", "--table-format", default="github")
 def evaluate(table_format):
     """Evaluate all summarizers in sadedeGel"""
-    anno = load_annotated_corpus()
+    anno = load_annotated_corpus(return_iter=False)
 
     scores = defaultdict(list)
     for name, summarizer in tqdm(
