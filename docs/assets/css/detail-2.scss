@@ -310,6 +310,12 @@ body {
             }
         }
     }
+    @include max-yatayTablet {
+        padding-bottom: 60px;
+    }
+    @include max-dikeyTablet {
+        padding-bottom: 120px;
+    }
 }
 pre.code-view {
     & > code {

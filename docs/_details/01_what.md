@@ -36,6 +36,6 @@ parent: true
     </div>
     <div class="col-sm-12 col-md-6">
         <p>Daha fazla bilgi için sunumumuza göz atabilirsiniz:</p>
-        <iframe src = "/sadedegel/ViewerJS/#../assets/files/sadedeGel.pdf" width='500' height='300' allowfullscreen webkitallowfullscreen></iframe>
+        <iframe src = "/sadedegel/ViewerJS/#../assets/files/sadedeGel.pdf"  style="text-align:center; width:100%;height:100%;" allowfullscreen webkitallowfullscreen></iframe>
     </div>
 </div>
