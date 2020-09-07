@@ -71,6 +71,9 @@ The SadedeGel project is maintained by [@globalmaksimum](https://github.com/Glob
   * Cluster Summarizer
   * Supervised Summarizer
  
+* Various Word Tokenizers
+  * BERT Tokenizer - Trained tokenizer
+  * Simple Tokenizer - Regex Based (**Experimental**)
 
 📖 **For more details, refere to [sadedegel.ai](http://sadedegel.ai)**
 
