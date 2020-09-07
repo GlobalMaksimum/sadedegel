@@ -25,13 +25,23 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 [Normalized Discounted Cumulative Gain]: https://en.wikipedia.org/wiki/Discounted_cumulative_gain
 
+### Performance Evaluation
 
+Users can simply perform contrastive evaluation of the implemented summarizers running `sadedegel-summarize evaluate` on command line. 
+
+##### Options: 
+
+- `--tag | -t`: Each implemented summarizer has a built-in "tag" feature from the list `[extractive|baseline|self-supervised|ml]`. 
+User can provide subsets to include specific  summarizers and exclude the rest.
+- `--word-tokenizer | -wt`: Sadedegel incorporates two word tokenizers `bert` and `simple`. Default word tokenizer `bert` can be overriden for evaluating performance of summarizers subject to other built-in or user-defined word tokenizers.
+- `--debug | -db`: Set to `True` when evaluation CLI is tested with SadedeGel test suite. Just as new features are tested, their evaluation is also subject to unit tests. Addition of new summarizers or tags require the validation of the evaluation script as well. Refer to [CONTRIBUTING.md](https://github.com/GlobalMaksimum/sadedegel/blob/develop/CONTRIBUTING.md) for more on adding tests.  
 ### Performance Table
 
 #### Release 0.9
 * KMeans
 * AutoKMeansSummarizer
 * DecomposedKMeansSummarize
+* Backend word tokenizer: `BertTokenizer`
 
 | Method                     |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |----------------------------|---------------|---------------|---------------|
@@ -46,3 +56,22 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | KMeans                     |        0.6569 |        0.7432 |        0.8336 |
 | AutoKMeansSummarizer       |        0.6576 |        0.7417 |        0.8324 |
 | DecomposedKMeansSummarizer |        0.6550 |        0.7436 |        0.8331 |
+
+#### Release 0.13.5
+* Backend word tokenizer: `SimpleTokenizer`
+
+| Method                        |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|-------------------------------|---------------|---------------|---------------|
+| Random Summarizer             |        0.5635 |        0.6649 |        0.7799 |
+| FirstK Summarizer             |        0.5033 |        0.6154 |        0.7411 |
+| LastK Summarizer              |        0.6048 |        0.6973 |        0.8013 |
+| Rouge1 Summarizer (f1)        |        0.6641 |        0.7461 |        0.8399 |
+| Rouge1 Summarizer (precision) |        0.4918 |        0.6311 |        0.7649 |
+| Rouge1 Summarizer (recall)    |        0.6671 |        0.7517 |        0.8447 |
+| Length Summarizer (char)      |        0.6669 |        0.7541 |        0.8469 |
+| Length Summarizer (token)     |        **0.6715** |        **0.7548** |        **0.8478** |
+| KMeans Summarizer             |        0.6569 |        0.7432 |        0.8336 |
+| AutoKMeans Summarizer         |        0.6576 |        0.7417 |        0.8324 |
+| DecomposedKMeans Summarizer   |        0.6555 |        0.7436 |        0.8331 |
+
+

@@ -1,6 +1,6 @@
 from collections import defaultdict
 from math import ceil
-from typing import List
+from typing import List, Union
 
 from tqdm import tqdm  # type: ignore
 
@@ -13,6 +13,18 @@ from ..dataset import load_annotated_corpus
 from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, AutoKMeansSummarizer, \
     DecomposedKMeansSummarizer, LengthSummarizer
 from ..bblock import Sentences, Doc
+from sadedegel import tokenizer_context
+
+
+_all = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
+        ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
+        ('Rouge1 Summarizer (precision)', Rouge1Summarizer('precision')),
+        ('Rouge1 Summarizer (recall)', Rouge1Summarizer('recall')),
+        ('Length Summarizer (char)', LengthSummarizer('token')),
+        ('Length Summarizer (token)', LengthSummarizer('char')),
+        ('KMeans Summarizer', KMeansSummarizer()),
+        ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
+        ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer())]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
@@ -24,6 +36,16 @@ def to_sentence_list(sents: List[str]) -> List[Sentences]:
     return l
 
 
+def filter_summary(tags: Union[str, List[str]]):
+
+    if type(tags) == str:
+        tags = [tags]
+
+    summs = [summ for tag in tags for summ in _all if tag in summ[1].tags]
+
+    return summs
+
+
 @click.group(help="SadedeGel summarizer commandline")
 def cli():
     pass
@@ -31,34 +53,31 @@ def cli():
 
 @cli.command()
 @click.option("-f", "--table-format", default="github")
-def evaluate(table_format):
+@click.option("-t", "--tag", default="extractive", multiple=True)
+@click.option("-wt", "--word-tokenizer", default="bert")
+@click.option("-d", "--debug", default=False)
+def evaluate(table_format, tag, word_tokenizer, debug):
     """Evaluate all summarizers in sadedeGel"""
     anno = load_annotated_corpus(return_iter=False)
 
+    summarizers = filter_summary(tag)
+
     scores = defaultdict(list)
-    for name, summarizer in tqdm(
-            [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
-             ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
-             ('Rouge1 Summarizer (precision)', Rouge1Summarizer('precision')),
-             ('Rouge1 Summarizer (recall)', Rouge1Summarizer('recall')),
-             ('Length Summarizer (char)', LengthSummarizer('token')),
-             ('Length Summarizer (token)', LengthSummarizer('char')),
-             ('KMeans Summarizer', KMeansSummarizer()),
-             ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
-             ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer())], unit=" method",
-            desc="Evaluate all summarization methods"):
-        for doc in tqdm(anno, unit=" doc", desc=f"Calculate n-dcg score for {name}"):
-            y_true = [doc['relevance']]
 
-            d = Doc.from_sentences(doc['sentences'])
+    with tokenizer_context(word_tokenizer):
+        for name, summarizer in tqdm(summarizers, unit=" method", desc="Evaluate all summarization methods"):
+            for doc in tqdm(anno, unit=" doc", desc=f"Calculate n-dcg score for {name}"):
+                y_true = [doc['relevance']]
 
-            y_pred = [summarizer.predict(d.sents)]
+                d = Doc.from_sentences(doc['sentences'])
 
-            score_10 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.1))
-            score_50 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.5))
-            score_80 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.8))
+                y_pred = [summarizer.predict(d.sents)]
 
-            scores[name].append((score_10, score_50, score_80))
+                score_10 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.1))
+                score_50 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.5))
+                score_80 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.8))
+
+                scores[name].append((score_10, score_50, score_80))
 
     table = [[algo, np.array([s[0] for s in scores]).mean(), np.array([s[1] for s in scores]).mean(),
               np.array([s[2] for s in scores]).mean()] for
@@ -68,6 +87,9 @@ def evaluate(table_format):
     print(
         tabulate(table, headers=['Method', 'ndcg(k=0.1)', 'ndcg(k=0.5)', 'ndcg(k=0.8)'], tablefmt=table_format,
                  floatfmt=".4f"))
+
+    if debug:
+        click.echo(np.array(table).shape)
 
 
 if __name__ == '__main__':
