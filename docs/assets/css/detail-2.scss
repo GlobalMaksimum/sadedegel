@@ -311,10 +311,10 @@ body {
         }
     }
     @include max-yatayTablet {
-        margin-bottom: 40px;
+        padding-bottom: 60px;
     }
     @include max-dikeyTablet {
-        margin-bottom: 90px;
+        padding-bottom: 120px;
     }
 }
 pre.code-view {
