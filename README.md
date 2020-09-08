@@ -47,6 +47,11 @@ The SadedeGel project is maintained by [@globalmaksimum](https://github.com/Glob
 
 [github issue tracker]: https://github.com/GlobalMaksimum/sadedegel/issues
 
+<h2> 🤝 Community<img width="100" height="20" src="https://a.slack-edge.com/bv1-8/slack_logo-ebd02d1.svg"/> 
+</h2>
+
+Join [SadedeGel Slack Workspace](https://join.slack.com/t/sadedegel/shared_invite/zt-h77u6aeq-VzEorB5QLHyJV90Fv4Ky3A) from the provided invite link.
+
 ## Features
 
 * Several news datasets
