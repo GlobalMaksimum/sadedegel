@@ -6,25 +6,26 @@ from tqdm import tqdm  # type: ignore
 
 import click
 from tabulate import tabulate
+import warnings
 import numpy as np  # type: ignore
 from sklearn.metrics import ndcg_score  # type: ignore
 
-from ..dataset import load_annotated_corpus
-from ..summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, AutoKMeansSummarizer, \
+from sadedegel.dataset import load_annotated_corpus
+from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
+    AutoKMeansSummarizer, \
     DecomposedKMeansSummarizer, LengthSummarizer
-from ..bblock import Sentences, Doc
+from sadedegel import Sentences, Doc
 from sadedegel import tokenizer_context
 
-
-_all = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
-        ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
-        ('Rouge1 Summarizer (precision)', Rouge1Summarizer('precision')),
-        ('Rouge1 Summarizer (recall)', Rouge1Summarizer('recall')),
-        ('Length Summarizer (char)', LengthSummarizer('token')),
-        ('Length Summarizer (token)', LengthSummarizer('char')),
-        ('KMeans Summarizer', KMeansSummarizer()),
-        ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
-        ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer())]
+SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
+               ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
+               ('Rouge1 Summarizer (precision)', Rouge1Summarizer('precision')),
+               ('Rouge1 Summarizer (recall)', Rouge1Summarizer('recall')),
+               ('Length Summarizer (char)', LengthSummarizer('token')),
+               ('Length Summarizer (token)', LengthSummarizer('char')),
+               ('KMeans Summarizer', KMeansSummarizer()),
+               ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
+               ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer())]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
@@ -36,16 +37,6 @@ def to_sentence_list(sents: List[str]) -> List[Sentences]:
     return l
 
 
-def filter_summary(tags: Union[str, List[str]]):
-
-    if type(tags) == str:
-        tags = [tags]
-
-    summs = [summ for tag in tags for summ in _all if tag in summ[1].tags]
-
-    return summs
-
-
 @click.group(help="SadedeGel summarizer commandline")
 def cli():
     pass
@@ -53,32 +44,38 @@ def cli():
 
 @cli.command()
 @click.option("-f", "--table-format", default="github")
-@click.option("-t", "--tag", default="extractive", multiple=True)
-@click.option("-wt", "--word-tokenizer", default="bert")
+@click.option("-t", "--tag", default=["extractive"], multiple=True)
 @click.option("-d", "--debug", default=False)
-def evaluate(table_format, tag, word_tokenizer, debug):
+def evaluate(table_format, tag, debug):
     """Evaluate all summarizers in sadedeGel"""
 
-    anno_corp = load_annotated_corpus()
-    anno = list(anno_corp)
-    summarizers = filter_summary(tag)
+    if not debug:
+        warnings.filterwarnings("ignore")
+
+    anno = load_annotated_corpus(False)
+    summarizers = [summ for summ in SUMMARIZERS if any(_tag in summ[1] for _tag in tag)]
 
     scores = defaultdict(list)
 
-    with tokenizer_context(word_tokenizer):
-        for name, summarizer in tqdm(summarizers, unit=" method", desc="Evaluate all summarization methods"):
-            for doc in tqdm(anno, unit=" doc", desc=f"Calculate n-dcg score for {name}"):
-                y_true = [doc['relevance']]
+    for word_tokenizer in tqdm(['simple', 'bert'], unit=" word-tokenizer"):
+        with tokenizer_context(word_tokenizer):
+            for name, summarizer in tqdm(summarizers, unit=" method"):
+                # skip simple tokenizer for clustering models
+                if "cluster" in summarizer and word_tokenizer == "simple":
+                    continue
 
-                d = Doc.from_sentences(doc['sentences'])
+                for doc in tqdm(anno, unit=" doc", desc=f"Evaluating {name}"):
+                    y_true = [doc['relevance']]
 
-                y_pred = [summarizer.predict(d.sents)]
+                    d = Doc.from_sentences(doc['sentences'])
 
-                score_10 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.1))
-                score_50 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.5))
-                score_80 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.8))
+                    y_pred = [summarizer.predict(d.sents)]
 
-                scores[name].append((score_10, score_50, score_80))
+                    score_10 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.1))
+                    score_50 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.5))
+                    score_80 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.8))
+
+                    scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
 
     table = [[algo, np.array([s[0] for s in scores]).mean(), np.array([s[1] for s in scores]).mean(),
               np.array([s[2] for s in scores]).mean()] for
@@ -86,7 +83,8 @@ def evaluate(table_format, tag, word_tokenizer, debug):
 
     # TODO: Sample weight of instances.
     print(
-        tabulate(table, headers=['Method', 'ndcg(k=0.1)', 'ndcg(k=0.5)', 'ndcg(k=0.8)'], tablefmt=table_format,
+        tabulate(table, headers=['Method & Tokenizer', 'ndcg(k=0.1)', 'ndcg(k=0.5)', 'ndcg(k=0.8)'],
+                 tablefmt=table_format,
                  floatfmt=".4f"))
 
     if debug:
