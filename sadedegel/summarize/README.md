@@ -28,6 +28,34 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
+#### Release 0.14
+* Results with simple word tokenizer are now available.
+  * Simple word tokenizer is not used with clustering based summarizers
+  
+| Method & Tokenizer                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|--------------------------------------|---------------|---------------|---------------|
+| Random Summarizer - simple             |        0.5635 |        0.6649 |        0.7799 |
+| FirstK Summarizer - simple             |        0.5033 |        0.6154 |        0.7411 |
+| LastK Summarizer - simple              |        0.6048 |        0.6973 |        0.8013 |
+| Rouge1 Summarizer (f1) - simple        |        0.6641 |        0.7461 |        0.8399 |
+| Rouge1 Summarizer (precision) - simple |        0.4918 |        0.6311 |        0.7649 |
+| Rouge1 Summarizer (recall) - simple    |        0.6671 |        0.7517 |        0.8447 |
+| Length Summarizer (char) - simple      |        0.6669 |        0.7541 |        0.8469 |
+| Length Summarizer (token) - simple     |        0.6715 |        0.7548 |        0.8478 |
+| Random Summarizer - bert               |        0.5457 |        0.6513 |        0.7698 |
+| FirstK Summarizer - bert               |        0.5033 |        0.6154 |        0.7411 |
+| LastK Summarizer - bert                |        0.6048 |        0.6973 |        0.8013 |
+| Rouge1 Summarizer (f1) - bert          |        0.6727 |        0.7530 |        0.8447 |
+| Rouge1 Summarizer (precision) - bert   |        0.5293 |        0.6504 |        0.7745 |
+| Rouge1 Summarizer (recall) - bert      |    **0.6753** |        0.7546 |        0.8452 |
+| Length Summarizer (char) - bert        |        0.6751 |    **0.7555** |        0.8458 |
+| Length Summarizer (token) - bert       |    **0.6753** |        0.7554 |      **0.8492** |
+| KMeans Summarizer - bert               |        0.6569 |        0.7432 |        0.8336 |
+| AutoKMeans Summarizer - bert           |        0.6576 |        0.7417 |        0.8324 |
+| DecomposedKMeans Summarizer - bert     |        0.6549 |        0.7436 |        0.8331 |
+
+
+
 #### Release 0.9
 * KMeans
 * AutoKMeansSummarizer
@@ -42,7 +70,7 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | Rouge1 (precision)         |        0.5293 |        0.6504 |        0.7745 |
 | Rouge1 (recall)            |    **0.6753** |        0.7546 |        0.8452 |
 | Length (char)              |        0.6751 |      **0.7555** |      0.8458 |
-| Length (token)             |        0.6753 |        0.7554 |    **0.8492** |
+| Length (token)             |        **0.6753** |        0.7554 |    **0.8492** |
 | KMeans                     |        0.6569 |        0.7432 |        0.8336 |
 | AutoKMeansSummarizer       |        0.6576 |        0.7417 |        0.8324 |
 | DecomposedKMeansSummarizer |        0.6550 |        0.7436 |        0.8331 |

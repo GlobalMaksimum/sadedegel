@@ -1,0 +1,325 @@
+---
+---
+
+@import "sass_classes";
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: #fafafa;
+}
+
+#site-header {
+    clear: both;
+}
+
+#page {
+    & > .row {
+        background-color: #fafafa;
+    }
+
+    .on-side {
+        background: $blue;
+        padding-top: 15px;
+        padding-bottom: 15px;
+
+        @include min-yatayTablet {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        //color: #a03ca1;
+        color: $purple;
+
+        strong {
+            color: #662d91;
+            text-transform: uppercase;
+        }
+    }
+}
+
+#side-bar {
+    .navbar-toggler {
+        color: rgba(255, 255, 255, 0.6);
+        border-color: rgba(255, 255, 255, 0.6);
+
+        &:focus,
+        &:active {
+            outline: none;
+        }
+    }
+
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
+
+    .navbar {
+        padding: 0;
+        margin-bottom: 15px;
+    }
+
+    @include min-yatayTablet {
+        position: fixed;
+        top: 15px;
+        height: calc(100% - 15px);
+    }
+
+    .navbar-brand {
+        padding: 0;
+        margin: 0 0 0 10px;
+
+        img {
+            max-height: 100px;
+        }
+
+        // .h1{
+        //   color: #fafafa;
+        // }
+    }
+
+    .list-group {
+        display: block;
+
+        .collapse {
+            border-radius: 6px;
+            @include transition(all, 350ms, ease-in);
+            background-color: $blue;
+
+            a {
+                padding-left: 2.25rem;
+                @include transition(all, 350ms, ease-in);
+            }
+
+            &.show {
+                background-color: #773bbb;
+            }
+
+            .collapse {
+                background-color: #773bbb;
+
+                a {
+                    padding-left: 3.25rem;
+                }
+
+                &.show {
+                    background-color: #8342cc;
+                }
+
+                .collapse {
+                    background-color: #8342cc;
+
+                    a {
+                        padding-left: 4.25rem;
+                    }
+
+                    &.show {
+                        background-color: #9950da;
+                    }
+                }
+            }
+        }
+    }
+
+    .list-group-item {
+        /*background-color: $blue;*/
+        background-color: transparent;
+        border-radius: 6px;
+        /*border-color  : $blue;*/
+        border-color: transparent;
+        color: #fafafa;
+        margin-bottom: 4px;
+        @include transition(all, 350ms, ease-out);
+        @include transition(padding, 0ms, ease-out);
+
+        i {
+            float: right;
+
+            /*&.fa-minus {
+        display: none;
+      }*/
+        }
+
+        &:hover,
+        &:active {
+            background-color: $lightpurple;
+            color: #fff;
+        }
+        &.active {
+            color: #fff;
+            background-color: $purple;
+        }
+
+        /*&[aria-expanded="true"] {
+      i {
+        &.fa-minus {
+          display: block;
+        }
+
+        &.fa-plus {
+          display: none;
+        }
+      }
+    }*/
+    }
+}
+
+#content-container {
+    padding: 15px;
+    @include clearfix;
+
+    @include min-dikeyTablet {
+        padding-bottom: 80px;
+    }
+
+    img {
+        border-radius: 6px;
+        width: 100%;
+
+        @include max-dikeyTablet {
+            margin: 15px 0;
+
+            &.float-left,
+            &.float-right {
+                float: none !important;
+            }
+        }
+
+        @include min-dikeyTablet {
+            width: auto;
+            max-width: 100%;
+            margin: 0 15px;
+
+            &.float-left {
+                margin-left: 0;
+            }
+
+            &.float-right {
+                margin-right: 0;
+            }
+        }
+    }
+
+    .not-visible {
+        display: none;
+    }
+
+    .card {
+        @include min-yatayTablet {
+            height: 100%;
+        }
+
+        .card-body {
+            @include min-yatayTablet {
+                position: relative;
+            }
+        }
+
+        img.card-img-top {
+            width: 140px;
+            height: 140px;
+            border-radius: 140px;
+            margin: 20px auto 0;
+        }
+
+        .btn-primary {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+
+            @include min-yatayTablet {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+            }
+            &.gh {
+                left: 50px;
+            }
+        }
+    }
+}
+
+#side-menu {
+    &.collapse {
+        @include min-yatayTablet {
+            display: block;
+        }
+    }
+}
+
+#site-footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    color: $blue;
+    width: auto;
+    background-color: #fafafa;
+
+    @include min-dikeyTablet {
+        padding-top: 15px;
+        padding-bottom: 0;
+    }
+
+    @include min-yatayTablet {
+        height: auto;
+        left: auto;
+        width: 100%;
+    }
+
+    a {
+        color: $blue;
+    }
+}
+
+.right-pane {
+    background-color: #fafafa;
+    position: relative;
+
+    &:before {
+        display: block;
+        content: "";
+        background-color: #fafafa;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 0;
+    }
+
+    * {
+        position: relative;
+    }
+
+    a {
+        &.cta {
+            color: $blue;
+        }
+
+        &.big-dot {
+            &:before {
+                background: lighten($purple, 30%);
+            }
+        }
+    }
+    @include max-yatayTablet {
+        padding-bottom: 60px;
+    }
+    @include max-dikeyTablet {
+        padding-bottom: 120px;
+    }
+}
+pre.code-view {
+    & > code {
+        border-radius: 4px;
+        font-size: 12px;
+    }
+}

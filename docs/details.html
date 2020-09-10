@@ -1,0 +1,24 @@
+---
+layout: details
+title: Detail
+permalink: /details/
+---
+
+<div class="row">
+    <div class="col-lg-2 on-side">{% include details/sidebar.html %}</div>
+    <div class="col-lg-10 offset-lg-2 right-pane">
+        <div id="content-container">
+            {% for detail in site.details %}
+            <div
+                id="{{detail.div_id}}"
+                class="info {% if forloop.index !=1%} not-visible {% endif %}"
+            >
+                {{detail.content | markdownify}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <footer id="site-footer" class="col-lg-10 text-center">
+        {% include footer.html %}
+    </footer>
+</div>

@@ -110,3 +110,4 @@ config.env
 
 # model files
 sadedegel/ml/model/sbd.test.pickle
+*.DS_Store
