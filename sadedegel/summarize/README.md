@@ -28,6 +28,12 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
+* First implementation of TextRank Summarizer using BERT embeddings.
+
+| Method & Tokenizer                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|--------------------------------------|---------------|---------------|---------------|
+| TextRank Summarizer (BERT) - bert |        0.6182 |        0.6989 |        0.7984 |
+
 #### Release 0.14
 * Results with simple word tokenizer are now available.
   * Simple word tokenizer is not used with clustering based summarizers

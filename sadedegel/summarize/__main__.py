@@ -13,7 +13,7 @@ from sklearn.metrics import ndcg_score  # type: ignore
 from sadedegel.dataset import load_annotated_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer, LengthSummarizer
+    DecomposedKMeansSummarizer, LengthSummarizer, TextRank
 from sadedegel import Sentences, Doc
 from sadedegel import tokenizer_context
 
@@ -25,7 +25,8 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ('Length Summarizer (token)', LengthSummarizer('char')),
                ('KMeans Summarizer', KMeansSummarizer()),
                ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
-               ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer())]
+               ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer()),
+               ("TextRank Summarizer (BERT)", TextRank())]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
@@ -60,7 +61,7 @@ def evaluate(table_format, tag, debug):
         with tokenizer_context(word_tokenizer):
             for name, summarizer in tqdm(summarizers, unit=" method"):
                 # skip simple tokenizer for clustering models
-                if "cluster" in summarizer and word_tokenizer == "simple":
+                if ("cluster" in summarizer or "rank" in summarizer) and word_tokenizer == "simple":
                     continue
 
                 for doc in tqdm(anno, unit=" doc", desc=f"Evaluating {name}"):
