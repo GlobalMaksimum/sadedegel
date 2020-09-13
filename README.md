@@ -22,7 +22,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 ![Commit Week](https://img.shields.io/github/commit-activity/w/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 ![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 [![Binder](https://mybinder.org/badge_logo.svg?style=plastic)](https://mybinder.org/v2/gh/GlobalMaksimum/sadedegel.git/master?filepath=notebook%2FBasics.ipynb)
-[![Slack](https://img.shields.io/static/v1?logo=slack&style=plastic&color=blueviolet&label=slack&labelColor=grey&message=sadedegel)](https://mybinder.org/v2/gh/GlobalMaksimum/sadedegel.git/master?filepath=notebook%2FBasics.ipynb)
+[![Slack](https://img.shields.io/static/v1?logo=slack&style=plastic&color=blueviolet&label=slack&labelColor=grey&message=sadedegel)](https://join.slack.com/t/sadedegel/shared_invite/zt-h77u6aeq-VzEorB5QLHyJV90Fv4Ky3A)
 
 
 ## 📖 Documentation
