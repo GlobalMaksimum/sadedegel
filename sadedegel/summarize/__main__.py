@@ -1,8 +1,7 @@
 from collections import defaultdict
 from math import ceil
-from typing import List, Union
-
-from tqdm import tqdm  # type: ignore
+from typing import List
+from loguru import logger
 
 import click
 from tabulate import tabulate
@@ -16,6 +15,8 @@ from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summ
     DecomposedKMeansSummarizer, LengthSummarizer, TextRank
 from sadedegel import Sentences, Doc
 from sadedegel import tokenizer_context
+
+logger.disable("sadedegel")
 
 SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
                ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
@@ -43,6 +44,15 @@ def cli():
     pass
 
 
+def dot_progress(i, length):
+    n = ceil(length * 0.05)
+
+    if i == length - 1:
+        click.echo(".", nl=True, color="yellow")
+    elif i % n == 0 and i != 0:
+        click.echo(".", nl=False, color="yellow")
+
+
 @cli.command()
 @click.option("-f", "--table-format", default="github")
 @click.option("-t", "--tag", default=["extractive"], multiple=True)
@@ -53,27 +63,31 @@ def evaluate(table_format, tag, debug):
         warnings.filterwarnings("ignore")
 
     anno = load_annotated_corpus(False)
+    relevance = [[doc['relevance']] for doc in anno]
+
     summarizers = [summ for summ in SUMMARIZERS if any(_tag in summ[1] for _tag in tag)]
 
     scores = defaultdict(list)
 
-    for word_tokenizer in tqdm(['simple', 'bert'], unit=" word-tokenizer"):
+    for word_tokenizer in ['simple', 'bert']:
+        click.echo("Word Tokenizer: " + click.style(f"{word_tokenizer}", fg="blue"))
+        docs = [Doc.from_sentences(doc['sentences']) for doc in anno]  # Reset document because of memoization
         with tokenizer_context(word_tokenizer):
-            for name, summarizer in tqdm(summarizers, unit=" method"):
+            for name, summarizer in summarizers:
+                click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
                 if ("cluster" in summarizer or "rank" in summarizer) and word_tokenizer == "simple":
+                    click.echo(click.style("SKIP", fg="yellow"))
                     continue
 
-                for doc in tqdm(anno, unit=" doc", desc=f"Evaluating {name}"):
-                    y_true = [doc['relevance']]
-
-                    d = Doc.from_sentences(doc['sentences'])
+                for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                    dot_progress(i, len(relevance))
 
                     y_pred = [summarizer.predict(d.sents)]
 
-                    score_10 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.1))
-                    score_50 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.5))
-                    score_80 = ndcg_score(y_true, y_pred, k=ceil(len(doc['sentences']) * 0.8))
+                    score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
+                    score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
+                    score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
 
                     scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
 
