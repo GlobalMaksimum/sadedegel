@@ -16,9 +16,11 @@ overview of how things are organised and most importantly, how to get involved.
 1. [Issues and bug reports](#issues-and-bug-reports)
 2. [Contributing to the code base](#contributing-to-the-code-base)
 3. [Code conventions](#code-conventions)
+   1. [Commit Guidelines](#commit-guidelines)
 4. [Adding tests](#adding-tests)
 5. [Dataset](#dataset)
 6. [Hotfix Checklist](#hotfix-checklist)
+7. [New Feature Checklist](#feature-checklist)
 
 ## Issues and bug reports
 
@@ -123,6 +125,22 @@ not return any errors or warnings:
 make lint
 ```
 
+## Commit Guidelines
+
+Ensure that you read [Commit Guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53) 
+before changing something.
+
+Just to mention a few mistakes people keep making:
+
+* **Huge Commits** changing lots of things at once by adding everything into a single commit.
+* **Formatter**: Using a completely different formatter causing lots of lines to 
+changes just because of spacing/indentation.
+* **Order or Changes**: Ensure that your changes are bundled properly and in order into commits. 
+Divide as much as it is necessary but not more than that.
+
+
+
+
 #### Disabling linting
 
 Sometimes, you explicitly want to write code that's not compatible with our
@@ -180,18 +198,20 @@ For a minimal control for sanity check use
 ```bash
 python -m sadedel.dataset -m validate
 ```
-## Feature Branch Checklist
+## Feature Checklist
 
 - [ ] Start by creating an issue about what feature is missing and how can a certain addition can provide an enhancement. Tag your issue with `enhancement`
-- [ ] Create feature branch using `git flow feature start <feature-name>`.
-- [ ] Make your changes.
-- [ ] Add unit tests for your feature. Make sure you are covering your new code as much as possible.
-- [ ] Run unit tests. If a fail exists make sure to update your changes until all tests are passed.
-- [ ] Commit your changes. Note to use `[resolves #issue-number]` to let Github close your issue automatically.
-- [ ] Run linter, bandit and flake checks.
-- [ ] Once all done push your feature branch to github. 
-- [ ] When creating a pull request, target the `develop` branch for your feature branch to be merged to.
-- [ ] Make sure you provide detailed explanation of your code addition and changes in your commit.
+- [ ] Discuss feature and its implications on existing codebase with commit masters. Once your enhancement request is `approved` 
+    - [ ] Create feature branch using `git flow feature start <feature-name>`.
+    - [ ] Make your changes. 
+    - [ ] Add unit tests for your feature. Make sure you are covering your new code as much as possible with proper testing either
+    by adding new tests or parametrizing the existing ones.
+    - [ ] Run unit tests. If something fails, make sure to update your changes until all tests are passed.
+    - [ ] Commit your changes. Note to use `[resolves #issue-number]` to let Github close your feature issue automatically.
+    - [ ] Run linter, bandit and flake checks (Use `make lint`)
+    - [ ] Once all done push your feature branch to github. 
+    - [ ] When creating a pull request, target the `develop` branch for your feature branch to be merged to.
+    - [ ] Make sure you provide detailed explanation of your code addition and changes in your commit.
 
 ## Hotfix Checklist
 
