@@ -32,7 +32,9 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 | Method & Tokenizer                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |--------------------------------------|---------------|---------------|---------------|
-| TextRank Summarizer (BERT) - bert |        0.6182 |        0.6989 |        0.7984 |
+| TextRank(0.5) Summarizer (BERT) - bert  |        0.6202 |        0.7003 |        0.7991 |
+| TextRank(0.95) Summarizer (BERT) - bert |        0.6181 |        0.6991 |        0.7982 |
+
 
 #### Release 0.14
 * Results with simple word tokenizer are now available.

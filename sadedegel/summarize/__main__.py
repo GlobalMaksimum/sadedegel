@@ -27,7 +27,15 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ('KMeans Summarizer', KMeansSummarizer()),
                ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
                ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer()),
-               ("TextRank Summarizer (BERT)", TextRank())]
+               ("TextRank(0.05) Summarizer (BERT)", TextRank(alpha=0.05)),
+               ("TextRank(0.15) Summarizer (BERT)", TextRank(alpha=0.15)),
+               ("TextRank(0.30) Summarizer (BERT)", TextRank(alpha=0.30)),
+               ("TextRank(0.5) Summarizer (BERT)", TextRank(alpha=0.5)),
+               ("TextRank(0.6) Summarizer (BERT)", TextRank(alpha=0.6)),
+               ("TextRank(0.7) Summarizer (BERT)", TextRank(alpha=0.7)),
+               ("TextRank(0.85) Summarizer (BERT)", TextRank(alpha=0.85)),
+               ("TextRank(0.9) Summarizer (BERT)", TextRank(alpha=0.9)),
+               ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95))]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:

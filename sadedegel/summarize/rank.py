@@ -21,7 +21,7 @@ class TextRank(ExtractiveSummarizer):
 
     tags = ExtractiveSummarizer.tags + ['ml', 'rank']
 
-    def __init__(self, input_type="bert", alpha=0.85, normalize=True):
+    def __init__(self, input_type="bert", alpha=0.5, normalize=True):
         super().__init__(normalize)
 
         if input_type not in ['bert']:
