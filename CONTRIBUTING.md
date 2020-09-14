@@ -88,6 +88,7 @@ referencing the issue number in the commit message. Finally, fix the bug, make
 sure your test passes and reference the issue in your commit message.
 
 
+
 ## Code conventions
 
 Code should loosely follow [pep8](https://www.python.org/dev/peps/pep-0008/).
@@ -179,6 +180,18 @@ For a minimal control for sanity check use
 ```bash
 python -m sadedel.dataset -m validate
 ```
+## Feature Branch Checklist
+
+- [ ] Start by creating an issue about what feature is missing and how can a certain addition can provide an enhancement. Tag your issue with `enhancement`
+- [ ] Create feature branch using `git flow feature start <feature-name>`.
+- [ ] Make your changes.
+- [ ] Add unit tests for your feature. Make sure you are covering your new code as much as possible.
+- [ ] Run unit tests. If a fail exists make sure to update your changes until all tests are passed.
+- [ ] Commit your changes. Note to use `[resolves #issue-number]` to let Github close your issue automatically.
+- [ ] Run linter, bandit and flake checks.
+- [ ] Once all done push your feature branch to github. 
+- [ ] When creating a pull request, target the `develop` branch for your feature branch to be merged to.
+- [ ] Make sure you provide detailed explanation of your code addition and changes in your commit.
 
 ## Hotfix Checklist
 
