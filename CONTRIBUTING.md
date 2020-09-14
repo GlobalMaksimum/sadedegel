@@ -125,21 +125,6 @@ not return any errors or warnings:
 make lint
 ```
 
-## Commit Guidelines
-
-Ensure that you read [Commit Guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53) 
-before changing something.
-
-Just to mention a few mistakes people keep making:
-
-* **Huge Commits** changing lots of things at once by adding everything into a single commit.
-* **Formatter**: Using a completely different formatter causing lots of lines to 
-changes just because of spacing/indentation.
-* **Order or Changes**: Ensure that your changes are bundled properly and in order into commits. 
-Divide as much as it is necessary but not more than that.
-
-
-
 
 #### Disabling linting
 
@@ -170,6 +155,19 @@ except:  # noqa: E722
 
 -   [PEP 8 Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/) (python.org)
 -   [CONTRIBUTING document of SpaCy](https://github.com/explosion/spaCy/blob/master/CONTRIBUTING.md) (explosion.ai)
+
+## Commit Guidelines
+
+Ensure that you read [Commit Guidelines](https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53) 
+before changing something.
+
+Just to mention a few mistakes people keep making:
+
+* **Huge Commits** changing lots of things at once by adding everything into a single commit.
+* **Formatter**: Using a completely different formatter causing lots of lines to 
+changes just because of spacing/indentation.
+* **Order or Changes**: Ensure that your changes are bundled properly and in order into commits. 
+Divide as much as it is necessary but not more than that.
 
 ## Adding tests
 
