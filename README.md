@@ -185,6 +185,27 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 make test
 ```
 
+## Youtube Channel
+Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCyNG1Mehl44XWZ8LzkColuw)
+
+### SkyLab YTU Webinar Playlist
+
+[![Youtube](https://img.shields.io/youtube/likes/xoEERspk6Is?label=SadedeGel%20Subprojects%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=xoEERspk6Is)
+
+[![Youtube](https://img.shields.io/youtube/likes/HfWIzAwf5u8?label=SadedeGel%20Scraper%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=HfWIzAwf5u8)
+
+[![Youtube](https://img.shields.io/youtube/likes/PkUmYhahiMw?label=SadedeGel%20Evaluation-nDCG%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=PkUmYhahiMw)
+
+[![Youtube](https://img.shields.io/youtube/likes/AxpK7fOndRQ?label=SadedeGel%20Annotator%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=AxpK7fOndRQ)
+
+[![Youtube](https://img.shields.io/youtube/likes/jKh_t9ZOJ-g?label=SadedeGel%20Baseline%20Özetleyiciler%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=jKh_t9ZOJ-g)
+
+[![Youtube](https://img.shields.io/youtube/likes/3DO1X7de1FI?label=SadedeGel%20ROUGE1%20Özetleyici%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=3DO1X7de1FI)
+
+[![Youtube](https://img.shields.io/youtube/likes/KGg3DJQVH9c?label=SadedeGel%20Kümeleme%20Bazlı%20Özetleyiciler%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=KGg3DJQVH9c)
+
+[![Youtube](https://img.shields.io/youtube/likes/G_erifsGGFs?label=SadedeGel%20BERT%20Embeddings%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=G_erifsGGFs)
+
 ## References
 ### Our Community Contributors
 
