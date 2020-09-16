@@ -19,7 +19,7 @@ class TextRank(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    tags = ExtractiveSummarizer.tags + ['ml', 'rank']
+    tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph']
 
     def __init__(self, input_type="bert", alpha=0.5, normalize=True):
         super().__init__(normalize)
