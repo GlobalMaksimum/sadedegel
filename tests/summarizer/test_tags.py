@@ -37,3 +37,4 @@ def test_rank_tags():
 
     assert 'rank' in rank
     assert 'ml' in rank
+    assert 'graph' in rank
