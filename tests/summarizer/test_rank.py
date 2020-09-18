@@ -3,43 +3,44 @@ from pytest import warns, raises
 from .context import TextRank, Doc
 import numpy as np
 
-
-long_text = "Merhaba dünya biz dostuz. Barış için geldik. Sizi lazerlerimizle buharlaştırmayacağız. " \
-           "Onun yerine kölemiz olacaksınız."
-
-
-def val_err(method, d):
-    method(d, k=1)
+famous_quote = ("Merhaba dünya biz dostuz. Barış için geldik. Sizi lazerlerimizle buharlaştırmayacağız."
+                "Onun yerine kölemiz olacaksınız.")
 
 
-def sent_err(method, sents):
-    method.predict(sents)
+def is_sorted(listable):
+    l = list(listable)
+    return all(a >= b for a, b in zip(l, l[1:]))
 
 
 @pytest.mark.parametrize("input_type, normalize, text",
-                         [pytest.param('bert', True, long_text, id='bert'),
-                          pytest.param('tfidf', True, long_text, id='nonexistent'),
-                          pytest.param('bert', False, long_text, id='norm_false'),
-                          pytest.param('bert', True, long_text, id='norm_true'),
-                          pytest.param('bert', True, [], id='no text')])
-def test_text_rank(input_type, normalize, text):
+                         [pytest.param('bert', True, famous_quote, id='Normalized score'),
+                          pytest.param('tfidf', True, famous_quote, id='TFIDF Input Type'),
+                          pytest.param('bert', False, famous_quote, id='Raw score'),
+                          pytest.param('bert', True, [], id='Empty Sentence List')])
+def test_text_rank_sanity(input_type, normalize, text):
     if not text:
         with raises(ValueError, match=r"Ensure that document .*"):
-            sent_err(TextRank(input_type), text)
+            TextRank(input_type).predict(text)
     else:
         d = Doc(text)
         if input_type != 'bert':
             with raises(ValueError, match=r"mode should be one of .*"):
-                val_err(TextRank(input_type), d)
-        if input_type == 'bert':
-            with warns(UserWarning, match="Changing tokenizer to"):
-                assert len(TextRank(input_type)(d, k=1)) == 1
-                if normalize:
-                    pred = TextRank(input_type, alpha=0.5, normalize=normalize).predict(d)
-                    assert np.float16(pred[0]) == np.float16(0.25474593)
-                else:
-                    pred = TextRank(input_type, alpha=0.5, normalize=normalize).predict(d)
-                    assert np.float16(pred[0]) == np.float16(0.25474593)
+                TextRank(input_type)(d, 1)
 
 
+@pytest.mark.parametrize("normalize", [True, False])
+@pytest.mark.parametrize("text", [famous_quote])
+def test_text_rank_descending(normalize, text):
+    d = Doc(text)
+    with warns(UserWarning, match="Changing tokenizer to"):
+        scores = TextRank(alpha=0.5, normalize=normalize).predict(d)
 
+        assert is_sorted(scores)
+
+
+@pytest.mark.parametrize("normalize", [True, False])
+@pytest.mark.parametrize("text", [famous_quote])
+def test_text_rank_correct_number_of_sentences(normalize, text):
+    d = Doc(text)
+    with warns(UserWarning, match="Changing tokenizer to"):
+        assert len(TextRank()(d, k=1)) == 1
