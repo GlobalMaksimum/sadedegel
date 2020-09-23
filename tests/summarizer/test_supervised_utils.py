@@ -19,10 +19,10 @@ def test_create_model(model_type, mdl):
 def test_save_load(model_type, mdl):
     model = create_model(model_type)
 
-    save_model(model, model_type)
+    save_model(model, f"{model_type}.test")
 
     del model
 
-    loaded = load_model(model_type)
+    loaded = load_model(f"{model_type}.test")
 
     assert loaded._final_estimator.__str__().split('(', 1)[0] == mdl
