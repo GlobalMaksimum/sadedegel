@@ -9,10 +9,10 @@ import warnings
 import numpy as np  # type: ignore
 from sklearn.metrics import ndcg_score  # type: ignore
 
-from sadedegel.dataset import load_annotated_corpus
+from sadedegel.dataset import load_annotated_corpus, load_raw_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer, LengthSummarizer, TextRank
+    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer
 from sadedegel import Sentences, Doc
 from sadedegel import tokenizer_context
 
@@ -35,7 +35,8 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ("TextRank(0.7) Summarizer (BERT)", TextRank(alpha=0.7)),
                ("TextRank(0.85) Summarizer (BERT)", TextRank(alpha=0.85)),
                ("TextRank(0.9) Summarizer (BERT)", TextRank(alpha=0.9)),
-               ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95))]
+               ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95)),
+               ((), ("extractive"))]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
@@ -81,6 +82,7 @@ def evaluate(table_format, tag, debug):
         click.echo("Word Tokenizer: " + click.style(f"{word_tokenizer}", fg="blue"))
         docs = [Doc.from_sentences(doc['sentences']) for doc in anno]  # Reset document because of memoization
         with tokenizer_context(word_tokenizer):
+            summarizers[20] = ('TFIDFSummarizer', TFIDFSummarizer(load_raw_corpus()))
             for name, summarizer in summarizers:
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
