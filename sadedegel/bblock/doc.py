@@ -11,6 +11,7 @@ from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
+from .vocabulary import get_vocabulary
 
 
 class Span:
@@ -154,6 +155,7 @@ class Span:
 
 class Sentences:
     tokenizer = get_default_word_tokenizer()
+    vocabulary = get_vocabulary(tokenizer)
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -196,6 +198,31 @@ class Sentences:
         return rouge1_score(
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document.sents if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
+
+    def tfidf(self):
+        return self.tf * self.idf
+
+    @property
+    def tf(self):
+        v = np.zeros(Sentences.vocabulary.size)
+
+        for token in self.tokens:
+            t = Sentences.vocabulary.token(token)
+            if t:
+                v[t.id] = 1
+
+        return v
+
+    @property
+    def idf(self):
+        v = np.zeros(Sentences.vocabulary.size)
+
+        for token in self.tokens:
+            t = Sentences.vocabulary.token(token)
+            if t:
+                v[t.id] = t.idf
+
+        return v
 
     def __str__(self):
         return self.text
