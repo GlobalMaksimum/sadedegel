@@ -35,6 +35,15 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | TextRank(0.5) Summarizer (BERT) - bert  |        0.6202 |        0.7003 |        0.7991 |
 | TextRank(0.95) Summarizer (BERT) - bert |        0.6181 |        0.6991 |        0.7982 |
 
+* First implementation of TfIdf Summarizer using BERT word tokenizer.
+
+
+
+| Method & Tokenizer                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|--------------------------------------|---------------|---------------|---------------|
+| TFIDF Summarizer - bert              |        0.6677 |        0.7559 |        0.8475 |
+
+
 
 #### Release 0.14
 * Results with simple word tokenizer are now available.
