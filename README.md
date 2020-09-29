@@ -13,8 +13,6 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
 [![Python Version](https://img.shields.io/pypi/pyversions/sadedegel?style=plastic)](https://img.shields.io/pypi/pyversions/sadedegel)
 [![Coverage](https://codecov.io/gh/globalmaksimum/sadedegel/branch/master/graphs/badge.svg?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
-[![Code Quality Score](https://www.code-inspector.com/project/12884/score/svg?style=plastic)](https://frontend.code-inspector.com/public/project/12884/sadedegel/dashboard)
-[![Code Grade](https://www.code-inspector.com/project/12884/status/svg?style=plastic)](https://frontend.code-inspector.com/public/project/12884/sadedegel/dashboard)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![License](https://img.shields.io/pypi/l/sadedegel)](https://github.com/GlobalMaksimum/sadedegel/blob/master/LICENSE)
@@ -229,7 +227,6 @@ We would like to thank our community contributors for their bug/enhancement requ
   * [Google Cloud Google Storage Service](https://cloud.google.com/products/storage) for providing low cost storage buckets making it possible to store `sadedegel.dataset.extended` data.
   * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
   * [CodeCov](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
-  * [Code Inspector](https://code-inspector.com) for allowing us to keep track of our code quality and technical debt.
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
   * [binder](https://mybinder.org/) for 
      * Allowing us to share our example [notebooks](notebook/)
