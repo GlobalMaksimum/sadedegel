@@ -23,7 +23,8 @@ setup(
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
-        'sadedegel.ml': ['model/sbd.pickle']
+        'sadedegel.ml': ['model/sbd.pickle'],
+        'sadedegel.bblock': ['data/vocabulary.json']
     },
     # Needed for dependencies
     install_requires=install_requires,

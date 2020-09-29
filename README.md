@@ -35,11 +35,15 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 ## 💬 Where to ask questions
 
-The SadedeGel project is maintained by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
+The SadedeGel project is initialized by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
 [@dafajon](https://github.com/dafajon),
 [@askarbozcan](https://github.com/askarbozcan),
 [@mccakir](https://github.com/mccakir) and 
 [@husnusensoy](https://github.com/husnusensoy). 
+
+Other community maintainers
+
+* [@doruktiktiklar](https://github.com/doruktiktiklar) contributes [TFIDF Summarizer](sadedegel/summarize/tf_idf.py)
 
 | Type                     | Platforms                                              |
 | ------------------------ | ------------------------------------------------------ |

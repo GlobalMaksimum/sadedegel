@@ -12,7 +12,7 @@ from sklearn.metrics import ndcg_score  # type: ignore
 from sadedegel.dataset import load_annotated_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer, LengthSummarizer, TextRank
+    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer
 from sadedegel import Sentences, Doc
 from sadedegel import tokenizer_context
 
@@ -35,7 +35,8 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ("TextRank(0.7) Summarizer (BERT)", TextRank(alpha=0.7)),
                ("TextRank(0.85) Summarizer (BERT)", TextRank(alpha=0.85)),
                ("TextRank(0.9) Summarizer (BERT)", TextRank(alpha=0.9)),
-               ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95))]
+               ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95)),
+               ("TFIDF Summarizer", TFIDFSummarizer())]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
@@ -84,7 +85,8 @@ def evaluate(table_format, tag, debug):
             for name, summarizer in summarizers:
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
-                if ("cluster" in summarizer or "rank" in summarizer) and word_tokenizer == "simple":
+                if ("cluster" in summarizer or "rank" in summarizer or name == "TFIDF Summarizer") and \
+                        word_tokenizer == "simple":
                     click.echo(click.style("SKIP", fg="yellow"))
                     continue
 
