@@ -1,3 +1,4 @@
 sadedegel/dataset/raw/*.txt filter=lfs diff=lfs merge=lfs -text
 sadedegel/dataset/sents/*.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/dataset/annotated/*.json filter=lfs diff=lfs merge=lfs -text
+sadedegel/summarize/model/*.pickle filter=lfs diff=lfs merge=lfs -text
