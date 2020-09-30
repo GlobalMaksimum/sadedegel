@@ -28,20 +28,33 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
-* First implementation of TextRank Summarizer using BERT embeddings.
+#### Release 0.14+ - Development Branch
 
-| Method & Tokenizer                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
-|--------------------------------------|---------------|---------------|---------------|
-| TextRank(0.5) Summarizer (BERT) - bert  |        0.6202 |        0.7003 |        0.7991 |
-| TextRank(0.95) Summarizer (BERT) - bert |        0.6181 |        0.6991 |        0.7982 |
+| Method & Tokenizer                      |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|-----------------------------------------|---------------|---------------|---------------|
+| Random Summarizer - simple              |        0.5566 |        0.6516 |        0.7695 |
+| FirstK Summarizer - simple              |        0.5070 |        0.6162 |        0.7429 |
+| LastK Summarizer - simple               |        0.5957 |        0.6908 |        0.7972 |
+| Rouge1 Summarizer (f1) - simple         |        0.6697 |        0.7498 |        0.8433 |
+| Rouge1 Summarizer (precision) - simple  |        0.4924 |        0.6298 |        0.7647 |
+| Rouge1 Summarizer (recall) - simple     |        0.6726 |        0.7558 |        0.8482 |
+| Length Summarizer (char) - simple       |        0.6753 |        0.7577 |        0.8502 |
+| Length Summarizer (token) - simple      |        0.6805 |        0.7575 |    0.8510 |
+| Random Summarizer - bert                |        0.5497 |        0.6587 |        0.7744 |
+| FirstK Summarizer - bert                |        0.5070 |        0.6162 |        0.7429 |
+| LastK Summarizer - bert                 |        0.5957 |        0.6908 |        0.7972 |
+| Rouge1 Summarizer (f1) - bert           |        0.6833 |        0.7574 |        0.8488 |
+| Rouge1 Summarizer (precision) - bert    |        0.5295 |        0.6500 |        0.7748 |
+| Rouge1 Summarizer (recall) - bert       |    0.6851 |        0.7585 |        0.8488 |
+| Length Summarizer (char) - bert         |        0.6843 |        0.7588 |        0.8483 |
+| Length Summarizer (token) - bert        |        **0.6856** |        0.7584 |        **0.8520** |
+| KMeans Summarizer - bert                |        0.6599 |        0.7434 |        0.8344 |
+| AutoKMeans Summarizer - bert            |        0.6608 |        0.7418 |        0.8333 |
+| DecomposedKMeans Summarizer - bert      |        0.6579 |        0.7440 |        0.8341 |
+| TextRank(0.05) Summarizer (BERT) - bert |        0.6212 |        0.7010 |        0.8000 |
+| TextRank(0.5) Summarizer (BERT) - bert  |        0.6232 |        0.7005 |        0.7998 |
+| TFIDF Summarizer - bert                 |        0.6781 |        **0.7592** |        0.8504 |
 
-* First implementation of TfIdf Summarizer using BERT word tokenizer.
-
-
-
-| Method & Tokenizer                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
-|--------------------------------------|---------------|---------------|---------------|
-| TFIDF Summarizer - bert              |        0.6677 |        0.7559 |        0.8475 |
 
 
 
