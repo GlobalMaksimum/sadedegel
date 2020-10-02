@@ -28,7 +28,7 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
-#### Release 0.14 - Development Branch
+#### Release 0.14+ - Development Branch
 
 | Method & Tokenizer                      |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |-----------------------------------------|---------------|---------------|---------------|
@@ -39,15 +39,15 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | Rouge1 Summarizer (precision) - simple  |        0.4924 |        0.6298 |        0.7647 |
 | Rouge1 Summarizer (recall) - simple     |        0.6726 |        0.7558 |        0.8482 |
 | Length Summarizer (char) - simple       |        0.6753 |        0.7577 |        0.8502 |
-| Length Summarizer (token) - simple      |        0.6805 |        0.7575 |    **0.8510** |
+| Length Summarizer (token) - simple      |        0.6805 |        0.7575 |    0.8510 |
 | Random Summarizer - bert                |        0.5497 |        0.6587 |        0.7744 |
 | FirstK Summarizer - bert                |        0.5070 |        0.6162 |        0.7429 |
 | LastK Summarizer - bert                 |        0.5957 |        0.6908 |        0.7972 |
 | Rouge1 Summarizer (f1) - bert           |        0.6833 |        0.7574 |        0.8488 |
 | Rouge1 Summarizer (precision) - bert    |        0.5295 |        0.6500 |        0.7748 |
-| Rouge1 Summarizer (recall) - bert       |    **0.6851** |        0.7585 |        0.8488 |
+| Rouge1 Summarizer (recall) - bert       |    0.6851 |        0.7585 |        0.8488 |
 | Length Summarizer (char) - bert         |        0.6843 |        0.7588 |        0.8483 |
-| Length Summarizer (token) - bert        |        0.6856 |        0.7584 |        0.8520 |
+| Length Summarizer (token) - bert        |        **0.6856** |        0.7584 |        **0.8520** |
 | KMeans Summarizer - bert                |        0.6599 |        0.7434 |        0.8344 |
 | AutoKMeans Summarizer - bert            |        0.6608 |        0.7418 |        0.8333 |
 | DecomposedKMeans Summarizer - bert      |        0.6579 |        0.7440 |        0.8341 |
