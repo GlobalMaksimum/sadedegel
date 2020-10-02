@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from math import log
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
-
+from sadedegel.bblock.word_tokenizer_helper import puncts
 
 @dataclass
 class Token:
@@ -12,6 +12,28 @@ class Token:
     word: str
     df: int
     n_document: int
+
+    @property
+    def is_punct(self):
+        return self.word in puncts
+
+    @property
+    def is_digit(self):
+        return self.word.isdigit()
+
+    @property
+    def shape(self):
+        if self.is_digit:
+            shape = 'd' * len(self.word)
+        else:
+            shape = ''
+            for char in self.word:
+                if char.isupper():
+                    shape += 'X'
+                else:
+                    shape += 'x'
+
+        return shape
 
     @property
     def idf(self):
