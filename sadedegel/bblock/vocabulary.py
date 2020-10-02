@@ -1,8 +1,10 @@
+import unicodedata
 from os.path import dirname
 from pathlib import Path
 from math import log
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
+from sadedegel.bblock.word_tokenizer_helper import puncts
 
 
 class Vocabulary:
@@ -45,6 +47,33 @@ def get_vocabulary(tokenizer):
         return None
 
 
+def word_shape(text):
+    if len(text) >= 100:
+        return "LONG"
+    shape = []
+    last = ""
+    shape_char = ""
+    seq = 0
+    for char in text:
+        if char.isalpha():
+            if char.isupper():
+                shape_char = "X"
+            else:
+                shape_char = "x"
+        elif char.isdigit():
+            shape_char = "d"
+        else:
+            shape_char = char
+        if shape_char == last:
+            seq += 1
+        else:
+            seq = 0
+            last = shape_char
+        if seq < 4:
+            shape.append(shape_char)
+    return "".join(shape)
+
+
 class Token:
     vocabulary = None
     cache = {}
@@ -80,6 +109,9 @@ class Token:
 
         self.word = word
         self.lower_ = tr_lower(word)
+        self.is_punct = all(unicodedata.category(c).startswith("P") for c in word)
+        self.is_digit = word.isdigit()
+        self.shape = word_shape(word)
 
         if Token.vocabulary:
             token = Token.vocabulary.token(self.lower_)
