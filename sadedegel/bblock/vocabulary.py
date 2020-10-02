@@ -1,30 +1,14 @@
 from os.path import dirname
 from pathlib import Path
-from dataclasses import dataclass
 from math import log
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
 
 
-@dataclass
-class Token:
-    id: int
-    word: str
-    df: int
-    n_document: int
-
-    @property
-    def idf(self):
-        return log(self.n_document / (1 + self.df)) + 1
-
-    @classmethod
-    def from_dict(cls, d: dict):
-        return Token(d['id'], d['word'], d['df'], d['n_document'])
-
-
 class Vocabulary:
     tokens = {}
     size = None
+    tokenizer = "bert"
 
     @classmethod
     def token(cls, word):
@@ -32,13 +16,10 @@ class Vocabulary:
 
     @classmethod
     def save(cls):
-        words = []
-
-        for t in Vocabulary.tokens.values():
-            words.append(dict(id=t.id, word=t.word, df=t.df, n_document=t.n_document))
+        words = list(Vocabulary.tokens.values())
 
         with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json', "w") as fp:
-            dump(dict(size=Vocabulary.size, tokenizer="bert", words=words), fp, ensure_ascii=False)
+            dump(dict(size=Vocabulary.size, tokenizer=Vocabulary.tokenizer, words=words), fp, ensure_ascii=False)
 
     @classmethod
     def load(cls):
@@ -47,9 +28,10 @@ class Vocabulary:
 
         vocab = Vocabulary()
         Vocabulary.size = json['size']
+        Vocabulary.tokenizer = json['tokenizer']
 
         for w in json['words']:
-            Vocabulary.tokens[w['word']] = Token.from_dict(w)
+            Vocabulary.tokens[w['word']] = w
 
         return vocab
 
@@ -61,3 +43,66 @@ def get_vocabulary(tokenizer):
         import warnings
         warnings.warn("vocabulary.bin is not available. Some functionalities my fail")
         return None
+
+
+class Token:
+    vocabulary = None
+    cache = {}
+
+    @classmethod
+    def _get_cache(cls, word):
+        token = Token.cache.get(word, None)
+
+        return token
+
+    @classmethod
+    def set_vocabulary(cls, tokenizer=None):
+        Token.cache.clear()
+        Token.vocabulary = get_vocabulary(None)
+
+        return Token.vocabulary
+
+    def __new__(cls, word, *args, **kwargs):
+        cached = cls._get_cache(word)
+
+        if cached:
+            return cached
+
+        token = super(Token, cls).__new__(cls)
+
+        return token
+
+    def __init__(self, word):
+        if self in self.cache:
+            return
+
+        self.cache[word] = self
+
+        self.word = word
+        self.lower_ = tr_lower(word)
+
+        if Token.vocabulary:
+            token = Token.vocabulary.token(self.lower_)
+
+            if not token:
+                self.is_oov = True
+            else:
+                self.is_oov = False
+                self.id = token['id']
+                self.df = token['df']
+                self.n_document = token['n_document']
+
+            self.f_idf = self.smooth_idf
+        else:
+            self.f_idf = self.none_idf
+
+    def smooth_idf(self):
+        return log(self.n_document / (1 + self.df)) + 1
+
+    def none_idf(self):
+        print("Set vocabulary first using `set_vocabulary` class method.")
+        return None
+
+    @property
+    def idf(self):
+        return self.f_idf()
