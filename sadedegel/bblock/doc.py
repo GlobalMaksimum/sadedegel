@@ -154,8 +154,8 @@ class Span:
 
 
 class Sentences:
-    tokenizer = get_default_word_tokenizer()
-    vocabulary = Token.set_vocabulary(tokenizer)
+    word_tokenizer = get_default_word_tokenizer()
+    vocabulary = Token.set_vocabulary(word_tokenizer)
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -167,9 +167,9 @@ class Sentences:
         self.toks = None
 
     @staticmethod
-    def set_word_tokenizer(tokenizer_name):
-        if tokenizer_name != Sentences.tokenizer.__name__:
-            Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
+    def set_word_tokenizer(word_tokenizer_name: str):
+        if word_tokenizer_name != Sentences.word_tokenizer.__name__:
+            Sentences.word_tokenizer = WordTokenizer.factory(word_tokenizer_name)
 
     @property
     def bert(self):
@@ -181,12 +181,12 @@ class Sentences:
 
     @property
     def input_ids(self):
-        return Sentences.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
+        return Sentences.word_tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
     @property
     def tokens(self):
         if self._tokens is None:
-            self._tokens = Sentences.tokenizer(self.text)
+            self._tokens = Sentences.word_tokenizer(self.text)
 
         return self._tokens
 

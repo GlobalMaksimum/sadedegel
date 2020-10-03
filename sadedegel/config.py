@@ -54,14 +54,14 @@ def set_config(config: str, value: Any):
 
 
 @contextmanager
-def tokenizer_context(tokenizer_name, warning=False):
-    current = Sentences.tokenizer.__name__
+def tokenizer_context(word_tokenizer_name, warning=False):
+    current = Sentences.word_tokenizer.__name__
 
-    if warning and current != tokenizer_name:
-        warnings.warn(f"Changing tokenizer to {tokenizer_name}")
+    if warning and current != word_tokenizer_name:
+        warnings.warn(f"Changing word tokenizer to {word_tokenizer_name}")
 
     try:
-        set_config("word_tokenizer", tokenizer_name)
+        set_config("word_tokenizer", word_tokenizer_name)
         yield
     finally:
         set_config("word_tokenizer", current)
@@ -70,7 +70,7 @@ def tokenizer_context(tokenizer_name, warning=False):
 @check_config
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
     if config == "word_tokenizer":
-        return Sentences.tokenizer.__name__
+        return Sentences.word_tokenizer.__name__
 
 
 @check_config

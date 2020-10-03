@@ -91,3 +91,6 @@ def word_tokenize_iter(text: str):
 
 def word_tokenize(text: str):
     return list(word_tokenize_iter(text))
+
+def normalize_word_tokenizer_name(tokenizer_name: str):
+    return tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')

@@ -4,28 +4,31 @@ from pathlib import Path
 from math import log
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
-from sadedegel.bblock.word_tokenizer_helper import puncts
-
+from sadedegel.bblock.word_tokenizer_helper import puncts, normalize_word_tokenizer_name
 
 class Vocabulary:
     tokens = {}
     size = None
-    tokenizer = "bert"
+    default_tokenizer = "bert"
+    tokenizer = None # set in load based on loaded vocabulary
 
     @classmethod
     def token(cls, word):
         return Vocabulary.tokens.get(tr_lower(word), None)
 
     @classmethod
-    def save(cls):
+    def save(cls, word_tokenizer_name: str):
         words = list(Vocabulary.tokens.values())
+        filename = Vocabulary._get_filename(word_tokenizer_name)
 
-        with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json', "w") as fp:
-            dump(dict(size=Vocabulary.size, tokenizer=Vocabulary.tokenizer, words=words), fp, ensure_ascii=False)
+        with open(Path(dirname(__file__)) / 'data' / filename, "w") as fp:
+            dump(dict(size=Vocabulary.size, tokenizer=word_tokenizer_name, words=words), fp, ensure_ascii=False)
 
     @classmethod
-    def load(cls):
-        with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json') as fp:
+    def load(cls, word_tokenizer_name: str):
+        filename = Vocabulary._get_filename(word_tokenizer_name)
+
+        with open(Path(dirname(__file__)) / 'data' / filename) as fp:
             json = load(fp)
 
         vocab = Vocabulary()
@@ -37,13 +40,18 @@ class Vocabulary:
 
         return vocab
 
+    @classmethod
+    def _get_filename(cls, word_tokenizer_name: str):
+        name = normalize_word_tokenizer_name(word_tokenizer_name)
+        return '{}_vocabulary.json'.format(name)
 
 def get_vocabulary(tokenizer):
     try:
-        return Vocabulary.load()
+        return Vocabulary.load(tokenizer.__name__)
     except FileNotFoundError:
         import warnings
-        warnings.warn("vocabulary.bin is not available. Some functionalities my fail")
+        warnings.warn("{} is not available. \
+                      Some functionalities may fail.".format(Vocabulary._get_filename(tokenizer.__name__)))
         return None
 
 
@@ -87,7 +95,7 @@ class Token:
     @classmethod
     def set_vocabulary(cls, tokenizer=None):
         Token.cache.clear()
-        Token.vocabulary = get_vocabulary(None)
+        Token.vocabulary = get_vocabulary(tokenizer)
 
         return Token.vocabulary
 

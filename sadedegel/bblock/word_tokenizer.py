@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from .word_tokenizer_helper import word_tokenize
+from .word_tokenizer_helper import word_tokenize, normalize_word_tokenizer_name
 import warnings
 
 
@@ -20,7 +20,7 @@ class WordTokenizer(ABC):
 
     @staticmethod
     def factory(tokenizer_name: str):
-        normalized_name = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
+        normalized_name = normalize_word_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
                 WordTokenizer.__instances[normalized_name] = BertTokenizer()
