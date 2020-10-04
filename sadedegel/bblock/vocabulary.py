@@ -4,7 +4,6 @@ from pathlib import Path
 from math import log
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
-from sadedegel.bblock.word_tokenizer_helper import puncts
 
 
 class Vocabulary:
@@ -77,6 +76,7 @@ def word_shape(text):
 class Token:
     vocabulary = None
     cache = {}
+    idf_type = 'smooth'
 
     @classmethod
     def _get_cache(cls, word):
@@ -124,12 +124,15 @@ class Token:
                 self.df = token['df']
                 self.n_document = token['n_document']
 
-            self.f_idf = self.smooth_idf
+            self.f_idf = self.get_idf_func
         else:
             self.f_idf = self.none_idf
 
     def smooth_idf(self):
         return log(self.n_document / (1 + self.df)) + 1
+
+    def prob_idf(self):
+        return log((self.n_document - self.df) / self.df)
 
     def none_idf(self):
         print("Set vocabulary first using `set_vocabulary` class method.")
@@ -138,3 +141,13 @@ class Token:
     @property
     def idf(self):
         return self.f_idf()
+
+    def get_idf_func(self):
+        idf_config = Token.idf_type
+        idf_funcs = {'smooth': self.smooth_idf(),
+                     'probabilistic': self.prob_idf()}
+        return idf_funcs[idf_config]
+
+    @classmethod
+    def set_idf_function(cls, idf_type):
+        Token.idf_type = idf_type
