@@ -1,4 +1,5 @@
 import unicodedata
+import os
 from os.path import dirname
 from pathlib import Path
 from math import log
@@ -19,16 +20,16 @@ class Vocabulary:
     @classmethod
     def save(cls, word_tokenizer_name: str):
         words = list(Vocabulary.tokens.values())
-        filename = Vocabulary._get_filename(word_tokenizer_name)
 
-        with open(Path(dirname(__file__)) / 'data' / filename, "w") as fp:
+        path = Vocabulary._get_filepath(word_tokenizer_name)
+        os.makedirs(path.parent, exist_ok=True) # create folder housing vocabulary.json
+
+        with open(path, "w") as fp:
             dump(dict(size=Vocabulary.size, tokenizer=word_tokenizer_name, words=words), fp, ensure_ascii=False)
 
     @classmethod
     def load(cls, word_tokenizer_name: str):
-        filename = Vocabulary._get_filename(word_tokenizer_name)
-
-        with open(Path(dirname(__file__)) / 'data' / filename) as fp:
+        with open(Vocabulary._get_filepath(word_tokenizer_name)) as fp:
             json = load(fp)
 
         vocab = Vocabulary()
@@ -41,9 +42,10 @@ class Vocabulary:
         return vocab
 
     @classmethod
-    def _get_filename(cls, word_tokenizer_name: str):
-        name = normalize_word_tokenizer_name(word_tokenizer_name)
-        return '{}_vocabulary.json'.format(name)
+    def _get_filepath(cls, word_tokenizer_name: str):
+        tok_name = normalize_word_tokenizer_name(word_tokenizer_name)
+        p = Path(dirname(__file__))
+        return p / 'data' / tok_name / 'vocabulary.json'
 
 def get_vocabulary(tokenizer):
     try:
@@ -51,7 +53,7 @@ def get_vocabulary(tokenizer):
     except FileNotFoundError:
         import warnings
         warnings.warn("{} is not available. \
-                      Some functionalities may fail.".format(Vocabulary._get_filename(tokenizer.__name__)))
+                      Some functionalities may fail.".format(str(Vocabulary._get_filepath(tokenizer.__name__))))
         return None
 
 
