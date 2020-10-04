@@ -39,7 +39,7 @@ def build_vocabulary(max_doc, min_df, word_tokenizer):
         w_i = 0
         for w in vocab:
             if len(vocab[w]) >= min_df:
-                Vocabulary.tokens[w] = Token(w_i, w, len(vocab[w]), n_documents)
+                Vocabulary.tokens[w] = {"id": w_i, "word": w, "df": len(vocab[w]), "n_documents":n_documents}
                 w_i += 1
 
         Vocabulary.size = w_i

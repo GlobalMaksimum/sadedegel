@@ -7,7 +7,7 @@ from sadedegel.bblock.util import tr_lower
 from sadedegel.bblock.word_tokenizer_helper import puncts, normalize_word_tokenizer_name
 
 class Vocabulary:
-    tokens = {}
+    tokens = {} # dict of dicts in form of "<word_token>":{"<token_attr1":"token_attr1_val", ...}
     size = None
     default_tokenizer = "bert"
     tokenizer = None # set in load based on loaded vocabulary
