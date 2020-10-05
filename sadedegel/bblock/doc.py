@@ -1,3 +1,4 @@
+from collections import Counter
 import re
 from typing import List, Union
 
@@ -156,6 +157,7 @@ class Span:
 class Sentences:
     tokenizer = get_default_word_tokenizer()
     vocabulary = Token.set_vocabulary(tokenizer)
+    tf_type = 'binary'
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -165,6 +167,8 @@ class Sentences:
         self.document = doc
         self._bert = None
         self.toks = None
+
+        self.f_tf = self.get_tf_func
 
     @staticmethod
     def set_word_tokenizer(tokenizer_name):
@@ -199,11 +203,18 @@ class Sentences:
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document.sents if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
+    @property
+    def _doc_toks(self):
+        return dict(Counter([tok for sent in self.document.sents for tok in sent.tokens]))
+
+    @property
+    def _doc_len(self):
+        return len([tok for sent in self.document.sents for tok in sent.tokens])
+
     def tfidf(self):
         return self.tf * self.idf
 
-    @property
-    def tf(self):
+    def binary_tf(self):
         v = np.zeros(Sentences.vocabulary.size)
 
         for token in self.tokens:
@@ -212,6 +223,39 @@ class Sentences:
                 v[t.id] = 1
 
         return v
+
+    def raw_tf(self):
+        v = np.zeros(Sentences.vocabulary.size)
+
+        for token in self.tokens:
+            t = Token(token)
+            if t:
+                v[t.id] = self._doc_toks[token]
+
+        return v
+
+    def freq_tf(self):
+        return self.raw_tf()/self._doc_len
+
+    def log_norm_tf(self):
+        return np.log1p(self.raw_tf())
+
+    def double_norm_tf(self):
+        norm = max(self._doc_toks.values())
+        return 0.5 + 0.5 * self.raw_tf() / norm
+
+    @property
+    def tf(self):
+        return self.f_tf()
+
+    def get_tf_func(self):
+        tf_funcs = {'binary': self.binary_tf(),
+                    'raw': self.raw_tf(),
+                    #'freq': self.freq_tf(),
+                    #'log_norm': self.log_norm_tf(),
+                    #'double_norm': self.double_norm_tf()
+        }
+        return tf_funcs[Sentences.tf_type]
 
     @property
     def idf(self):
