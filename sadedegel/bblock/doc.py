@@ -197,7 +197,7 @@ class Sentences:
 
     def rouge1(self, metric):
         return rouge1_score(
-            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document.sents if sent.id != self.id]),
+            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
     def tfidf(self):
@@ -287,6 +287,11 @@ class Doc:
 
         return d
 
+    def __getitem__(self, sent_idx):
+        return self._sents[sent_idx]
+
+    def __iter__(self):
+        yield from self._sents
 
     def __str__(self):
         return self.raw
