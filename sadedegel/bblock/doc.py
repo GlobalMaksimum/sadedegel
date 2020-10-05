@@ -340,3 +340,16 @@ class Doc:
             self._bert = select_layer(twelve_layers, [11], return_cls=False)
 
         return self._bert
+
+    @property
+    def tfidf_embeddings(self, return_numpy: bool = False):
+        tfidf_vectors = []
+        for s in self.sents:
+            tfidf_vectors.append(s.tfidf())
+
+        # all vectors have the same shape, as they are all as big as vocabulary
+        # so we can just stack them
+        if return_numpy:
+            return np.stack(tfidf_vectors, axis=0)
+        else:
+            return torch.tensor(tfidf_vectors)
