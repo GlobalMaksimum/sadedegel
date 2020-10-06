@@ -12,7 +12,10 @@ Configuration = namedtuple("Configuration", "config, description, valid_values")
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
-                                    valid_values=None)
+                                    valid_values=None),
+    "tf": Configuration(config="tf",
+                        description="Change default tf function used by sadedegel",
+                        valid_values=['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
 }
 
 
@@ -21,7 +24,7 @@ def check_config(f):
     def wrapper(*args, **kwds):
         config = args[0]
         if config not in configs:
-            raise Exception((f"{config} is not a valid configuration for sadegel."
+            raise Exception((f"{config} is not a valid configuration for sadedegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
         return f(*args, **kwds)
 
@@ -35,11 +38,12 @@ def check_value(f):
         cfg = configs.get(config, None)
 
         if cfg:
-            if value not in cfg.valid_values:
-                raise Exception(
-                    f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
+            if cfg.config == 'tf':
+                if value not in cfg.valid_values:
+                    raise Exception(
+                        f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
         else:
-            raise Exception((f"{config} is not a valid configuration for sadegel."
+            raise Exception((f"{config} is not a valid configuration for sadedegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
 
         return f(*args, **kwds)
@@ -47,10 +51,12 @@ def check_value(f):
     return wrapper
 
 
-@check_config
+@check_value
 def set_config(config: str, value: Any):
     if config == "word_tokenizer":
         Sentences.set_word_tokenizer(value)
+    if config == "tf":
+        Sentences.set_tf_function(value)
 
 
 @contextmanager
@@ -67,10 +73,26 @@ def tokenizer_context(tokenizer_name, warning=False):
         set_config("word_tokenizer", current)
 
 
+@contextmanager
+def tf_context(tf_type, warning=False):
+    current = Sentences.tf_type
+
+    if warning and current != tf_type:
+        warnings.warn(f"Changing tf function to {tf_type}")
+
+    try:
+        set_config('tf', tf_type)
+        yield
+    finally:
+        set_config('tf', current)
+
+
 @check_config
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
     if config == "word_tokenizer":
         return Sentences.tokenizer.__name__
+    if config == "tf":
+        return Sentences.tf_type
 
 
 @check_config
