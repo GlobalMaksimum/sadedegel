@@ -172,7 +172,7 @@ class Sentences:
     def set_word_tokenizer(tokenizer_name):
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
-
+            Sentences.vocabulary = Token.set_vocabulary(Sentences.tokenizer)
 
     @property
     def bert(self):
@@ -361,6 +361,7 @@ class Doc:
 
     @property
     def tfidf_embeddings(self):
+
         indptr = [0]
         indices = []
         data = []
