@@ -84,3 +84,19 @@ def test_doc_with_no_sentence():
 
     assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
                                                      "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+
+def test_doc_index():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+    assert d[0] == "Ali topu tut."
+
+def test_doc_iter():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+    assert next(iter(d)) == "Ali topu tut."
+
+def test_doc_iter2():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    
+    for i,sentence in enumerate(d):
+        assert d._sents[i] == sentence
