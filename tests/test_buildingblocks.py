@@ -10,7 +10,8 @@ def test_tokens(tokenizer):
     with tokenizer_context(tokenizer):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-        s0 = d.sents[0]
+        with pytest.warns(DeprecationWarning):
+            s0 = d.sents[0]
 
         assert s0.tokens == ['Ali', 'topu', 'tut', '.']
 
@@ -82,21 +83,25 @@ def test_doc_with_no_sentence():
 
     d = Doc(raw)
 
-    assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
-                                                     "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+    with pytest.warns(DeprecationWarning):
+        assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
+                                                         "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+
 
 def test_doc_index():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
     assert d[0] == "Ali topu tut."
 
-def test_doc_iter():
+
+def test_doc_iter_next():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
     assert next(iter(d)) == "Ali topu tut."
 
-def test_doc_iter2():
+
+def test_doc_iter_eq():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    
-    for i,sentence in enumerate(d):
-        assert d._sents[i] == sentence
+
+    for i, sentence in enumerate(d):
+        assert d._sents[i] == sentence == d[i]

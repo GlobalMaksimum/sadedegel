@@ -272,7 +272,11 @@ class Doc:
 
     @property
     def sents(self):
-        warnings.warn("Access to 'sents' attribute is deprecated. Index Doc object directly.", DeprecationWarning, stacklevel=2)
+        warnings.warn(
+            (".sents will is deprecated and will be removed by 0.17."
+             "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
+            stacklevel=2)
+
         return self._sents
 
     @classmethod
@@ -291,7 +295,7 @@ class Doc:
         return self._sents[sent_idx]
 
     def __iter__(self):
-        yield from self._sents
+        return iter(self._sents)
 
     def __str__(self):
         return self.raw
@@ -318,14 +322,14 @@ class Doc:
         max_len = self.max_length()
 
         if not return_numpy:
-            mat = torch.tensor([pad(s.input_ids, max_len) for s in self._sents])
+            mat = torch.tensor([pad(s.input_ids, max_len) for s in self])
 
             if return_mask:
                 return mat, (mat > 0).to(int)
             else:
                 return mat
         else:
-            mat = np.array([pad(s.input_ids, max_len) for s in self._sents])
+            mat = np.array([pad(s.input_ids, max_len) for s in self])
 
             if return_mask:
                 return mat, (mat > 0).astype(int)
