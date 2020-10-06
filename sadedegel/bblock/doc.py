@@ -175,6 +175,11 @@ class Sentences:
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
 
+    @classmethod
+    def set_tf_function(cls, tf_type):
+        if tf_type != Sentences.tf_type:
+            Sentences.tf_type = tf_type
+
     @property
     def bert(self):
         return self._bert
@@ -251,10 +256,9 @@ class Sentences:
     def get_tf_func(self):
         tf_funcs = {'binary': self.binary_tf(),
                     'raw': self.raw_tf(),
-                    #'freq': self.freq_tf(),
-                    #'log_norm': self.log_norm_tf(),
-                    #'double_norm': self.double_norm_tf()
-        }
+                    'freq': self.freq_tf(),
+                    'log_norm': self.log_norm_tf(),
+                    'double_norm': self.double_norm_tf()}
         return tf_funcs[Sentences.tf_type]
 
     @property
