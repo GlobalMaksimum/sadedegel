@@ -7,6 +7,7 @@ import torch
 import numpy as np  # type:ignore
 
 from loguru import logger
+from scipy.sparse import csr_matrix
 
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
@@ -388,3 +389,20 @@ class Doc:
             self._bert = select_layer(twelve_layers, [11], return_cls=False)
 
         return self._bert
+
+    @property
+    def tfidf_embeddings(self):
+        indptr = [0]
+        indices = []
+        data = []
+        for i in range(len(self.sents)):
+            sent_embedding = self.sents[i].tfidf()
+            for idx in sent_embedding.nonzero()[0]:
+                indices.append(idx)
+                data.append(sent_embedding[idx])
+
+            indptr.append(len(indices))
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), Sentences.vocabulary.size))
+
+        return m
