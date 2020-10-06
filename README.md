@@ -6,15 +6,13 @@ SadedeGel is a library for unsupervised extraction-based news summarization usin
 
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.14 out now!**
+💫 **Version 0.15 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
 ![Python package](https://github.com/GlobalMaksimum/sadedegel/workflows/Python%20package/badge.svg)
 [![Python Version](https://img.shields.io/pypi/pyversions/sadedegel?style=plastic)](https://img.shields.io/pypi/pyversions/sadedegel)
 [![Coverage](https://codecov.io/gh/globalmaksimum/sadedegel/branch/master/graphs/badge.svg?style=plastic)](https://codecov.io/gh/globalmaksimum/sadedegel)
-[![Code Quality Score](https://www.code-inspector.com/project/12884/score/svg?style=plastic)](https://frontend.code-inspector.com/public/project/12884/sadedegel/dashboard)
-[![Code Grade](https://www.code-inspector.com/project/12884/status/svg?style=plastic)](https://frontend.code-inspector.com/public/project/12884/sadedegel/dashboard)
 [![pypi Version](https://img.shields.io/pypi/v/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![PyPi downloads](https://img.shields.io/pypi/dm/sadedegel?style=plastic&logo=PyPI)](https://pypi.org/project/sadedegel/)
 [![License](https://img.shields.io/pypi/l/sadedegel)](https://github.com/GlobalMaksimum/sadedegel/blob/master/LICENSE)
@@ -35,11 +33,15 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 ## 💬 Where to ask questions
 
-The SadedeGel project is maintained by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
+The SadedeGel project is initialized by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
 [@dafajon](https://github.com/dafajon),
 [@askarbozcan](https://github.com/askarbozcan),
 [@mccakir](https://github.com/mccakir) and 
 [@husnusensoy](https://github.com/husnusensoy). 
+
+Other community maintainers
+
+* [@doruktiktiklar](https://github.com/doruktiktiklar) contributes [TFIDF Summarizer](sadedegel/summarize/tf_idf.py)
 
 | Type                     | Platforms                                              |
 | ------------------------ | ------------------------------------------------------ |
@@ -185,6 +187,27 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 make test
 ```
 
+## Youtube Channel
+Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCyNG1Mehl44XWZ8LzkColuw)
+
+### SkyLab YTU Webinar Playlist
+
+[![Youtube](https://img.shields.io/youtube/likes/xoEERspk6Is?label=SadedeGel%20Subprojects%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=xoEERspk6Is)
+
+[![Youtube](https://img.shields.io/youtube/likes/HfWIzAwf5u8?label=SadedeGel%20Scraper%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=HfWIzAwf5u8)
+
+[![Youtube](https://img.shields.io/youtube/likes/PkUmYhahiMw?label=SadedeGel%20Evaluation-nDCG%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=PkUmYhahiMw)
+
+[![Youtube](https://img.shields.io/youtube/likes/AxpK7fOndRQ?label=SadedeGel%20Annotator%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=AxpK7fOndRQ)
+
+[![Youtube](https://img.shields.io/youtube/likes/jKh_t9ZOJ-g?label=SadedeGel%20Baseline%20Özetleyiciler%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=jKh_t9ZOJ-g)
+
+[![Youtube](https://img.shields.io/youtube/likes/3DO1X7de1FI?label=SadedeGel%20ROUGE1%20Özetleyici%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=3DO1X7de1FI)
+
+[![Youtube](https://img.shields.io/youtube/likes/KGg3DJQVH9c?label=SadedeGel%20Kümeleme%20Bazlı%20Özetleyiciler%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=KGg3DJQVH9c)
+
+[![Youtube](https://img.shields.io/youtube/likes/G_erifsGGFs?label=SadedeGel%20BERT%20Embeddings%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=G_erifsGGFs)
+
 ## References
 ### Our Community Contributors
 
@@ -204,7 +227,6 @@ We would like to thank our community contributors for their bug/enhancement requ
   * [Google Cloud Google Storage Service](https://cloud.google.com/products/storage) for providing low cost storage buckets making it possible to store `sadedegel.dataset.extended` data.
   * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
   * [CodeCov](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
-  * [Code Inspector](https://code-inspector.com) for allowing us to keep track of our code quality and technical debt.
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
   * [binder](https://mybinder.org/) for 
      * Allowing us to share our example [notebooks](notebook/)

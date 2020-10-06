@@ -1,6 +1,7 @@
 from .context import Rouge1Summarizer
 from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer
 from .context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer
+from .context import TextRank
 
 
 def test_baseline_tags():
@@ -29,3 +30,11 @@ def test_ss_tags():
     rouge1 = Rouge1Summarizer()
 
     assert "self-supervised" in rouge1
+
+
+def test_rank_tags():
+    rank = TextRank(alpha=0.5)
+
+    assert 'rank' in rank
+    assert 'ml' in rank
+    assert 'graph' in rank
