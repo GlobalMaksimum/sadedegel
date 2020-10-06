@@ -275,7 +275,7 @@ class Doc:
     @property
     def sents(self):
         warnings.warn(
-            (".sents will is deprecated and will be removed by 0.17."
+            ("Doc.sents is deprecated and will be removed by 0.17."
              "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
             stacklevel=2)
 
