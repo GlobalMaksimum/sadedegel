@@ -1,5 +1,6 @@
 import re
 from typing import List, Union
+import warnings
 
 import torch
 
@@ -198,7 +199,7 @@ class Sentences:
 
     def rouge1(self, metric):
         return rouge1_score(
-            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document.sents if sent.id != self.id]),
+            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
     def tfidf(self):
@@ -250,7 +251,7 @@ class Doc:
 
         self.raw = raw
         self._bert = None
-        self.sents = []
+        self._sents = []
         self.spans = None
 
         if raw is not None:
@@ -265,11 +266,20 @@ class Doc:
             if len(eos_list) > 0:
                 for i, eos in enumerate(eos_list):
                     if i == 0:
-                        self.sents.append(Sentences(i, self.raw[:eos].strip(), self))
+                        self._sents.append(Sentences(i, self.raw[:eos].strip(), self))
                     else:
-                        self.sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self))
+                        self._sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self))
             else:
-                self.sents.append(Sentences(0, self.raw.strip(), self))
+                self._sents.append(Sentences(0, self.raw.strip(), self))
+
+    @property
+    def sents(self):
+        warnings.warn(
+            (".sents will is deprecated and will be removed by 0.17."
+             "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
+            stacklevel=2)
+
+        return self._sents
 
     @classmethod
     def from_sentences(cls, sentences: List[str]):
@@ -277,11 +287,17 @@ class Doc:
         d = Doc(None)
 
         for i, s in enumerate(sentences):
-            d.sents.append(Sentences(i, s, d))
+            d._sents.append(Sentences(i, s, d))
 
         d.raw = "\n".join(sentences)
 
         return d
+
+    def __getitem__(self, sent_idx):
+        return self._sents[sent_idx]
+
+    def __iter__(self):
+        return iter(self._sents)
 
     def __str__(self):
         return self.raw
@@ -290,11 +306,11 @@ class Doc:
         return self.raw
 
     def __len__(self):
-        return len(self.sents)
+        return len(self._sents)
 
     def max_length(self):
         """Maximum length of a sentence including special symbols."""
-        return max(len(s.tokens_with_special_symbols) for s in self.sents)
+        return max(len(s.tokens_with_special_symbols) for s in self._sents)
 
     def padded_matrix(self, return_numpy=False, return_mask=True):
         """Returns a 0 padded numpy.array or torch.tensor
@@ -308,14 +324,14 @@ class Doc:
         max_len = self.max_length()
 
         if not return_numpy:
-            mat = torch.tensor([pad(s.input_ids, max_len) for s in self.sents])
+            mat = torch.tensor([pad(s.input_ids, max_len) for s in self])
 
             if return_mask:
                 return mat, (mat > 0).to(int)
             else:
                 return mat
         else:
-            mat = np.array([pad(s.input_ids, max_len) for s in self.sents])
+            mat = np.array([pad(s.input_ids, max_len) for s in self])
 
             if return_mask:
                 return mat, (mat > 0).astype(int)
