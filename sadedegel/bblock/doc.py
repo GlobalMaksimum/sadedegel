@@ -13,7 +13,7 @@ from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
-from .vocabulary import Token
+from .token import Token
 
 
 class Span:
@@ -157,7 +157,6 @@ class Span:
 
 class Sentences:
     tokenizer = get_default_word_tokenizer()
-    vocabulary = Token.set_vocabulary(tokenizer)
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -172,7 +171,7 @@ class Sentences:
     def set_word_tokenizer(tokenizer_name):
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
-            Sentences.vocabulary = Token.set_vocabulary(Sentences.tokenizer)
+            Token.set_vocabulary(Sentences.tokenizer)
 
     @property
     def bert(self):
@@ -207,22 +206,22 @@ class Sentences:
 
     @property
     def tf(self):
-        v = np.zeros(Sentences.vocabulary.size)
+        v = np.zeros(len(Token.vocabulary))
 
         for token in self.tokens:
             t = Token(token)
-            if t:
+            if not t.is_oov:
                 v[t.id] = 1
 
         return v
 
     @property
     def idf(self):
-        v = np.zeros(Sentences.vocabulary.size)
+        v = np.zeros(len(Token.vocabulary))
 
         for token in self.tokens:
             t = Token(token)
-            if t:
+            if not t.is_oov:
                 v[t.id] = t.idf
 
         return v
@@ -373,6 +372,6 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), Sentences.vocabulary.size))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary)))
 
         return m
