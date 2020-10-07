@@ -176,7 +176,7 @@ class Sentences:
     def set_word_tokenizer(tokenizer_name):
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
-            Sentences.vocabulary = Token.set_vocabulary(Sentences.tokenizer) d
+            Sentences.vocabulary = Token.set_vocabulary(Sentences.tokenizer)
 
     @classmethod
     def set_tf_function(cls, tf_type):
