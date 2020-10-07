@@ -3,6 +3,7 @@ import os
 from os.path import dirname
 from pathlib import Path
 from math import log
+import warnings
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
 from sadedegel.bblock.word_tokenizer_helper import puncts, normalize_word_tokenizer_name
@@ -95,7 +96,7 @@ class Token:
         return token
 
     @classmethod
-    def set_vocabulary(cls, tokenizer=None):
+    def set_vocabulary(cls, tokenizer):
         Token.cache.clear()
         Token.vocabulary = get_vocabulary(tokenizer)
 
@@ -142,7 +143,7 @@ class Token:
         return log(self.n_document / (1 + self.df)) + 1
 
     def none_idf(self):
-        print("Set vocabulary first using `set_vocabulary` class method.")
+        warnings.warn("Vocabulary is only available for BertTokenizer.")
         return None
 
     @property

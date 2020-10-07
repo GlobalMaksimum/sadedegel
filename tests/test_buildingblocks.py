@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import pytest
 from pytest import raises
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context
+from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Sentences
 
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
@@ -10,7 +10,8 @@ def test_tokens(tokenizer):
     with tokenizer_context(tokenizer):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-        s0 = d.sents[0]
+        with pytest.warns(DeprecationWarning):
+            s0 = d.sents[0]
 
         assert s0.tokens == ['Ali', 'topu', 'tut', '.']
 
@@ -28,6 +29,18 @@ def test_bert_embedding_generation(tokenizer):
                 assert d.bert_embeddings.shape == (2, 768)
         else:
             assert d.bert_embeddings.shape == (2, 768)
+
+
+def test_tfidf_embedding_generation():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    assert d.tfidf_embeddings.shape == (2, Sentences.vocabulary.size)
+
+
+def test_tfidf_compare_doc_and_sent():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+    for i, sent in enumerate(d.sents):
+        assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
 
 
 testdata = [(True, True),
@@ -82,5 +95,25 @@ def test_doc_with_no_sentence():
 
     d = Doc(raw)
 
-    assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
-                                                     "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+    with pytest.warns(DeprecationWarning):
+        assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
+                                                         "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+
+
+def test_doc_index():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+    assert d[0] == "Ali topu tut."
+
+
+def test_doc_iter_next():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+    assert next(iter(d)) == "Ali topu tut."
+
+
+def test_doc_iter_eq():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+    for i, sentence in enumerate(d):
+        assert d._sents[i] == sentence == d[i]
