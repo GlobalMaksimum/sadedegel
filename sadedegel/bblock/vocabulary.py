@@ -6,7 +6,7 @@ from math import log
 import warnings
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
-from sadedegel.bblock.word_tokenizer_helper import puncts, normalize_word_tokenizer_name
+from sadedegel.bblock.word_tokenizer_helper import puncts, normalize_tokenizer_name
 
 class Vocabulary:
     tokens = {} # dict of dicts in form of "<word_token>":{"<token_attr1":"token_attr1_val", ...}
@@ -19,18 +19,18 @@ class Vocabulary:
         return Vocabulary.tokens.get(tr_lower(word), None)
 
     @classmethod
-    def save(cls, word_tokenizer_name: str):
+    def save(cls, tokenizer_name: str):
         words = list(Vocabulary.tokens.values())
 
-        path = Vocabulary._get_filepath(word_tokenizer_name)
+        path = Vocabulary._get_filepath(tokenizer_name)
         os.makedirs(path.parent, exist_ok=True) # create folder housing vocabulary.json
 
         with open(path, "w") as fp:
-            dump(dict(size=Vocabulary.size, tokenizer=word_tokenizer_name, words=words), fp, ensure_ascii=False)
+            dump(dict(size=Vocabulary.size, tokenizer=tokenizer_name, words=words), fp, ensure_ascii=False)
 
     @classmethod
-    def load(cls, word_tokenizer_name: str):
-        with open(Vocabulary._get_filepath(word_tokenizer_name)) as fp:
+    def load(cls, tokenizer_name: str):
+        with open(Vocabulary._get_filepath(tokenizer_name)) as fp:
             json = load(fp)
 
         vocab = Vocabulary()
@@ -43,8 +43,8 @@ class Vocabulary:
         return vocab
 
     @classmethod
-    def _get_filepath(cls, word_tokenizer_name: str):
-        tok_name = normalize_word_tokenizer_name(word_tokenizer_name)
+    def _get_filepath(cls, tokenizer_name: str):
+        tok_name = normalize_tokenizer_name(tokenizer_name)
         p = Path(dirname(__file__))
         return p / 'data' / tok_name / 'vocabulary.json'
 

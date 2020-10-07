@@ -6,11 +6,11 @@ def test_all_configs():
 
 
 def test_describe_config_str():
-    assert isinstance(describe_config('word_tokenizer'), str)
+    assert isinstance(describe_config('tokenizer'), str)
 
 
 def test_describe_config_print(capsys):
-    describe_config('word_tokenizer', True)
+    describe_config('tokenizer', True)
     captured = capsys.readouterr()
 
     assert 'Change the default word tokenizer used by sadedegel' in captured.out or \

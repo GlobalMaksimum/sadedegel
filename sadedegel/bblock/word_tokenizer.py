@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from .word_tokenizer_helper import word_tokenize, normalize_word_tokenizer_name
+from .word_tokenizer_helper import word_tokenize, normalize_tokenizer_name
 import warnings
 
 
@@ -20,7 +20,7 @@ class WordTokenizer(ABC):
 
     @staticmethod
     def factory(tokenizer_name: str):
-        normalized_name = normalize_word_tokenizer_name(tokenizer_name)
+        normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
                 WordTokenizer.__instances[normalized_name] = BertTokenizer()
@@ -68,5 +68,5 @@ class SimpleTokenizer(WordTokenizer):
         raise NotImplementedError("convert_tokens_to_ids is not implemented for SimpleTokenizer yet. Use BERTTokenizer")
 
 
-def get_default_word_tokenizer() -> WordTokenizer:
+def get_default_tokenizer() -> WordTokenizer:
     return WordTokenizer.factory(BertTokenizer.__name__)

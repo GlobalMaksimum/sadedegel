@@ -78,15 +78,15 @@ def evaluate(table_format, tag, debug):
 
     scores = defaultdict(list)
 
-    for word_tokenizer in ['simple', 'bert']:
-        click.echo("Word Tokenizer: " + click.style(f"{word_tokenizer}", fg="blue"))
+    for tokenizer in ['simple', 'bert']:
+        click.echo("Word Tokenizer: " + click.style(f"{tokenizer}", fg="blue"))
         docs = [Doc.from_sentences(doc['sentences']) for doc in anno]  # Reset document because of memoization
-        with tokenizer_context(word_tokenizer):
+        with tokenizer_context(tokenizer):
             for name, summarizer in summarizers:
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
                 if ("cluster" in summarizer or "rank" in summarizer or name == "TFIDF Summarizer") and \
-                        word_tokenizer == "simple":
+                        tokenizer == "simple":
                     click.echo(click.style("SKIP", fg="yellow"))
                     continue
 
@@ -99,7 +99,7 @@ def evaluate(table_format, tag, debug):
                     score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
                     score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
 
-                    scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
+                    scores[f"{name} - {tokenizer}"].append((score_10, score_50, score_80))
 
     table = [[algo, np.array([s[0] for s in scores]).mean(), np.array([s[1] for s in scores]).mean(),
               np.array([s[2] for s in scores]).mean()] for

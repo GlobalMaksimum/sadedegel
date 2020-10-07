@@ -12,7 +12,7 @@ from scipy.sparse import csr_matrix
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
-from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
+from .word_tokenizer import get_default_tokenizer, WordTokenizer
 from .vocabulary import Token
 
 
@@ -156,8 +156,8 @@ class Span:
 
 
 class Sentences:
-    word_tokenizer = get_default_word_tokenizer()
-    vocabulary = Token.set_vocabulary(word_tokenizer)
+    tokenizer = get_default_tokenizer()
+    vocabulary = Token.set_vocabulary(tokenizer)
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -169,7 +169,7 @@ class Sentences:
         self.toks = None
 
     @staticmethod
-    def set_word_tokenizer(tokenizer_name):
+    def set_tokenizer(tokenizer_name):
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
             Sentences.vocabulary = Token.set_vocabulary(Sentences.tokenizer)
@@ -184,12 +184,12 @@ class Sentences:
 
     @property
     def input_ids(self):
-        return Sentences.word_tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
+        return Sentences.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
     @property
     def tokens(self):
         if self._tokens is None:
-            self._tokens = Sentences.word_tokenizer(self.text)
+            self._tokens = Sentences.tokenizer(self.text)
 
         return self._tokens
 

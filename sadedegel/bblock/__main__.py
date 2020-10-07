@@ -14,7 +14,7 @@ from .. import config
 @click.option('--min-df', help="Mininum document frequenct of a word to be included in", default=3)
 @click.option('--word-tokenizer', type=click.Choice(['bert', 'simple'], case_sensitive=False),
               help="Word tokenizer to be used in building vocabulary.", default='bert')
-def build_vocabulary(max_doc, min_df, word_tokenizer):
+def build_vocabulary(max_doc, min_df, tokenizer):
     """Build vocabulary.
     """
     if max_doc > 0:
@@ -26,7 +26,7 @@ def build_vocabulary(max_doc, min_df, word_tokenizer):
 
     n_documents = 0
 
-    with config.tokenizer_context(word_tokenizer):
+    with config.tokenizer_context(tokenizer):
         for i, d in tqdm(enumerate(corpus), unit=" doc"):
             doc = Doc.from_sentences(d['sentences'])
 
@@ -43,7 +43,7 @@ def build_vocabulary(max_doc, min_df, word_tokenizer):
                 w_i += 1
 
         Vocabulary.size = w_i
-        Vocabulary.save(config.get_config("word_tokenizer"))
+        Vocabulary.save(config.get_config("tokenizer"))
 
     click.secho(click.style(f"Total documents {n_documents}", fg="blue"))
     click.secho(click.style(f"Vocabulary size {w_i} (words occured more than {min_df} documents)", fg="blue"))

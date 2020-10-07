@@ -10,7 +10,7 @@ from .bblock.doc import Sentences
 Configuration = namedtuple("Configuration", "config, description, valid_values")
 
 configs = {
-    "word_tokenizer": Configuration(config="word_tokenizer",
+    "tokenizer": Configuration(config="tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
                                     valid_values=None)
 }
@@ -49,28 +49,28 @@ def check_value(f):
 
 @check_config
 def set_config(config: str, value: Any):
-    if config == "word_tokenizer":
-        Sentences.set_word_tokenizer(value)
+    if config == "tokenizer":
+        Sentences.set_tokenizer(value)
 
 
 @contextmanager
-def tokenizer_context(word_tokenizer_name, warning=False):
-    current = Sentences.word_tokenizer.__name__
+def tokenizer_context(tokenizer_name, warning=False):
+    current = Sentences.tokenizer.__name__
 
-    if warning and current != word_tokenizer_name:
-        warnings.warn(f"Changing word tokenizer to {word_tokenizer_name}")
+    if warning and current != tokenizer_name:
+        warnings.warn(f"Changing word tokenizer to {tokenizer_name}")
 
     try:
-        set_config("word_tokenizer", word_tokenizer_name)
+        set_config("tokenizer", tokenizer_name)
         yield
     finally:
-        set_config("word_tokenizer", current)
+        set_config("tokenizer", current)
 
 
 @check_config
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
-    if config == "word_tokenizer":
-        return Sentences.word_tokenizer.__name__
+    if config == "tokenizer":
+        return Sentences.tokenizer.__name__
 
 
 @check_config
