@@ -2,6 +2,7 @@ import unicodedata
 from os.path import dirname
 from pathlib import Path
 from math import log
+import warnings
 from json import dump, load
 from sadedegel.bblock.util import tr_lower
 
@@ -39,9 +40,12 @@ class Vocabulary:
 
 def get_vocabulary(tokenizer):
     try:
-        return Vocabulary.load()
+        if tokenizer.__name__ == "BertTokenizer":
+            return Vocabulary.load()
+        else:
+            warnings.warn("Vocabulary is only available for BertTokenizer.")
+            return None
     except FileNotFoundError:
-        import warnings
         warnings.warn("vocabulary.bin is not available. Some functionalities my fail")
         return None
 
@@ -85,9 +89,9 @@ class Token:
         return token
 
     @classmethod
-    def set_vocabulary(cls, tokenizer=None):
+    def set_vocabulary(cls, tokenizer):
         Token.cache.clear()
-        Token.vocabulary = get_vocabulary(None)
+        Token.vocabulary = get_vocabulary(tokenizer)
 
         return Token.vocabulary
 
@@ -135,7 +139,7 @@ class Token:
         return log((self.n_document - self.df) / self.df)
 
     def none_idf(self):
-        print("Set vocabulary first using `set_vocabulary` class method.")
+        warnings.warn("Vocabulary is only available for BertTokenizer.")
         return None
 
     @property
