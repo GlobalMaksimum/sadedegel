@@ -6,7 +6,7 @@ import click
 from .. import Doc
 from ..dataset.extended import load_extended_sents_corpus
 from .util import tr_lower
-from .vocabulary import Vocabulary, Token
+from .vocabulary import Vocabulary
 
 
 @click.command()
@@ -22,30 +22,22 @@ def build_vocabulary(max_doc, min_df, word_tokenizer):
     else:
         corpus = load_extended_sents_corpus()
 
-    vocab = defaultdict(set)
+    vocab = Vocabulary.factory(word_tokenizer)
 
-    n_documents = 0
+    click.secho(click.style(f"...Frequency calculation over extended dataset", fg="blue"))
 
     for i, d in tqdm(enumerate(corpus), unit=" doc"):
         doc = Doc.from_sentences(d['sentences'])
 
-        for sent in doc.sents:
+        for sent in doc:
             for word in sent.tokens:
-                vocab[tr_lower(word)].add(i)
+                vocab.add_word_to_doc(word, i)
 
-        n_documents += 1
+    vocab.build(min_df)
+    vocab.save()
 
-    w_i = 0
-    for w in vocab:
-        if len(vocab[w]) >= min_df:
-            Vocabulary.tokens[w] = Token(w_i, w, len(vocab[w]), n_documents)
-            w_i += 1
-
-    Vocabulary.size = w_i
-    Vocabulary.save()
-
-    click.secho(click.style(f"Total documents {n_documents}", fg="blue"))
-    click.secho(click.style(f"Vocabulary size {w_i} (words occured more than {min_df} documents)", fg="blue"))
+    click.secho(click.style(f"Total documents {vocab.document_count}", fg="blue"))
+    click.secho(click.style(f"Vocabulary size {len(vocab)} (words occured more than {min_df} documents)", fg="blue"))
 
 
 if __name__ == '__main__':
