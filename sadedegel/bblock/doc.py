@@ -292,6 +292,30 @@ class Doc:
 
         return d
 
+    @property
+    def tf(self):
+        v = np.zeros(len(Token.vocabulary))
+
+        for sent in iter(self):
+            for token in sent.tokens:
+                t = Token(token)
+                if not t.is_oov:
+                    v[t.id] = 1
+
+        return v
+
+    @property
+    def idf(self):
+        v = np.zeros(len(Token.vocabulary))
+
+        for sent in iter(self):
+            for token in sent.tokens:
+                t = Token(token)
+                if not t.is_oov:
+                    v[t.id] = t.idf
+
+        return v
+
     def __getitem__(self, sent_idx):
         return self._sents[sent_idx]
 
@@ -375,3 +399,8 @@ class Doc:
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary)))
 
         return m
+
+    @property
+    def tfidf_doc_embedding(self):
+        v = self.tf * self.idf
+        return csr_matrix(v)
