@@ -74,14 +74,19 @@ Other community maintainers
   
 * Various unsupervised/supervised summarizers
   * ROUGE1 Summarizer
+  * TextRank Summarizer
   * Cluster Summarizer
   * Supervised Summarizer
  
 * Various Word Tokenizers
   * BERT Tokenizer - Trained tokenizer
   * Simple Tokenizer - Regex Based (**Experimental**)
+  
+* Various Embeddings Implementation
+  * BERT Embeddings
+  * TfIdf Embeddings
 
-📖 **For more details, refere to [sadedegel.ai](http://sadedegel.ai)**
+📖 **For more details, refer to [sadedegel.ai](http://sadedegel.ai)**
 
 ## Install sadedeGel
 

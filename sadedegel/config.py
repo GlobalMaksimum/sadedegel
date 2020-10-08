@@ -6,7 +6,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 import warnings
 from .bblock.doc import Sentences
-from .bblock.vocabulary import Token
+from .bblock.token import Token
 
 Configuration = namedtuple("Configuration", "config, description, valid_values")
 

@@ -28,7 +28,7 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
-#### Release 0.14+ - Development Branch
+#### Release 0.15
 
 | Method & Tokenizer                      |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |-----------------------------------------|---------------|---------------|---------------|
