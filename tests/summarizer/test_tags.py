@@ -1,6 +1,7 @@
 from .context import Rouge1Summarizer
 from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer
 from .context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer
+from .context import SupervisedSummarizer
 from .context import TextRank
 
 
@@ -38,3 +39,10 @@ def test_rank_tags():
     assert 'rank' in rank
     assert 'ml' in rank
     assert 'graph' in rank
+
+
+def test_supervised_tags():
+    spv = SupervisedSummarizer()
+
+    assert 'ml' in spv
+    assert 'supervised' in spv
