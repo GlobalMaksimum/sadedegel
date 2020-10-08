@@ -12,7 +12,7 @@ from .vocabulary import Vocabulary
 @click.command()
 @click.option('--max-doc', help="Maximum documentation in extended corpus", type=int, default=-1)
 @click.option('--min-df', help="Mininum document frequenct of a word to be included in", default=3)
-@click.option('--word-tokenizer', type=click.Choice(['bert'], case_sensitive=False),
+@click.option('--word-tokenizer', type=click.Choice(['bert', 'simple'], case_sensitive=False),
               help="Word tokenizer to be used in building vocabulary.", default='bert')
 def build_vocabulary(max_doc, min_df, word_tokenizer):
     """Build vocabulary.

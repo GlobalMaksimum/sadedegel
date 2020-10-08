@@ -168,7 +168,7 @@ class Sentences:
         self.toks = None
 
     @staticmethod
-    def set_word_tokenizer(tokenizer_name):
+    def set_word_tokenizer(tokenizer_name: str):
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
             Token.set_vocabulary(Sentences.tokenizer)

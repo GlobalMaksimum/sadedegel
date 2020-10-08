@@ -21,16 +21,16 @@ class Vocabulary:
     vocabularies = {}
 
     @staticmethod
-    def factory(tokenizer):
-        normalized_name = normalize_tokenizer_name(tokenizer)
+    def factory(tokenizer_name: str):
+        normalized_name = normalize_tokenizer_name(tokenizer_name)
 
         if normalized_name not in Vocabulary.vocabularies:
             Vocabulary.vocabularies[normalized_name] = Vocabulary(normalized_name)
 
-        return Vocabulary.vocabularies[normalize_tokenizer_name(tokenizer)]
+        return Vocabulary.vocabularies[normalized_name]
 
-    def __init__(self, tokenizer):
-        self.tokenizer = tokenizer
+    def __init__(self, tokenizer_name: str):
+        self.tokenizer_name = tokenizer_name
         self.entries = {}
         self.initialized = False
         self.document_count = -1
@@ -66,24 +66,19 @@ class Vocabulary:
         if not self.initialized:
             raise Exception("Call build to initialize vocabulary")
 
-        with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json', "w") as fp:
-            dump(dict(size=len(self), document_count=self.document_count, tokenizer=self.tokenizer,
+        with open(Vocabulary._get_filepath(self.tokenizer_name), "w") as fp:
+            dump(dict(size=len(self), document_count=self.document_count, tokenizer=self.tokenizer_name,
                       words=[asdict(e) for e in self.entries.values()]), fp,
                  ensure_ascii=False)
 
     @staticmethod
-    def load(tokenizer):
-        normalized_name = normalize_tokenizer_name(tokenizer)
+    def load(tokenizer_name: str):
+        normalized_name = normalize_tokenizer_name(tokenizer_name)
 
         vocab = Vocabulary.factory(normalized_name)
 
         if not vocab.initialized:
-            if normalized_name != 'bert':
-                warnings.warn("Currently only valid tokenizer is BERT Tokenizer for vocabulary generation.",
-                              UserWarning, stacklevel=2)
-                return vocab
-
-            with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json') as fp:
+            with open(Vocabulary._get_filepath(tokenizer_name), "r") as fp:
                 json = load(fp)
 
             for d in json['words']:
@@ -105,3 +100,11 @@ class Vocabulary:
                 return entry
             else:
                 return Entry(-1, None, 0, 0)  # OOV has a document frequency of 0 by convention
+
+
+    @staticmethod
+    def _get_filepath(tokenizer_name: str):
+        tok_name = normalize_tokenizer_name(tokenizer_name)
+        p = Path(dirname(__file__))
+
+        return p / 'data' / tok_name / 'vocabulary.json'
