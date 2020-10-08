@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import pytest
 from pytest import raises
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Sentences, tf_context
+from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Token, tf_context
 
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
@@ -35,7 +35,7 @@ def test_bert_embedding_generation(tokenizer):
 def test_tfidf_embedding_generation(tf_type):
     with tf_context(tf_type):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
-        assert d.tfidf_embeddings.shape == (2, Sentences.vocabulary.size)
+        assert d.tfidf_embeddings.shape == (2, Token.vocabulary.size)
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])

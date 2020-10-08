@@ -4,6 +4,19 @@ from .word_tokenizer_helper import word_tokenize
 import warnings
 
 
+def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
+    normalized = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
+
+    if normalized not in ['bert', 'simple']:
+        msg = f"Invalid tokenizer {tokenizer_name} ({normalized}). Valid values are bert, simple"
+        if raise_on_error:
+            raise ValueError(msg)
+        else:
+            warnings.warn(msg, UserWarning, stacklevel=3)
+
+    return normalized
+
+
 class WordTokenizer(ABC):
     __instances = {}
 
@@ -20,7 +33,7 @@ class WordTokenizer(ABC):
 
     @staticmethod
     def factory(tokenizer_name: str):
-        normalized_name = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
+        normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
                 WordTokenizer.__instances[normalized_name] = BertTokenizer()

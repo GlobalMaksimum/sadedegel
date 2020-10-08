@@ -14,7 +14,7 @@ from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
-from .vocabulary import Token
+from .token import Token
 
 
 class Span:
@@ -158,7 +158,6 @@ class Span:
 
 class Sentences:
     tokenizer = get_default_word_tokenizer()
-    vocabulary = Token.set_vocabulary(tokenizer)
     tf_type = 'binary'
 
     def __init__(self, id_: int, text: str, doc):
@@ -176,7 +175,7 @@ class Sentences:
     def set_word_tokenizer(tokenizer_name):
         if tokenizer_name != Sentences.tokenizer.__name__:
             Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
-            Sentences.vocabulary = Token.set_vocabulary(Sentences.tokenizer)
+            Token.set_vocabulary(Sentences.tokenizer)
 
     @classmethod
     def set_tf_function(cls, tf_type):
@@ -213,27 +212,31 @@ class Sentences:
 
     @property
     def _doc_toks(self):
-        return dict(Counter([tok for sent in self.document.sents for tok in sent.tokens]))
+        return dict(Counter([tok for sent in iter(self.document) for tok in sent.tokens]))
 
     @property
     def _doc_len(self):
-        return len([tok for sent in self.document.sents for tok in sent.tokens])
+        return len([tok for sent in iter(self.document) for tok in sent.tokens])
 
     def tfidf(self):
         return self.tf * self.idf
 
+    @property
+    def tf(self):
+        return self.f_tf()
+
     def binary_tf(self):
-        v = np.zeros(Sentences.vocabulary.size)
+        v = np.zeros(len(Token.vocabulary))
 
         for token in self.tokens:
             t = Token(token)
-            if t:
+            if not t.is_oov:
                 v[t.id] = 1
 
         return v
 
     def raw_tf(self):
-        v = np.zeros(Sentences.vocabulary.size)
+        v = np.zeros(len(Token.vocabulary))
 
         for token in self.tokens:
             t = Token(token)
@@ -252,10 +255,6 @@ class Sentences:
         norm = max(self._doc_toks.values())
         return 0.5 + 0.5 * self.raw_tf() / norm
 
-    @property
-    def tf(self):
-        return self.f_tf()
-
     def get_tf_func(self):
         tf_funcs = {'binary': self.binary_tf(),
                     'raw': self.raw_tf(),
@@ -266,11 +265,11 @@ class Sentences:
 
     @property
     def idf(self):
-        v = np.zeros(Sentences.vocabulary.size)
+        v = np.zeros(len(Token.vocabulary))
 
         for token in self.tokens:
             t = Token(token)
-            if t:
+            if not t.is_oov:
                 v[t.id] = t.idf
 
         return v
@@ -421,6 +420,6 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), Sentences.vocabulary.size))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary)))
 
         return m

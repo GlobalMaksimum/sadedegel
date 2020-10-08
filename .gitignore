@@ -90,6 +90,7 @@ ENV/
 
 .idea/
 .pytest_cache/
+.vscode/
 
 # Confidential
 credentials.*
