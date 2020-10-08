@@ -242,7 +242,7 @@ class Sentences:
 
 class Doc:
     sbd = None
-    model = None
+    bert_model = None
 
     def __init__(self, raw: Union[str, None]):
         if Doc.sbd is None and raw is not None:
@@ -346,15 +346,15 @@ class Doc:
         if self._bert is None:
             inp, mask = self.padded_matrix()
 
-            if Doc.model is None:
+            if Doc.bert_model is None:
                 logger.info("Loading BertModel")
                 from transformers import BertModel
 
-                Doc.model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
-                Doc.model.eval()
+                Doc.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
+                Doc.bert_model.eval()
 
             with torch.no_grad():
-                outputs = Doc.model(inp, mask)
+                outputs = Doc.bert_model(inp, mask)
 
             twelve_layers = outputs[2][1:]
 
