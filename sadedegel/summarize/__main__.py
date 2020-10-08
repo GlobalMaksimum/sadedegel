@@ -4,6 +4,7 @@ from typing import List
 from loguru import logger
 
 import click
+import time
 from tabulate import tabulate
 import warnings
 import numpy as np  # type: ignore
@@ -53,11 +54,11 @@ def cli():
     pass
 
 
-def dot_progress(i, length):
+def dot_progress(i, length, t0):
     n = ceil(length * 0.05)
 
     if i == length - 1:
-        click.echo(".", nl=True, color="yellow")
+        click.echo(f". {(time.time() - t0):.2f} sec", nl=True, color="yellow")
     elif i % n == 0 and i != 0:
         click.echo(".", nl=False, color="yellow")
 
@@ -83,6 +84,7 @@ def evaluate(table_format, tag, debug):
         docs = [Doc.from_sentences(doc['sentences']) for doc in anno]  # Reset document because of memoization
         with tokenizer_context(word_tokenizer):
             for name, summarizer in summarizers:
+                t0 = time.time()
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
                 if ("cluster" in summarizer or "rank" in summarizer or name == "TFIDF Summarizer") and \
@@ -91,7 +93,7 @@ def evaluate(table_format, tag, debug):
                     continue
 
                 for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                    dot_progress(i, len(relevance))
+                    dot_progress(i, len(relevance), t0)
 
                     y_pred = [summarizer.predict(d.sents)]
 
