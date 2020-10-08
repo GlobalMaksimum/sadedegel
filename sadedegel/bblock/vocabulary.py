@@ -101,7 +101,6 @@ class Vocabulary:
             else:
                 return Entry(-1, None, 0, 0)  # OOV has a document frequency of 0 by convention
 
-
     @staticmethod
     def _get_filepath(tokenizer_name: str):
         tok_name = normalize_tokenizer_name(tokenizer_name)
