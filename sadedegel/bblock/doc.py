@@ -206,7 +206,7 @@ class Sentences:
 
     @property
     def tf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for token in self.tokens:
             t = Token(token)
@@ -217,7 +217,7 @@ class Sentences:
 
     @property
     def idf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for token in self.tokens:
             t = Token(token)
@@ -372,6 +372,6 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary)))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
 
         return m
