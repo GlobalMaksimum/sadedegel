@@ -33,7 +33,7 @@ def test_bert_embedding_generation(tokenizer):
 
 def test_tfidf_embedding_generation():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf_embeddings.shape == (2, Token.vocabulary.size)
+    assert d.tfidf_embeddings.shape == (2, Token.vocabulary().size)
 
 
 def test_tfidf_compare_doc_and_sent():
