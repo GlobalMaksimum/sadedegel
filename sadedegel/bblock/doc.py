@@ -14,6 +14,7 @@ from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
 from .token import Token
+from ..about import __version__
 
 
 class Span:
@@ -273,10 +274,13 @@ class Doc:
 
     @property
     def sents(self):
-        warnings.warn(
-            ("Doc.sents is deprecated and will be removed by 0.17."
-             "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
-            stacklevel=2)
+        if tuple(map(int, __version__.split('.'))) < (0, 17):
+            warnings.warn(
+                ("Doc.sents is deprecated and will be removed by 0.17. "
+                 "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
+                stacklevel=2)
+        else:
+            raise Exception("Remove .sent before release.")
 
         return self._sents
 
