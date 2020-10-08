@@ -77,20 +77,20 @@ class Vocabulary:
 
         vocab = Vocabulary.factory(normalized_name)
 
-        if normalized_name != 'bert':
-            warnings.warn("Currently only valid tokenizer is BERT Tokenizer for vocabulary generation.",
-                          UserWarning, stacklevel=2)
-            return vocab
+        if not vocab.initialized:
+            if normalized_name != 'bert':
+                warnings.warn("Currently only valid tokenizer is BERT Tokenizer for vocabulary generation.",
+                              UserWarning, stacklevel=2)
+                return vocab
 
-        print(f"Loading vocabulary...")
-        with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json') as fp:
-            json = load(fp)
+            with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json') as fp:
+                json = load(fp)
 
-        for d in json['words']:
-            vocab.entries[d['word']] = Entry(d['id'], d['word'], d['df'], d['df_cs'])
+            for d in json['words']:
+                vocab.entries[d['word']] = Entry(d['id'], d['word'], d['df'], d['df_cs'])
 
-        vocab.document_count = json['document_count']
-        vocab.initialized = True
+            vocab.document_count = json['document_count']
+            vocab.initialized = True
 
         return vocab
 
