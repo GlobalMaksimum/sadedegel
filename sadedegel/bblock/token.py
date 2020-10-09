@@ -34,8 +34,20 @@ def word_shape(text):
 
 
 class Token:
-    vocabulary = None
+    _vocabulary = None
     cache = {}
+
+    @classmethod
+    def vocabulary(cls):
+        if cls._vocabulary is None:
+            cls.set_vocabulary(BertTokenizer)
+
+        return cls._vocabulary
+
+    @classmethod
+    def reset(cls):
+        cls.cache.clear()
+        cls._vocabulary = None
 
     @classmethod
     def _get_cache(cls, word):
@@ -46,11 +58,11 @@ class Token:
     @classmethod
     def set_vocabulary(cls, tokenizer):
         cls.cache.clear()
-        cls.vocabulary = Vocabulary.load(tokenizer.__name__)
+        cls._vocabulary = Vocabulary.load(tokenizer.__name__)
 
     def __new__(cls, word, *args, **kwargs):
-        if cls.vocabulary is None:
-            cls.vocabulary = Vocabulary.load(BertTokenizer.__name__)
+        if cls._vocabulary is None:
+            cls._vocabulary = Vocabulary.load(BertTokenizer.__name__)
 
         cached = cls._get_cache(word)
 
@@ -76,7 +88,7 @@ class Token:
         self.entry = None
 
     def smooth_idf(self):
-        return log(Token.vocabulary.document_count / (1 + self.df)) + 1
+        return log(Token._vocabulary.document_count / (1 + self.df)) + 1
 
     @property
     def idf(self):
@@ -85,7 +97,7 @@ class Token:
     @property
     def id(self):
         if self.entry is None:
-            self.entry = Token.vocabulary[self.word]
+            self.entry = Token._vocabulary[self.word]
 
         return self.entry.id
 
@@ -96,6 +108,6 @@ class Token:
     @property
     def df(self):
         if self.entry is None:
-            self.entry = Token.vocabulary[self.word]
+            self.entry = Token._vocabulary[self.word]
 
         return self.entry.df
