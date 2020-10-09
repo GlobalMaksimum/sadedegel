@@ -5,13 +5,6 @@ from pathlib import Path
 import boto3
 from smart_open import open
 import tarfile
-import glob
-from tqdm import tqdm
-from sadedegel.tokenize import Doc
-import json
-import sys
-
-# from ..util import safe_read
 
 
 @click.group(help="Tokenization Dataset Commandline.")
@@ -32,7 +25,6 @@ def download(access_key, secret_key, data_home):
     logger.info(f"Data directory for tokenization data {data_home}")
 
     data_home.mkdir(parents=True, exist_ok=True)
-
 
     transport_params = {
         'session': boto3.Session(aws_access_key_id=access_key,
