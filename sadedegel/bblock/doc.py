@@ -386,10 +386,10 @@ class Doc:
         indices = []
         data = []
         for i in range(len(self)):
-            tf = self[i].tf
-            for idx in tf.nonzero()[0]:
+            _tf = self[i].tf
+            for idx in _tf.nonzero()[0]:
                 indices.append(idx)
-                data.append(tf[idx])
+                data.append(_tf[idx])
 
             indptr.append(len(indices))
 
