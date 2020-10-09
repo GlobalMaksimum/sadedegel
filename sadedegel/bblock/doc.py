@@ -368,8 +368,8 @@ class Doc:
         indptr = [0]
         indices = []
         data = []
-        for i in range(len(self.sents)):
-            sent_embedding = self.sents[i].tfidf()
+        for i in range(len(self)):
+            sent_embedding = self[i].tfidf()
             for idx in sent_embedding.nonzero()[0]:
                 indices.append(idx)
                 data.append(sent_embedding[idx])
@@ -379,3 +379,40 @@ class Doc:
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
 
         return m
+
+    @property
+    def tf(self):
+        indptr = [0]
+        indices = []
+        data = []
+        for i in range(len(self)):
+            tf = self[i].tf
+            for idx in tf.nonzero()[0]:
+                indices.append(idx)
+                data.append(tf[idx])
+
+            indptr.append(len(indices))
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+
+        return m.max(axis=0)
+
+    @property
+    def idf(self):
+        indptr = [0]
+        indices = []
+        data = []
+        for i in range(len(self.sents)):
+            idf = self.sents[i].idf
+            for idx in idf.nonzero()[0]:
+                indices.append(idx)
+                data.append(idf[idx])
+
+            indptr.append(len(indices))
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+
+        return m.max(axis=0)
+
+    def tfidf(self):
+        return self.tf.multiply(self.idf)
