@@ -18,7 +18,9 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
+    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended',
+              'sadedegel.dataset.tokenization',
+              'sadedegel.summarize',
               'sadedegel.tokenize', 'sadedegel.ml',
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
@@ -36,6 +38,7 @@ setup(
         sadedegel=sadedegel.__main__:cli
         sadedegel-dataset=sadedegel.dataset.__main__:cli
         sadedegel-dataset-extended=sadedegel.dataset.extended.__main__:cli
+        sadedegel-dataset-tokenization=sadedegel.dataset.tokenization.__main__:cli
         sadedegel-summarize=sadedegel.summarize.__main__:cli
         sadedegel-sbd=sadedegel.tokenize.__main__:cli
         sadedegel-server=sadedegel.server.__main__:server
