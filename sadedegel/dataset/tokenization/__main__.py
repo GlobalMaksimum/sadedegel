@@ -6,6 +6,8 @@ import boto3
 from smart_open import open
 import tarfile
 
+from ._core import check_and_display
+
 
 @click.group(help="Tokenization Dataset Commandline.")
 def cli():
@@ -20,6 +22,8 @@ def cli():
 @click.option("--data_home", '-d', help="Data home directory", default="~/.sadedegel_data")
 def download(access_key, secret_key, data_home):
     """Download tokenization corpus from cloud with your key."""
+
+
 
     data_home = Path(os.path.expanduser(data_home)) / 'tokenization'
     logger.info(f"Data directory for tokenization data {data_home}")
@@ -44,9 +48,15 @@ def download(access_key, secret_key, data_home):
         with open(url, 'rb', transport_params=transport_params) as fp:
             tf = tarfile.open(fileobj=fp)
 
-            tf.extractall(data_home.absolute())
+            extract_to = (Path(os.path.expanduser(data_home)) / tarball.split('/')[0])
+
+            tf.extractall(extract_to.absolute())
 
         click.secho(f".done: {tarball}", fg="green")
+
+    d = check_and_display('~/.sadedegel_data')
+    click.secho("Checking download...")
+    click.secho("Dataset stats: " + click.style(f"{d}", fg="yellow"), color='white')
 
 
 if __name__ == "__main__":
