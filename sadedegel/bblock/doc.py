@@ -15,6 +15,7 @@ from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
 from .token import Token
+from ..about import __version__
 
 
 class Span:
@@ -226,7 +227,7 @@ class Sentences:
         return self.f_tf()
 
     def binary_tf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for token in self.tokens:
             t = Token(token)
@@ -236,7 +237,7 @@ class Sentences:
         return v
 
     def raw_tf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for token in self.tokens:
             t = Token(token)
@@ -265,7 +266,7 @@ class Sentences:
 
     @property
     def idf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for token in self.tokens:
             t = Token(token)
@@ -321,10 +322,13 @@ class Doc:
 
     @property
     def sents(self):
-        warnings.warn(
-            ("Doc.sents is deprecated and will be removed by 0.17."
-             "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
-            stacklevel=2)
+        if tuple(map(int, __version__.split('.'))) < (0, 17):
+            warnings.warn(
+                ("Doc.sents is deprecated and will be removed by 0.17. "
+                 "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
+                stacklevel=2)
+        else:
+            raise Exception("Remove .sent before release.")
 
         return self._sents
 
@@ -420,6 +424,6 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary)))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
 
         return m

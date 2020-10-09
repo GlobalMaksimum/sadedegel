@@ -35,7 +35,7 @@ def test_bert_embedding_generation(tokenizer):
 def test_tfidf_embedding_generation(tf_type):
     with tf_context(tf_type):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
-        assert d.tfidf_embeddings.shape == (2, Token.vocabulary.size)
+        assert d.tfidf_embeddings.shape == (2, Token.vocabulary().size)
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
