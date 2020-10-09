@@ -122,7 +122,7 @@ def test_doc_iter_eq():
 
 def test_doc_level_tfidf():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf_doc_embedding.shape == (1, Token.vocabulary.size)
+    assert d.tfidf_doc_embedding.shape == (1, Token.vocabulary().size)
 
 
 def test_doc_level_tf_idf_value():

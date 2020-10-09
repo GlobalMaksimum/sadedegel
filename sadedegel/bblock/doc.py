@@ -298,7 +298,7 @@ class Doc:
 
     @property
     def tf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for sent in iter(self):
             for token in sent.tokens:
@@ -310,7 +310,7 @@ class Doc:
 
     @property
     def idf(self):
-        v = np.zeros(len(Token.vocabulary))
+        v = np.zeros(len(Token.vocabulary()))
 
         for sent in iter(self):
             for token in sent.tokens:
