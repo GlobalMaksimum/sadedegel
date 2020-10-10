@@ -105,7 +105,7 @@ class BandSummarizer(ExtractiveSummarizer):
         1. Each band is scored by PositionSummarizer individually.
         2. Relative score for the same relative position within the band is also define by `mode` parameter.
 
-    mode : {'first', 'last'}, default='first'
+    mode : {'forward', 'backward'}, default='forward'
         Whether the smaller position indices within a band have higher scores.
 
     k : int, default=3
@@ -118,14 +118,31 @@ class BandSummarizer(ExtractiveSummarizer):
 
     tags = ExtractiveSummarizer.tags + ['baseline']
 
-    def __init__(self, mode='first', k=3, normalize=True):
+    def __init__(self, k=3, mode='forward', normalize=True):
         super().__init__(normalize)
         self.k = k
 
-        if mode not in ['first', 'last']:
-            raise ValueError(f"mode should be one of 'first', 'last'")
+        if mode not in ['forward', 'backward']:
+            raise ValueError(f"mode should be one of 'forward', 'backward'")
+        elif mode == 'backward':
+            raise NotImplementedError(f"mode='backward' is not implemented yet.")
 
         self.mode = mode
 
     def _predict(self, sentences: List[Sentences]) -> np.ndarray:
-        raise NotImplementedError("BandSummarizer is not completed yet.")
+        r = 0
+        j = 0
+        n = len(sentences)
+        scores = [0 for _ in range(n)]
+
+        while j < self.k:
+            i = j
+
+            while i < n:
+                scores[i] = r
+                r += 1
+                i += self.k
+
+            j += 1
+
+        return (n - 1) - np.array(scores)
