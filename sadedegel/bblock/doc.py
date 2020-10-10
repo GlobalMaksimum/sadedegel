@@ -15,7 +15,7 @@ from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
 from .token import Token
 from ..about import __version__
-
+from ._bert_wrapper import BertWrapper
 
 class Span:
     def __init__(self, i: int, span, doc):
@@ -165,7 +165,7 @@ class Sentences:
 
         self._tokens = None
         self.document = doc
-        self._bert = None
+        self._bert_emb = None
         self.toks = None
 
     @staticmethod
@@ -176,11 +176,11 @@ class Sentences:
 
     @property
     def bert(self):
-        return self._bert
+        return self._bert_emb
 
     @bert.setter
-    def bert(self, bert):
-        self._bert = bert
+    def bert(self, bert_emb):
+        self._bert_emb = bert_emb
 
     @property
     def input_ids(self):
@@ -242,7 +242,7 @@ class Sentences:
 
 class Doc:
     sbd = None
-    bert_model = None
+    bert = None
 
     def __init__(self, raw: Union[str, None]):
         if Doc.sbd is None and raw is not None:
@@ -346,21 +346,14 @@ class Doc:
         if self._bert is None:
             inp, mask = self.padded_matrix()
 
-            if Doc.bert_model is None:
+            if Doc.bert is None:
                 logger.info("Loading BertModel")
-                from transformers import BertModel
+                Doc.bert = BertWrapper()
 
-                Doc.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
-                Doc.bert_model.eval()
 
-            with torch.no_grad():
-                outputs = Doc.bert_model(inp, mask)
+            self._bert_emb = Doc.bert(inp, mask)
 
-            twelve_layers = outputs[2][1:]
-
-            self._bert = select_layer(twelve_layers, [11], return_cls=False)
-
-        return self._bert
+        return self._bert_emb
 
     @property
     def tfidf_embeddings(self):
