@@ -11,7 +11,7 @@ from scipy.sparse import csr_matrix
 
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from .util import tr_lower, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
 from .token import Token
 from ..about import __version__
@@ -176,6 +176,9 @@ class Sentences:
 
     @property
     def bert(self):
+        if self._bert_emb is None:
+            self._bert_emb = self.document.bert_embeddings[self.id]
+
         return self._bert_emb
 
     @bert.setter
