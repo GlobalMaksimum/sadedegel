@@ -253,7 +253,7 @@ class Doc:
             Doc.sbd = load_model()
 
         self.raw = raw
-        self._bert = None
+        self._bert_emb = None
         self._sents = []
         self.spans = None
 
@@ -355,7 +355,7 @@ class Doc:
 
     @property
     def bert_embeddings(self):
-        if self._bert is None:
+        if self._bert_emb is None:
             inp, mask = self.padded_matrix()
             self._bert_emb = Doc.bert(inp, mask)
 
