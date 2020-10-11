@@ -243,7 +243,22 @@ class Sentences:
         return self.text == s  # no need for type checking, will return false for non-strings
 
 
-class Doc:
+
+class DocMeta(type):
+    """
+        Metaclass for Doc to handle BertWrapper loading (in the form of Doc.bert class property)
+        properly
+    """
+
+    @property
+    def bert(self):
+        if self._bert_wrapper is None:
+             logger.info("Loading BertModel")
+             self._bert_wrapper = BertWrapper()
+
+        return self._bert_wrapper
+
+class Doc(metaclass=DocMeta):
     sbd = None
     _bert_wrapper = None
 
@@ -345,13 +360,7 @@ class Doc:
                 return mat
 
 
-    @property
-    def bert(self):
-        if self._bert_wrapper is None:
-             logger.info("Loading BertModel")
-             self._bert_wrapper = BertWrapper()
 
-        return self._bert_wrapper
 
     @property
     def bert_embeddings(self):
