@@ -12,7 +12,10 @@ Configuration = namedtuple("Configuration", "config, description, valid_values")
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
-                                    valid_values=None)
+                                    valid_values=None),
+    "bert_device": Configuration(config="bert_device",
+                                 description="Change the device used by BERT",
+                                 valid_values=None) # device validation performed by Torch itself
 }
 
 
@@ -51,6 +54,8 @@ def check_value(f):
 def set_config(config: str, value: Any):
     if config == "word_tokenizer":
         Sentences.set_word_tokenizer(value)
+    elif config == "bert_device":
+        Doc.bert.set_device(value)
 
 
 @contextmanager
@@ -71,7 +76,8 @@ def tokenizer_context(tokenizer_name, warning=False):
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
     if config == "word_tokenizer":
         return Sentences.tokenizer.__name__
-
+    elif config == "bert_device":
+        return Doc.bert.get_device()
 
 @check_config
 def describe_config(config: str, print_desc=False):  # pylint: disable=inconsistent-return-statements
