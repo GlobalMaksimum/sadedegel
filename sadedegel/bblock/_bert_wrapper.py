@@ -39,6 +39,9 @@ class BertWrapper:
         device = torch.device(device)
         self.model.to(device)
 
+    def get_device(self) -> str:
+        return next(self.model.parameters()).device)
+
     def __call__(self, inp: torch.LongTensor, mask: torch.FloatTensor):
         """
             Parameters:

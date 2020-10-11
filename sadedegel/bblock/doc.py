@@ -245,7 +245,7 @@ class Sentences:
 
 class Doc:
     sbd = None
-    bert = None
+    _bert_wrapper = None
 
     def __init__(self, raw: Union[str, None]):
         if Doc.sbd is None and raw is not None:
@@ -344,16 +344,19 @@ class Doc:
             else:
                 return mat
 
+
+    @property
+    def bert(self):
+        if self._bert_wrapper is None:
+             logger.info("Loading BertModel")
+             self._bert_wrapper = BertWrapper()
+
+        return self._bert_wrapper
+
     @property
     def bert_embeddings(self):
         if self._bert is None:
             inp, mask = self.padded_matrix()
-
-            if Doc.bert is None:
-                logger.info("Loading BertModel")
-                Doc.bert = BertWrapper()
-
-
             self._bert_emb = Doc.bert(inp, mask)
 
         return self._bert_emb
