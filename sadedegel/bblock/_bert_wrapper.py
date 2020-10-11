@@ -28,7 +28,7 @@ class BertWrapper:
                     Which device to run BERT on
         """
 
-        self.model = BertModel.from_pretrained(output_hidden_states=True)
+        self.model = BertModel.from_pretrained(pretrained_name, output_hidden_states=True)
         self.return_cls = return_cls
         self.hidden_layers_picked = hidden_layers_picked
 
