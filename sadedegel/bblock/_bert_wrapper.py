@@ -40,7 +40,7 @@ class BertWrapper:
         self.model.to(device)
 
     def get_device(self) -> str:
-        return next(self.model.parameters()).device)
+        return next(self.model.parameters()).device
 
     def __call__(self, inp: torch.LongTensor, mask: torch.FloatTensor):
         """
