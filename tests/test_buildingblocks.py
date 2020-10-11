@@ -133,3 +133,8 @@ def test_doc_level_tf_idf_value():
 def test_doc_level_tf_idf_type():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
     assert isspmatrix_csr(d.tfidf())
+
+
+def test_bert_wrong_device():
+    with pytest.raises(RuntimeError):
+        Doc.bert.set_device("spanish inquisition")
