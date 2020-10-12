@@ -20,10 +20,9 @@ def cli():
 @click.option("--secret-key", help="Secret Key ID to download dataset.", prompt=True,
               default=lambda: os.environ.get('sadedegel_secret_key', ''))
 @click.option("--data_home", '-d', help="Data home directory", default="~/.sadedegel_data")
-def download(access_key, secret_key, data_home):
+@click.option("--data-version", "-v", help="Dataset version", default="v2")
+def download(access_key, secret_key, data_home, data_version):
     """Download tokenization corpus from cloud with your key."""
-
-
 
     data_home = Path(os.path.expanduser(data_home)) / 'tokenization'
     logger.info(f"Data directory for tokenization data {data_home}")
@@ -43,12 +42,12 @@ def download(access_key, secret_key, data_home):
     click.echo(click.style(f"\nStarting Download...", fg="yellow"))
 
     for tarball in __tarballs__:
-        url = f"s3://sadedegel/dataset/tokenization/{tarball}"
+        url = f"s3://sadedegel/dataset/tokenization/{data_version}/{tarball}"
 
         with open(url, 'rb', transport_params=transport_params) as fp:
             tf = tarfile.open(fileobj=fp)
 
-            extract_to = (Path(os.path.expanduser(data_home)) / tarball.split('/')[0])
+            extract_to = (Path(os.path.expanduser(data_home)) / data_version / tarball.split('/')[0])
 
             tf.extractall(extract_to.absolute())
 

@@ -22,8 +22,10 @@ __tokenization_download_message__ = """Ensure that you have properly downloaded 
 
         """
 
+__tokenization_version_message__ = "Ensure your dataset is in versioned format."
 
-def check_directory_structure(path: str) -> bool:
+
+def check_directory_structure(path: str, version) -> bool:
     if not Path(expanduser(path)).exists():
         click.secho(f"{path} not found.\n", fg="red")
         click.secho(__general_download_message__, fg="red")
@@ -36,12 +38,18 @@ def check_directory_structure(path: str) -> bool:
 
         return False
 
-    elif not (Path(expanduser(path)) / "tokenization" / "raw").exists():
+    elif not(Path(expanduser(path)) / "tokenization" / version).exists():
+        click.secho(f"Stated version is not found.\n", fg="red")
+        click.secho(__tokenization_version_message__, fg="red")
+
+        return False
+
+    elif not (Path(expanduser(path)) / "tokenization" / version / "raw").exists():
         click.secho(f"Tokenization Raw Dataset not found.\n", fg="red")
 
         return False
 
-    elif not (Path(expanduser(path)) / "tokenization" / "tokenized").exists():
+    elif not (Path(expanduser(path)) / "tokenization" / version / "tokenized").exists():
         click.secho(f"Tokenization Tokenized Dataset not found.\n", fg="red")
 
         return False
@@ -50,21 +58,21 @@ def check_directory_structure(path: str) -> bool:
         return True
 
 
-def raw_stats(data_home: str) -> int:
+def raw_stats(data_home: str, version) -> int:
     sz = 0
-    for f in glob.glob(str((Path(expanduser(data_home)) / "tokenization" / "raw" / "*.txt").absolute())):
+    for f in glob.glob(str((Path(expanduser(data_home)) / "tokenization" / version / "raw" / "*.txt").absolute())):
         sz += getsize(f)
     return sz
 
 
-def tokenized_stats(data_home: str) -> int:
+def tokenized_stats(data_home: str, version) -> int:
     sz = 0
-    for f in glob.glob(str((Path(expanduser(data_home)) / "tokenization" / "tokenized" / "*.txt").absolute())):
+    for f in glob.glob(str((Path(expanduser(data_home)) / "tokenization" / version / "tokenized" / "*.txt").absolute())):
         sz += getsize(f)
     return sz
 
 
-def check_and_display(data_home: str):
-    if check_directory_structure(data_home):
-        return dict(byte=dict(raw=f"{raw_stats(data_home) / 1e6} MB",
-                              tokens=f"{tokenized_stats(data_home) / 1e6} MB"))
+def check_and_display(data_home: str, version='v2'):
+    if check_directory_structure(data_home, version):
+        return dict(byte=dict(raw=f"{raw_stats(data_home, version) / 1e6} MB",
+                              tokens=f"{tokenized_stats(data_home, version) / 1e6} MB"))
