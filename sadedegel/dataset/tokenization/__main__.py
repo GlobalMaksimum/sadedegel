@@ -111,7 +111,7 @@ def prepare(data_home, data_version):
     click.secho("Saving " + click.style("Tokenized .json file.", fg='blue'))
     with open(str(Path(os.path.expanduser(data_home)) / 'tokenization' / data_version / "tokenized" / "Tokenized.json"),
               'w') as j:
-        json.dump(documents, j)
+        json.dump(tokens, j)
 
 
 if __name__ == "__main__":
