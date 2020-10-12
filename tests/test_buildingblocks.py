@@ -133,3 +133,17 @@ def test_doc_level_tf_idf_value():
 def test_doc_level_tf_idf_type():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
     assert isspmatrix_csr(d.tfidf())
+
+
+@pytest.mark.parametrize('compute_type, shape', [("mean", (768,)),
+                                                 ("rouge-weighted", (768,)),
+                                                 ("length-weighted", (768,))])
+def test_doc2bert(compute_type, shape):
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    assert d.doc2bert(compute_type).shape == shape
+
+
+def test_doc2bert_valerr():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with pytest.raises(ValueError, match=r".*Not a valid compute type.*"):
+        d.doc2bert(compute="char-length-weighted")
