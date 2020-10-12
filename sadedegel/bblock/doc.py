@@ -416,3 +416,32 @@ class Doc:
 
     def tfidf(self):
         return self.tf.multiply(self.idf)
+
+    def doc2bert(self, compute="mean"):
+        """Computes BERT embedding for a document from the BERT embeddings of the sentence
+        objects the document consists of.
+
+        :param compute: Method to compute document embedding from sentence embeddings, defaults to `mean`.
+                        `mean` computes the mean of sentence embeddings to get document embedding.
+                        `rouge-weighted` computes the weighted mean of sentence embeddings using sentence Rouge1 scores
+                        as weights.
+                        `length-weighted` computes the weighted mean of sentence embeddings using sentence
+                        length as weights.
+        :type compute: str
+        :return: Document BERT Embedding.
+        :rtype: numpy.ndarray
+        """
+        if compute == "mean":
+            v = np.mean(self.bert_embeddings, axis=0)
+        elif compute == "rouge-weighted":
+            from sadedegel.summarize import Rouge1Summarizer
+            w = Rouge1Summarizer().predict(self).reshape(1, -1)
+            v = np.dot(w, self.bert_embeddings)
+        elif compute == "length-weighted":
+            from sadedegel.summarize import LengthSummarizer
+            w = LengthSummarizer().predict(self).reshape(1, -1)
+            v = np.dot(w, self.bert_embeddings)
+        else:
+            raise ValueError("Not a valid compute type.")
+
+        return v.reshape(-1)
