@@ -44,16 +44,6 @@ def test_length_summarizer_unknown_mode():
         _ = LengthSummarizer('unknown')
 
 
-def test_band_summarizer_unknown_mode():
-    with raises(ValueError):
-        _ = BandSummarizer('unknown')
-
-
-def test_band_summarizer_not_implemented_yet():
-    with raises(NotImplementedError):
-        BandSummarizer('first').predict(['0', '1', '2'])
-
-
 def test_first_summ():
     summarizer = PositionSummarizer()
 

@@ -13,7 +13,7 @@ from sklearn.metrics import ndcg_score  # type: ignore
 from sadedegel.dataset import load_annotated_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer
+    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer, BandSummarizer
 from sadedegel import Sentences, Doc
 from sadedegel import tokenizer_context
 
@@ -21,6 +21,9 @@ logger.disable("sadedegel")
 
 SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
                ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
+               ("Band(k=2) Summarizer", BandSummarizer(2)),
+               ("Band(k=3) Summarizer", BandSummarizer(3)),
+               ("Band(k=6) Summarizer", BandSummarizer(6)),
                ('Rouge1 Summarizer (precision)', Rouge1Summarizer('precision')),
                ('Rouge1 Summarizer (recall)', Rouge1Summarizer('recall')),
                ('Length Summarizer (char)', LengthSummarizer('token')),

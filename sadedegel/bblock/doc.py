@@ -242,7 +242,7 @@ class Sentences:
 
 class Doc:
     sbd = None
-    model = None
+    bert_model = None
 
     def __init__(self, raw: Union[str, None]):
         if Doc.sbd is None and raw is not None:
@@ -346,15 +346,15 @@ class Doc:
         if self._bert is None:
             inp, mask = self.padded_matrix()
 
-            if Doc.model is None:
+            if Doc.bert_model is None:
                 logger.info("Loading BertModel")
                 from transformers import BertModel
 
-                Doc.model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
-                Doc.model.eval()
+                Doc.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
+                Doc.bert_model.eval()
 
             with torch.no_grad():
-                outputs = Doc.model(inp, mask)
+                outputs = Doc.bert_model(inp, mask)
 
             twelve_layers = outputs[2][1:]
 
@@ -368,8 +368,8 @@ class Doc:
         indptr = [0]
         indices = []
         data = []
-        for i in range(len(self.sents)):
-            sent_embedding = self.sents[i].tfidf()
+        for i in range(len(self)):
+            sent_embedding = self[i].tfidf()
             for idx in sent_embedding.nonzero()[0]:
                 indices.append(idx)
                 data.append(sent_embedding[idx])
@@ -379,3 +379,40 @@ class Doc:
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
 
         return m
+
+    @property
+    def tf(self):
+        indptr = [0]
+        indices = []
+        data = []
+        for i in range(len(self)):
+            _tf = self[i].tf
+            for idx in _tf.nonzero()[0]:
+                indices.append(idx)
+                data.append(_tf[idx])
+
+            indptr.append(len(indices))
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+
+        return m.max(axis=0)
+
+    @property
+    def idf(self):
+        indptr = [0]
+        indices = []
+        data = []
+        for i in range(len(self.sents)):
+            idf = self.sents[i].idf
+            for idx in idf.nonzero()[0]:
+                indices.append(idx)
+                data.append(idf[idx])
+
+            indptr.append(len(indices))
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+
+        return m.max(axis=0)
+
+    def tfidf(self):
+        return self.tf.multiply(self.idf)
