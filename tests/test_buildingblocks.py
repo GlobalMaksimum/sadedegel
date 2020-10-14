@@ -133,3 +133,12 @@ def test_doc_level_tf_idf_value():
 def test_doc_level_tf_idf_type():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
     assert isspmatrix_csr(d.tfidf())
+
+
+def test_tokens_recomputing_on_tokenizer_change():
+    with tokenizer_context(BertTokenizer.__name__):
+        d = Doc("Tokenizer değişimini test ediyorum")
+        assert d[0].tokens == ['Tok', '##enize', '##r', 'değişimin', '##i', 'test', 'ediyorum']
+
+    with tokenizer_context(SimpleTokenizer.__name__): # note that Doc object is not recreated
+        assert d[0].tokens == ['Tokenizer', 'değişimini', 'test', 'ediyorum']
