@@ -93,7 +93,7 @@ class Token:
         return log(Token._vocabulary.document_count / (1 + self.df)) + 1
 
     def prob_idf(self):
-        return log((Token.vocabulary.document_count - self.df) / self.df)
+        return log((Token._vocabulary.document_count - self.df) / self.df)
 
     @property
     def idf(self):
