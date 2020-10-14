@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import pytest
 from pytest import raises
+from scipy.sparse import isspmatrix_csr
 from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Token, tf_context
 
 
@@ -121,3 +122,18 @@ def test_doc_iter_eq():
 
     for i, sentence in enumerate(d):
         assert d._sents[i] == sentence == d[i]
+
+
+def test_doc_level_tfidf():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    assert d.tfidf().shape == (1, Token.vocabulary().size)
+
+
+def test_doc_level_tf_idf_value():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    assert np.sum(d.tfidf().toarray()) == pytest.approx(31.938)
+
+
+def test_doc_level_tf_idf_type():
+    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    assert isspmatrix_csr(d.tfidf())
