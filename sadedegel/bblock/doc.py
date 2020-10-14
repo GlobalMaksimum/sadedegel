@@ -167,6 +167,7 @@ class Sentences:
         self.document = doc
         self._bert = None
         self.toks = None
+        self._tokenizer_used = None
 
     @staticmethod
     def set_word_tokenizer(tokenizer_name):
@@ -188,8 +189,9 @@ class Sentences:
 
     @property
     def tokens(self):
-        if self._tokens is None:
+        if self._tokens is None or Sentences.tokenizer.__name__ != self._tokenizer_used:
             self._tokens = Sentences.tokenizer(self.text)
+            self._tokenizer_used = Sentences.tokenizer.__name__
 
         return self._tokens
 
