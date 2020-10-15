@@ -74,5 +74,5 @@ def tokenized_stats(data_home: str, version) -> int:
 
 def check_and_display(data_home: str, version='v2'):
     if check_directory_structure(data_home, version):
-        return dict(byte=dict(raw=f"{raw_stats(data_home, version) / 1e6} MB",
-                              tokens=f"{tokenized_stats(data_home, version) / 1e6} MB"))
+        return dict(byte=dict(raw=raw_stats(data_home, version) / 1e6,
+                              tokens=tokenized_stats(data_home, version) / 1e6))

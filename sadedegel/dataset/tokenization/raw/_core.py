@@ -3,6 +3,9 @@ import os
 from pathlib import Path
 
 
+_desc = "Tokenization Raw Corpus"
+
+
 def load_corpus(return_iter=True, version='v2', data_home='~/.sadedegel_data'):
     """Load raw tokenization corpus.
 
