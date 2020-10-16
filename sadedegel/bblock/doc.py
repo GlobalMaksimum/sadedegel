@@ -244,7 +244,7 @@ class Doc:
     sbd = None
     bert_model = None
 
-    def __init__(self, raw: Union[str, None]):
+    def __init__(self, raw: Union[str, List[str], None], is_separated=False):
         if Doc.sbd is None and raw is not None:
             logger.info("Loading ML based SBD")
             Doc.sbd = load_model()
@@ -253,24 +253,34 @@ class Doc:
         self._bert = None
         self._sents = []
         self.spans = None
+        self.is_separated = is_separated
 
         if raw is not None:
-            _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
+            if not is_separated:
+                if isinstance(self.raw, list):
+                    raise ValueError("Raw document should be a string. "
+                                     "If you are giving a list of pre-separated sentences, set `is_separated=True`")
 
-            self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
+                _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
 
-            y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
+                self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
 
-            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
+                y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
 
-            if len(eos_list) > 0:
-                for i, eos in enumerate(eos_list):
-                    if i == 0:
-                        self._sents.append(Sentences(i, self.raw[:eos].strip(), self))
-                    else:
-                        self._sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self))
+                eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
+
+                if len(eos_list) > 0:
+                    for i, eos in enumerate(eos_list):
+                        if i == 0:
+                            self._sents.append(Sentences(i, self.raw[:eos].strip(), self))
+                        else:
+                            self._sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self))
+                else:
+                    self._sents.append(Sentences(0, self.raw.strip(), self))
+
             else:
-                self._sents.append(Sentences(0, self.raw.strip(), self))
+                for i, raw_sent in enumerate(raw):
+                    self._sents.append(Sentences(i, raw_sent, self))
 
     @property
     def sents(self):
@@ -306,7 +316,10 @@ class Doc:
         return self.raw
 
     def __repr__(self):
-        return self.raw
+        if not self.is_separated:
+            return self.raw
+        else:
+            return ' '.join(self.raw)
 
     def __len__(self):
         return len(self._sents)

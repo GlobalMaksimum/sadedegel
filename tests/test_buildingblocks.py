@@ -133,3 +133,14 @@ def test_doc_level_tf_idf_value():
 def test_doc_level_tf_idf_type():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
     assert isspmatrix_csr(d.tfidf())
+
+
+def test_doc_with_sentence_list():
+    d = Doc(["Ali topu tut.", "Ömer ılık süt iç."], is_separated=True)
+    assert d[0] == "Ali topu tut."
+    assert d[1] == "Ömer ılık süt iç."
+
+
+def test_is_separated_flag():
+    with pytest.raises(ValueError, match=r".*If you are giving a list of pre.*"):
+        Doc(["Ali topu tut.", "Ömer ılık süt iç."])
