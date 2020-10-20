@@ -11,6 +11,7 @@ from sadedegel import Token # noqa # pylint: disable=unused-import, wrong-import
 from sadedegel.bblock.util import tr_upper, tr_lower, __tr_lower__, __tr_upper__ # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock.util import flatten, is_eos  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.ml import create_model, load_model, save_model  # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.ml.word2vec_utils import GCorpus # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.metrics import rouge1_score # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.server.__main__ import app # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel import  tokenizer_context # noqa # pylint: disable=unused-import, wrong-import-position
