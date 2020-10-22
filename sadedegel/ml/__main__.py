@@ -40,13 +40,13 @@ def train_word2vec(model_name, corpus, tokenizer, num_epochs, skip_gram, retrain
                         report_delay=1)
 
         model_name += '.model'
-        modelpath = (Path(dirname(__file__)) / 'model' / model_name).absolute()
+        modelpath = (Path(dirname(__file__)) / 'model' / tokenizer / model_name).absolute()
         click.secho(f"Saving model to "+click.style(f"{modelpath}", fg='blue'), color='white')
         model.save(str(modelpath))
 
     else:
         model_name += '.model'
-        modelpath = (Path(dirname(__file__)) / 'model' / model_name).absolute()
+        modelpath = (Path(dirname(__file__)) / 'model' / tokenizer / model_name).absolute()
         click.secho(f"Loading model from " + click.style(f"{modelpath}", fg='blue'), color='white')
         model = Word2Vec.load(str(modelpath))
 
