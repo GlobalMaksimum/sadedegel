@@ -55,7 +55,8 @@ class FastText:
 
             token_v = self[token]
             for w in self.words:
-                similarities.append( (w, self.similarity(token_v, self[w]), self._str_dissimilarity(token, w)) )
+                if token != w:
+                    similarities.append( (w, self.similarity(token_v, self[w]), self._str_dissimilarity(token, w)) )
 
             if k > 1:
                 return sorted(similarities, key=lambda x: (x[2], x[1]), reverse=True)[:k]
@@ -66,12 +67,13 @@ class FastText:
         ## TODO: Use maxheap for faster sorting.
         ## Python's implementation does not allow for custom keys, so need to roll our own
 
+
         similarities = []
 
         for w in self.words:
             similarities.append((w, self.similarity(v, self[w])))
 
         if k > 1:
-            return sorted(similarities, key=lambda x: x[1])[:k]
+            return sorted(similarities, key=lambda x: x[1], reverse=True)[:k]
         else:
             return [max(similarities, key=lambda x: x[1])]
