@@ -14,7 +14,8 @@ from sadedegel.dataset import load_annotated_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
     DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer, BandSummarizer
-from sadedegel import Sentences, Doc
+from sadedegel import Sentences
+from sadedegel.bblock import DocBuilder
 from sadedegel import tokenizer_context
 
 logger.disable("sadedegel")
@@ -84,8 +85,10 @@ def evaluate(table_format, tag, debug):
 
     for word_tokenizer in ['simple', 'bert']:
         click.echo("Word Tokenizer: " + click.style(f"{word_tokenizer}", fg="blue"))
-        docs = [Doc.from_sentences(doc['sentences']) for doc in anno]  # Reset document because of memoization
-        with tokenizer_context(word_tokenizer):
+
+        with tokenizer_context(word_tokenizer) as Doc2:
+            docs = [Doc2.from_sentences(doc['sentences']) for doc in
+                    anno]
             for name, summarizer in summarizers:
                 t0 = time.time()
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)

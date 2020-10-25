@@ -14,18 +14,8 @@ def test_describe_config_print(capsys):
     describe_config('word_tokenizer', True)
     captured = capsys.readouterr()
 
-    assert 'Change the default word tokenizer used by sadedegel' in captured.out or \
-           'Change the default word tokenizer used by sadedegel' in captured.err
-
-
-def test_describe_tf_config_print(capsys):
-    describe_config('tf', True)
-    captured = capsys.readouterr()
-
-    assert 'Change default tf function used by sadedegel' \
-           '\n\nValid values are\nbinary\nraw\nfreq\nlog_norm\ndouble_norm\n' in captured.out or \
-           'Change default tf function used by sadedegel' \
-           '\n\nValid values are\nbinary\nraw\nfreq\nlog_norm\ndouble_norm\n' in captured.err
+    assert 'word_tokenizer is used to split sentences into words.' in captured.out or \
+           'word_tokenizer is used to split sentences into words.' in captured.err
 
 
 def test_tf_setting():

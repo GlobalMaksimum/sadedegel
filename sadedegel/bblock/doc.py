@@ -158,7 +158,6 @@ class Span:
 
 
 class Sentences:
-    tokenizer = get_default_word_tokenizer()
     tf_type = 'binary'
 
     def __init__(self, id_: int, text: str, doc):
@@ -172,11 +171,13 @@ class Sentences:
 
         self.f_tf = self.get_tf_func
 
-    @staticmethod
-    def set_word_tokenizer(tokenizer_name):
-        if tokenizer_name != Sentences.tokenizer.__name__:
-            Sentences.tokenizer = WordTokenizer.factory(tokenizer_name)
-            Token.set_vocabulary(Sentences.tokenizer)
+    @property
+    def tokenizer(self):
+        return self.document.tokenizer
+
+    @property
+    def vocabulary(self):
+        return self.tokenizer.vocabulary
 
     @classmethod
     def set_tf_function(cls, tf_type):
@@ -193,12 +194,12 @@ class Sentences:
 
     @property
     def input_ids(self):
-        return Sentences.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
+        return self.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
     @property
     def tokens(self):
         if self._tokens is None:
-            self._tokens = Sentences.tokenizer(self.text)
+            self._tokens = self.tokenizer(self.text)
 
         return self._tokens
 
@@ -213,11 +214,11 @@ class Sentences:
 
     @property
     def _doc_toks(self):
-        return dict(Counter([tok for sent in iter(self.document) for tok in sent.tokens]))
+        return dict(Counter([tok for sent in self.document for tok in sent.tokens]))
 
     @property
     def _doc_len(self):
-        return len([tok for sent in iter(self.document) for tok in sent.tokens])
+        return len([tok for sent in self.document for tok in sent.tokens])
 
     def tfidf(self):
         return self.tf * self.idf
@@ -227,34 +228,29 @@ class Sentences:
         return self.f_tf()
 
     def binary_tf(self):
-        v = np.zeros(len(Token.vocabulary()))
-
-        for token in self.tokens:
-            t = Token(token)
-            if not t.is_oov:
-                v[t.id] = 1
-
-        return v
+        return self.raw_tf().clip(max=1)
 
     def raw_tf(self):
-        v = np.zeros(len(Token.vocabulary()))
+        v = np.zeros(len(self.vocabulary))
 
         for token in self.tokens:
-            t = Token(token)
-            if t:
+            t = self.vocabulary[token]
+            if not t.is_oov:
                 v[t.id] = self._doc_toks[token]
 
         return v
 
     def freq_tf(self):
-        return self.raw_tf()/self._doc_len
+        return self.raw_tf() / self.document.raw_tf().sum()
 
     def log_norm_tf(self):
         return np.log1p(self.raw_tf())
 
-    def double_norm_tf(self):
-        norm = max(self._doc_toks.values())
-        return 0.5 + 0.5 * self.raw_tf() / norm
+    def double_norm_tf(self, k=0.5):
+        if not (0 < k < 1):
+            raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation")
+
+        return k + (1 - k) * (self.raw_tf() / self.document.raw_tf().max())
 
     def get_tf_func(self):
         tf_funcs = {'binary': self.binary_tf(),
@@ -266,10 +262,10 @@ class Sentences:
 
     @property
     def idf(self):
-        v = np.zeros(len(Token.vocabulary()))
+        v = np.zeros(len(self.vocabulary))
 
         for token in self.tokens:
-            t = Token(token)
+            t = self.vocabulary[token]
             if not t.is_oov:
                 v[t.id] = t.idf
 
@@ -288,37 +284,21 @@ class Sentences:
         return self.text == s  # no need for type checking, will return false for non-strings
 
 
-class Doc:
-    sbd = None
-    bert_model = None
-
-    def __init__(self, raw: Union[str, None]):
-        if Doc.sbd is None and raw is not None:
-            logger.info("Loading ML based SBD")
-            Doc.sbd = load_model()
-
+class Document:
+    def __init__(self, raw, builder):
         self.raw = raw
-        self._bert = None
+        self.spans = []
         self._sents = []
-        self.spans = None
+        self._bert = None
+        self.builder = builder
 
-        if raw is not None:
-            _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
+    @property
+    def vocabulary(self):
+        return self.tokenizer.vocabulary
 
-            self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
-
-            y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
-
-            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
-
-            if len(eos_list) > 0:
-                for i, eos in enumerate(eos_list):
-                    if i == 0:
-                        self._sents.append(Sentences(i, self.raw[:eos].strip(), self))
-                    else:
-                        self._sents.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self))
-            else:
-                self._sents.append(Sentences(0, self.raw.strip(), self))
+    @property
+    def tokenizer(self):
+        return self.builder.tokenizer
 
     @property
     def sents(self):
@@ -331,18 +311,6 @@ class Doc:
             raise Exception("Remove .sent before release.")
 
         return self._sents
-
-    @classmethod
-    def from_sentences(cls, sentences: List[str]):
-
-        d = Doc(None)
-
-        for i, s in enumerate(sentences):
-            d._sents.append(Sentences(i, s, d))
-
-        d.raw = "\n".join(sentences)
-
-        return d
 
     def __getitem__(self, sent_idx):
         return self._sents[sent_idx]
@@ -394,15 +362,16 @@ class Doc:
         if self._bert is None:
             inp, mask = self.padded_matrix()
 
-            if Doc.bert_model is None:
+            if DocBuilder.bert_model is None:
                 logger.info("Loading BertModel")
                 from transformers import BertModel
 
-                Doc.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
-                Doc.bert_model.eval()
+                DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
+                                                                  output_hidden_states=True)
+                DocBuilder.bert_model.eval()
 
             with torch.no_grad():
-                outputs = Doc.bert_model(inp, mask)
+                outputs = DocBuilder.bert_model(inp, mask)
 
             twelve_layers = outputs[2][1:]
 
@@ -424,7 +393,7 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
 
         return m
 
@@ -441,9 +410,17 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
 
         return m.max(axis=0)
+
+    def raw_tf(self):
+        v = np.zeros(len(self.vocabulary))
+
+        for s in self:
+            v += s.raw_tf()
+
+        return v
 
     @property
     def idf(self):
@@ -458,9 +435,58 @@ class Doc:
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
 
         return m.max(axis=0)
 
     def tfidf(self):
         return self.tf.multiply(self.idf)
+
+    def from_sentences(self, sentences: List[str]):
+        return self.builder.from_sentences(sentences)
+
+
+class DocBuilder:
+    bert_model = None
+
+    def __init__(self, tokenizer=None):
+        self.sbd = load_model()
+
+        if tokenizer is None:
+            self.tokenizer = get_default_word_tokenizer()
+        else:
+            self.tokenizer = WordTokenizer.factory(tokenizer)
+
+    def __call__(self, raw):
+
+        if raw is not None:
+            _spans = [match.span() for match in re.finditer(r"\S+", raw)]
+
+            d = Document(raw, self)
+            d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
+
+            y_pred = self.sbd.predict((span.span_features() for span in d.spans))
+
+            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
+
+            if len(eos_list) > 0:
+                for i, eos in enumerate(eos_list):
+                    if i == 0:
+                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d))
+                    else:
+                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d))
+            else:
+                d._sents.append(Sentences(0, d.raw.strip(), d))
+        else:
+            raise Exception(f"{raw} document text can't be None")
+
+        return d
+
+    def from_sentences(self, sentences: List[str]):
+        raw = "\n".join(sentences)
+
+        d = Document(raw, self)
+        for i, s in enumerate(sentences):
+            d._sents.append(Sentences(i, s, d))
+
+        return d

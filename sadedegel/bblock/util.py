@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+import warnings
 
 __tr_upper__ = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
 __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
@@ -15,8 +16,10 @@ def tr_lower(s: str) -> str:
 def tr_upper(s: str) -> str:
     return s.replace("i", "İ").upper()
 
+
 def space_pad(token):
-    return " "+token+" "
+    return " " + token + " "
+
 
 def space_pad(token):
     return " " + token + " "
@@ -109,3 +112,16 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
         layer_mean_token = np.mean(tokenwise_mean, axis=0)
 
         return layer_mean_token
+
+
+def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
+    normalized = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
+
+    if normalized not in ['bert', 'simple']:
+        msg = f"Invalid tokenizer {tokenizer_name} ({normalized}). Valid values are bert, simple"
+        if raise_on_error:
+            raise ValueError(msg)
+        else:
+            warnings.warn(msg, UserWarning, stacklevel=3)
+
+    return normalized
