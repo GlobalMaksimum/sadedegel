@@ -13,7 +13,7 @@ Configuration = namedtuple("Configuration", "config, description, valid_values")
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
-                                    valid_values=None)
+                                    valid_values=['bert', 'simple'])
 }
 
 
@@ -22,7 +22,7 @@ def check_config(f):
     def wrapper(*args, **kwds):
         config = args[0]
         if config not in configs:
-            raise Exception((f"{config} is not a valid configuration for sadegel."
+            raise Exception((f"{config} is not a valid configuration for sadedegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
         return f(*args, **kwds)
 
@@ -36,11 +36,15 @@ def check_value(f):
         cfg = configs.get(config, None)
 
         if cfg:
+            # Normalize User Inputs Based on Config Name
+            if cfg.config == 'word_tokenizer':
+                value = value.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
+
             if value not in cfg.valid_values:
                 raise Exception(
                     f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
         else:
-            raise Exception((f"{config} is not a valid configuration for sadegel."
+            raise Exception((f"{config} is not a valid configuration for sadedegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
 
         return f(*args, **kwds)
@@ -48,7 +52,7 @@ def check_value(f):
     return wrapper
 
 
-@check_config
+@check_value
 def set_config(config: str, value: Any):
     if config == "word_tokenizer":
         Sentences.set_word_tokenizer(value)
