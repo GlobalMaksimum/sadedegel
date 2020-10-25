@@ -5,19 +5,19 @@ from functools import wraps
 from collections import namedtuple
 from contextlib import contextmanager
 import warnings
-from .bblock.doc import Sentences
-from .bblock.token import Token
 
 Configuration = namedtuple("Configuration", "config, description, valid_values")
 
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
                                     description="Change the default word tokenizer used by sadedegel",
-                                    valid_values=None),
+                                    valid_values=['bert', 'simple']),
     "idf": Configuration(config="idf",
                          description="Change default idf function used by sadedegel",
                          valid_values=['smooth', 'probabilistic'])
 }
+
+configuration = dict(idf="smooth", tokenizer="bert")
 
 
 def check_config(f):
@@ -43,6 +43,15 @@ def check_value(f):
                 if value not in cfg.valid_values:
                     raise Exception(
                         f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
+
+            # Normalize User Inputs Based on Config Name
+            elif cfg.config == 'word_tokenizer':
+                value = value.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
+
+            if value not in cfg.valid_values:
+                raise Exception(
+                    f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
+
         else:
             raise Exception((f"{config} is not a valid configuration for sadedegel."
                              "Use sadedegel.get_all_configs() to access list of valid configurations."))
@@ -54,29 +63,22 @@ def check_value(f):
 
 @check_value
 def set_config(config: str, value: Any):
-    if config == "word_tokenizer":
-        Sentences.set_word_tokenizer(value)
-    if config == 'idf':
-        Token.set_idf_function(value)
+    configuration[config] = value
 
 
 @contextmanager
 def tokenizer_context(tokenizer_name, warning=False):
-    current = Sentences.tokenizer.__name__
+    from .bblock import DocBuilder
 
-    if warning and current != tokenizer_name:
+    if warning:
         warnings.warn(f"Changing tokenizer to {tokenizer_name}")
 
-    try:
-        set_config("word_tokenizer", tokenizer_name)
-        yield
-    finally:
-        set_config("word_tokenizer", current)
+    yield DocBuilder(tokenizer_name)
 
 
 @contextmanager
 def idf_context(idf_type, warning=False):
-    current = Token.idf_type
+    current = configuration['idf']
 
     if warning and current != idf_type:
         warnings.warn(f"Changing idf function to {idf_type}")
@@ -90,10 +92,7 @@ def idf_context(idf_type, warning=False):
 
 @check_config
 def get_config(config: str):  # pylint: disable=inconsistent-return-statements
-    if config == "word_tokenizer":
-        return Sentences.tokenizer.__name__
-    if config == "idf":
-        return Token.idf_type
+    return configuration[config]
 
 
 @check_config

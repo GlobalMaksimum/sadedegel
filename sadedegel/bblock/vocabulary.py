@@ -5,8 +5,8 @@ from dataclasses import dataclass, asdict
 from json import dump, load
 from collections import defaultdict
 
-from .word_tokenizer import normalize_tokenizer_name
-from .util import tr_lower
+from .util import tr_lower, normalize_tokenizer_name
+from .token import Token
 
 
 @dataclass
@@ -15,6 +15,7 @@ class Entry:
     word: str
     df: int
     df_cs: int
+    vocabulary: object
 
 
 class Vocabulary:
@@ -39,6 +40,8 @@ class Vocabulary:
         self.doc_counter_case_sensitive = defaultdict(set)
         self.doc_set = set()
 
+        self.token_cache = {}
+
     @property
     def size(self):
         return len(self.entries)
@@ -56,7 +59,7 @@ class Vocabulary:
         for word in self.doc_counter_case_sensitive:
             if len(self.doc_counter[tr_lower(word)]) >= min_df:
                 self.entries[word] = Entry(i, word, len(self.doc_counter[tr_lower(word)]),
-                                           len(self.doc_counter_case_sensitive[word]))
+                                           len(self.doc_counter_case_sensitive[word]), self)
                 i += 1
 
         self.document_count = len(self.doc_set)
@@ -87,7 +90,7 @@ class Vocabulary:
                 json = load(fp)
 
             for d in json['words']:
-                vocab.entries[d['word']] = Entry(d['id'], d['word'], d['df'], d['df_cs'])
+                vocab.entries[d['word']] = Entry(d['id'], d['word'], d['df'], d['df_cs'], vocab)
 
             vocab.document_count = json['document_count']
             vocab.initialized = True
@@ -99,9 +102,16 @@ class Vocabulary:
             raise Exception(("Vocabulary instance is not initialize. "
                              "Use load for built in vocabularies, use build for manual vocabulary build."))
         else:
-            entry = self.entries.get(word, None)
+            token = self.token_cache.get(word, None)
 
-            if entry:
-                return entry
+            if token:
+                return token
             else:
-                return Entry(-1, None, 0, 0)  # OOV has a document frequency of 0 by convention
+                entry = self.entries.get(word, None)
+
+                if not entry:
+                    entry = Entry(-1, word, 0, 0, self)  # OOV has a document frequency of 0 by convention
+
+                self.token_cache[word] = Token(entry)
+
+                return self.token_cache[word]

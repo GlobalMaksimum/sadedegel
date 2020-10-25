@@ -32,15 +32,14 @@ def test_text_rank_sanity(input_type, normalize, text):
 @pytest.mark.parametrize("text", [famous_quote])
 def test_text_rank_descending(normalize, text):
     d = Doc(text)
-    with warns(UserWarning, match="Changing tokenizer to"):
-        scores = TextRank(alpha=0.5, normalize=normalize).predict(d)
 
-        assert is_sorted(scores)
+    scores = TextRank(alpha=0.5, normalize=normalize).predict(d)
+
+    assert is_sorted(scores)
 
 
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("text", [famous_quote])
 def test_text_rank_correct_number_of_sentences(normalize, text):
     d = Doc(text)
-    with warns(UserWarning, match="Changing tokenizer to"):
-        assert len(TextRank()(d, k=1)) == 1
+    assert len(TextRank()(d, k=1)) == 1

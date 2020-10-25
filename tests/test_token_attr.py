@@ -1,7 +1,7 @@
 from math import ceil
 import pytest
 from pytest import raises
-from .context import Token, idf_context, set_config
+from .context import Token, idf_context, set_config, BertTokenizer
 
 famous_quote = "Merhaba dünya. 36 ışıkyılı uzaktan geldik."
 
@@ -27,9 +27,9 @@ def test_shape(word, shape):
 @pytest.mark.parametrize('idf_type, idf', [('smooth', 6),
                                            ('probabilistic', 5)])
 def test_idf(idf_type, idf):
+    tokenizer = BertTokenizer()
     with idf_context(idf_type):
-        t = Token('merhaba')
-        assert t.idf_type == idf_type
+        t = tokenizer.vocabulary['merhaba']
         assert ceil(t.idf) == idf
 
 

@@ -1,5 +1,6 @@
 from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
-from sadedegel.tokenize import NLTKPunctTokenizer, RegexpSentenceTokenizer, Doc
+from sadedegel.tokenize import NLTKPunctTokenizer, RegexpSentenceTokenizer
+from sadedegel import Doc
 from sadedegel.bblock.util import flatten, is_eos
 from sadedegel.ml import create_model, save_model
 from sklearn.model_selection import cross_val_score
@@ -68,7 +69,7 @@ def diff():
 
     y_true = [doc['sentences'] for doc in sents]
 
-    y_pred = [Doc(doc).sents for doc in raw]
+    y_pred = [DocBuilder(doc).sents for doc in raw]
 
     paths = file_paths()
 
@@ -97,9 +98,10 @@ def build():
     raw_corpus = load_raw_corpus(False)
     sent_corpus = load_sentence_corpus(False)
 
-    features = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
+    features = flatten([[span.span_features() for span in DocBuilder(raw).spans] for raw in raw_corpus])
     y = flatten(
-        [[is_eos(span, sent['sentences']) for span in Doc(raw).spans] for raw, sent in zip(raw_corpus, sent_corpus)])
+        [[is_eos(span, sent['sentences']) for span in DocBuilder(raw).spans] for raw, sent in
+         zip(raw_corpus, sent_corpus)])
 
     if len(features) != len(y):
         raise Exception(f"Sanity check failed feature list length {len(features)} whereas target list length {len(y)}.")
