@@ -31,25 +31,28 @@ class TextRank(ExtractiveSummarizer):
         self.alpha = alpha
 
     def _predict(self, sentences: List[Sentences]) -> np.ndarray:
-        with tokenizer_context('bert', warning=True):
-            if len(sentences) == 0:
-                raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
+        if sentences[0].tokenizer.__name__ != "BertTokenizer":
+            with tokenizer_context('bert', warning=True) as Doc2:
+                doc = Doc2(sentences[0].document.raw)
+        else:
             doc = sentences[0].document
 
-            vectors = doc.bert_embeddings
+        vectors = doc.bert_embeddings
 
-            similarity_matrix = np.zeros((len(vectors), len(vectors)))
+        similarity_matrix = np.zeros((len(vectors), len(vectors)))
 
-            for i in range(len(vectors)):
-                for j in range(len(vectors)):
-                    if i == j:
-                        continue
+        for i in range(len(vectors)):
+            for j in range(len(vectors)):
+                if i == j:
+                    continue
 
-                    similarity_matrix[i][j] = cosine_similarity(vectors[i].reshape(1, -1), vectors[j].reshape(1, -1))[
-                        0, 0]
+                similarity_matrix[i][j] = cosine_similarity(vectors[i].reshape(1, -1), vectors[j].reshape(1, -1))[
+                    0, 0]
 
-            nx_graph = nx.from_numpy_array(similarity_matrix)
-            scores = nx.pagerank(nx_graph, alpha=self.alpha)
+        nx_graph = nx.from_numpy_array(similarity_matrix)
+        scores = nx.pagerank(nx_graph, alpha=self.alpha)
 
-            return np.array([scores[i] for i in range(len(scores))])
+        return np.array([scores[i] for i in range(len(scores))])

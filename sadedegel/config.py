@@ -6,6 +6,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 import warnings
 from .bblock.doc import Sentences
+from .bblock import DocBuilder
 
 Configuration = namedtuple("Configuration", "config, description, valid_values")
 
@@ -55,16 +56,10 @@ def set_config(config: str, value: Any):
 
 @contextmanager
 def tokenizer_context(tokenizer_name, warning=False):
-    current = Sentences.tokenizer.__name__
-
-    if warning and current != tokenizer_name:
+    if warning:
         warnings.warn(f"Changing tokenizer to {tokenizer_name}")
 
-    try:
-        set_config("word_tokenizer", tokenizer_name)
-        yield
-    finally:
-        set_config("word_tokenizer", current)
+    yield DocBuilder(tokenizer_name)
 
 
 @check_config

@@ -8,8 +8,8 @@ from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Tok
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
 def test_tokens(tokenizer):
-    with tokenizer_context(tokenizer):
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with tokenizer_context(tokenizer) as Doc2:
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
         with pytest.warns(DeprecationWarning):
             s0 = d.sents[0]
@@ -21,9 +21,9 @@ def test_tokens(tokenizer):
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
 def test_bert_embedding_generation(tokenizer):
-    with tokenizer_context(tokenizer):
+    with tokenizer_context(tokenizer) as Doc2:
 
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
         if tokenizer == SimpleTokenizer.__name__:
             with raises(NotImplementedError):
@@ -34,7 +34,7 @@ def test_bert_embedding_generation(tokenizer):
 
 def test_tfidf_embedding_generation():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf_embeddings.shape == (2, Token.vocabulary().size)
+    assert d.tfidf_embeddings.shape == (2, d.tokenizer.vocabulary.size)
 
 
 def test_tfidf_compare_doc_and_sent():
@@ -122,7 +122,7 @@ def test_doc_iter_eq():
 
 def test_doc_level_tfidf():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf().shape == (1, Token.vocabulary().size)
+    assert d.tfidf().shape == (1, d.vocabulary.size)
 
 
 def test_doc_level_tf_idf_value():
