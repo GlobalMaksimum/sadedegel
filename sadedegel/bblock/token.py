@@ -2,6 +2,7 @@ import unicodedata
 
 from math import log
 from .util import tr_lower
+from ..config import configuration
 
 
 def word_shape(text):
@@ -66,12 +67,12 @@ class Token:
 
         return self._entry
 
-    def smooth_idf(self):
-        return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
-
     @property
     def idf(self):
-        return self.smooth_idf()
+        if configuration['idf'] == 'smooth':
+            return smooth_idf(self)
+        else:
+            return prob_idf(self)
 
     @property
     def id(self):
@@ -89,3 +90,11 @@ class Token:
     def df_cs(self):
         """case sensitive document frequency"""
         return self.entry.df_cs
+
+
+def smooth_idf(self: Token):
+    return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
+
+
+def prob_idf(self: Token):
+    return log((self.entry.vocabulary.document_count - self.df) / self.df)

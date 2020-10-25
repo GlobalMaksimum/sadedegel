@@ -3,7 +3,7 @@ import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Token
+from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context
 
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
