@@ -1,3 +1,4 @@
+from collections import Counter
 import re
 from typing import List, Union
 import warnings
@@ -157,6 +158,7 @@ class Span:
 
 
 class Sentences:
+    tf_type = 'binary'
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -167,6 +169,8 @@ class Sentences:
         self._bert = None
         self.toks = None
 
+        self.f_tf = self.get_tf_func
+
     @property
     def tokenizer(self):
         return self.document.tokenizer
@@ -174,6 +178,11 @@ class Sentences:
     @property
     def vocabulary(self):
         return self.tokenizer.vocabulary
+
+    @classmethod
+    def set_tf_function(cls, tf_type):
+        if tf_type != Sentences.tf_type:
+            Sentences.tf_type = tf_type
 
     @property
     def bert(self):
@@ -203,19 +212,53 @@ class Sentences:
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
+    @property
+    def _doc_toks(self):
+        return dict(Counter([tok for sent in self.document for tok in sent.tokens]))
+
+    @property
+    def _doc_len(self):
+        return len([tok for sent in self.document for tok in sent.tokens])
+
     def tfidf(self):
         return self.tf * self.idf
 
     @property
     def tf(self):
+        return self.f_tf()
+
+    def binary_tf(self):
+        return self.raw_tf().clip(max=1)
+
+    def raw_tf(self):
         v = np.zeros(len(self.vocabulary))
 
         for token in self.tokens:
             t = self.vocabulary[token]
             if not t.is_oov:
-                v[t.id] = 1
+                v[t.id] = self._doc_toks[token]
 
         return v
+
+    def freq_tf(self):
+        return self.raw_tf() / self.document.raw_tf().sum()
+
+    def log_norm_tf(self):
+        return np.log1p(self.raw_tf())
+
+    def double_norm_tf(self, k=0.5):
+        if not (0 < k < 1):
+            raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation")
+
+        return k + (1 - k) * (self.raw_tf() / self.document.raw_tf().max())
+
+    def get_tf_func(self):
+        tf_funcs = {'binary': self.binary_tf(),
+                    'raw': self.raw_tf(),
+                    'freq': self.freq_tf(),
+                    'log_norm': self.log_norm_tf(),
+                    'double_norm': self.double_norm_tf()}
+        return tf_funcs[Sentences.tf_type]
 
     @property
     def idf(self):
@@ -370,6 +413,14 @@ class Document:
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
 
         return m.max(axis=0)
+
+    def raw_tf(self):
+        v = np.zeros(len(self.vocabulary))
+
+        for s in self:
+            v += s.raw_tf()
+
+        return v
 
     @property
     def idf(self):

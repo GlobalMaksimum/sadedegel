@@ -3,7 +3,7 @@ import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context
+from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context
 
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
@@ -32,16 +32,20 @@ def test_bert_embedding_generation(tokenizer):
             assert d.bert_embeddings.shape == (2, 768)
 
 
-def test_tfidf_embedding_generation():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf_embeddings.shape == (2, d.tokenizer.vocabulary.size)
+@pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
+def test_tfidf_embedding_generation(tf_type):
+    with tf_context(tf_type):
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+        assert d.tfidf_embeddings.shape == (2, d.vocabulary.size)
 
 
-def test_tfidf_compare_doc_and_sent():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+@pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
+def test_tfidf_compare_doc_and_sent(tf_type):
+    with tf_context(tf_type):
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-    for i, sent in enumerate(d.sents):
-        assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
+        for i, sent in enumerate(d.sents):
+            assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
 
 
 testdata = [(True, True),

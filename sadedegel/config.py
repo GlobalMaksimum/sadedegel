@@ -10,14 +10,18 @@ Configuration = namedtuple("Configuration", "config, description, valid_values")
 
 configs = {
     "word_tokenizer": Configuration(config="word_tokenizer",
-                                    description="Change the default word tokenizer used by sadedegel",
+                                    description="word_tokenizer is used to split sentences into words.",
                                     valid_values=['bert', 'simple']),
+    "tf": Configuration(config="tf",
+                        description="Method used for Term Frequency calculation",
+                        valid_values=['binary', 'raw', 'freq', 'log_norm', 'double_norm']),
     "idf": Configuration(config="idf",
-                         description="Change default idf function used by sadedegel",
+                         description="Method used for Inverse Document Frequency calcualtion.",
                          valid_values=['smooth', 'probabilistic'])
+
 }
 
-configuration = dict(idf="smooth", tokenizer="bert")
+configuration = dict(idf="smooth", tokenizer="bert", tf="raw")
 
 
 def check_config(f):
@@ -39,7 +43,12 @@ def check_value(f):
         cfg = configs.get(config, None)
 
         if cfg:
-            if cfg.config == 'idf':
+            if cfg.config == 'tf':
+                if value not in cfg.valid_values:
+                    raise Exception(
+                        f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
+
+            elif cfg.config == 'idf':
                 if value not in cfg.valid_values:
                     raise Exception(
                         f"{value} is not a valid value for {config}. Choose one of {', '.join(cfg.valid_values)}")
@@ -68,7 +77,7 @@ def set_config(config: str, value: Any):
 
 @contextmanager
 def tokenizer_context(tokenizer_name, warning=False):
-    from .bblock import DocBuilder
+    from .bblock import DocBuilder  # pylint: disable=import-outside-toplevel
 
     if warning:
         warnings.warn(f"Changing tokenizer to {tokenizer_name}")
@@ -88,6 +97,20 @@ def idf_context(idf_type, warning=False):
         yield
     finally:
         set_config('idf', current)
+
+
+@contextmanager
+def tf_context(tf_type, warning=False):
+    current = configuration['tf']
+
+    if warning and current != tf_type:
+        warnings.warn(f"Changing tf function to {tf_type}")
+
+    try:
+        set_config('tf', tf_type)
+        yield
+    finally:
+        set_config('tf', current)
 
 
 @check_config
