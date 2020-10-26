@@ -98,7 +98,7 @@ class Vocabulary:
         p = Path(dirname(__file__))
 
         return p / 'data' / tok_name / 'vocabulary.json'
-        
+
     def __getitem__(self, word):
         if not self.initialized:
             raise Exception(("Vocabulary instance is not initialize. "
