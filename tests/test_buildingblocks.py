@@ -3,13 +3,13 @@ import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Token
+from .context import Doc, DocBuilder, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context
 
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
 def test_tokens(tokenizer):
-    with tokenizer_context(tokenizer):
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with tokenizer_context(tokenizer) as Doc2:
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
         with pytest.warns(DeprecationWarning):
             s0 = d.sents[0]
@@ -21,9 +21,9 @@ def test_tokens(tokenizer):
 
 @pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
 def test_bert_embedding_generation(tokenizer):
-    with tokenizer_context(tokenizer):
+    with tokenizer_context(tokenizer) as Doc2:
 
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
         if tokenizer == SimpleTokenizer.__name__:
             with raises(NotImplementedError):
@@ -32,16 +32,20 @@ def test_bert_embedding_generation(tokenizer):
             assert d.bert_embeddings.shape == (2, 768)
 
 
-def test_tfidf_embedding_generation():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf_embeddings.shape == (2, Token.vocabulary().size)
+@pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
+def test_tfidf_embedding_generation(tf_type):
+    with tf_context(tf_type):
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+        assert d.tfidf_embeddings.shape == (2, d.vocabulary.size)
 
 
-def test_tfidf_compare_doc_and_sent():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+@pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
+def test_tfidf_compare_doc_and_sent(tf_type):
+    with tf_context(tf_type):
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-    for i, sent in enumerate(d.sents):
-        assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
+        for i, sent in enumerate(d.sents):
+            assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
 
 
 testdata = [(True, True),
@@ -122,7 +126,7 @@ def test_doc_iter_eq():
 
 def test_doc_level_tfidf():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf().shape == (1, Token.vocabulary().size)
+    assert d.tfidf().shape == (1, d.vocabulary.size)
 
 
 def test_doc_level_tf_idf_value():
@@ -137,4 +141,4 @@ def test_doc_level_tf_idf_type():
 
 def test_bert_wrong_device():
     with pytest.raises(RuntimeError):
-        Doc.bert.set_device("spanish inquisition")
+        DocBuilder.bert.set_device("spanish inquisition")
