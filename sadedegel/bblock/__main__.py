@@ -3,7 +3,7 @@ from collections import defaultdict
 from itertools import islice
 import click
 
-from .. import Doc
+from .doc import DocBuilder
 from ..dataset.extended import load_extended_sents_corpus
 from .util import tr_lower
 from .vocabulary import Vocabulary
@@ -26,14 +26,17 @@ def build_vocabulary(max_doc, min_df, word_tokenizer):
 
     click.secho(click.style(f"...Frequency calculation over extended dataset", fg="blue"))
 
+    doc_builder = DocBuilder(word_tokenizer)
     for i, d in tqdm(enumerate(corpus), unit=" doc"):
-        doc = Doc.from_sentences(d['sentences'])
+        doc = doc_builder.from_sentences(d['sentences'])
 
         for sent in doc:
             for word in sent.tokens:
                 vocab.add_word_to_doc(word, i)
 
+    click.echo("Building vocab...")
     vocab.build(min_df)
+    click.echo("Saving vocab...")
     vocab.save()
 
     click.secho(click.style(f"Total documents {vocab.document_count}", fg="blue"))

@@ -7,7 +7,7 @@ from smart_open import open
 import tarfile
 import glob
 from tqdm import tqdm
-from sadedegel.tokenize import Doc
+from sadedegel import Doc
 import json
 import sys
 

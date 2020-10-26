@@ -1,16 +1,17 @@
 from typing import List, Union
 import numpy as np  # type: ignore
 from abc import ABC, abstractmethod
-from ..bblock import Doc, Sentences
+from ..bblock import Sentences
+from ..bblock.doc import DocBuilder, Document
 
 
-def get_sentences_list(X: Union[Doc, List[Sentences], List[str]]):
-    if type(X) == Doc:
+def get_sentences_list(X: Union[Document, List[Sentences], List[str]]):
+    if type(X) == Document:
         sentences = X.sents  # Get the list of Sentences from Doc
     elif type(X) != list:
         raise ValueError(f"sents parameter should be one of Doc, List[Sentences] or List[str]. Found {type(X)}")
     elif all(type(s) == str for s in X):
-        d = Doc.from_sentences(X)
+        d = DocBuilder().from_sentences(X)
         sentences = d.sents
     elif all(type(s) == Sentences for s in X):
         sentences = X
@@ -30,7 +31,7 @@ class ExtractiveSummarizer(ABC):
     def _predict(self, sents: List[Sentences]) -> np.ndarray:
         pass
 
-    def predict(self, sents: Union[Doc, List[Sentences], List[str]]) -> np.ndarray:
+    def predict(self, sents: Union[Document, List[Sentences], List[str]]) -> np.ndarray:
         """Predict relevance score for X
 
         Parameters
@@ -54,7 +55,7 @@ class ExtractiveSummarizer(ABC):
         else:
             return scores
 
-    def __call__(self, sents: Union[Doc, List[Sentences], List[str]], k: int) -> List[Sentences]:
+    def __call__(self, sents: Union[Document, List[Sentences], List[str]], k: int) -> List[Sentences]:
 
         sents = get_sentences_list(sents)
         scores = self.predict(sents)
