@@ -6,6 +6,9 @@ import torch
 
 import numpy as np  # type:ignore
 
+from pathlib import Path
+from os.path import dirname
+
 from loguru import logger
 from scipy.sparse import csr_matrix
 
@@ -158,6 +161,8 @@ class Span:
 
 class Sentences:
     tokenizer = get_default_word_tokenizer()
+    wv_model = None
+    wv_model_name = 'extended_model.model'
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -166,6 +171,9 @@ class Sentences:
         self._tokens = None
         self.document = doc
         self._bert = None
+        self._w2v = None
+        self._has_w2v = None
+        self._oov = {}
         self.toks = None
 
     @staticmethod
@@ -227,6 +235,42 @@ class Sentences:
 
         return v
 
+    @property
+    def word2vec(self):
+        if self._w2v is None:
+            dir = tr_lower(Sentences.tokenizer.__name__.split("Tokenizer")[0])
+            if Sentences.wv_model is None:
+                logger.info("Loading Gensim Word2Vec Model...")
+                from gensim.models import KeyedVectors
+                try:
+                    kv = KeyedVectors.load(str(Path(dirname(__file__)) / ".." / "ml" / "model" / dir /
+                                               Sentences.wv_model_name))
+                except:
+                    raise FileNotFoundError("Make sure you have a Gensim vocabulary built with currently "
+                                            f"configured tokenizer: {dir}")
+                Sentences.wv_model = kv
+
+            tok_vecs = []
+            oov = []
+            for token in self.tokens:
+                low_tok = tr_lower(token)
+                try:
+                    token2vec = Sentences.wv_model.wv[low_tok]
+                    tok_vecs.append(token2vec)
+                except:
+                    oov.append(token)
+            self._oov[f"word2vec_{dir}"] = oov
+
+            if tok_vecs:
+                self._w2v = np.mean(np.vstack(tok_vecs), axis=0)
+                self._has_w2v = True
+            else:
+                logger.info(f"All tokens in this sentence are out of vocabulary. Sentence: {self.text}")
+                self._w2v = np.zeros(100, dtype=np.float32)
+                self._has_w2v = False
+
+        return self._w2v
+
     def __str__(self):
         return self.text
 
@@ -251,6 +295,7 @@ class Doc:
 
         self.raw = raw
         self._bert = None
+        self._w2v = None
         self._sents = []
         self.spans = None
 
@@ -379,6 +424,17 @@ class Doc:
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(Token.vocabulary())))
 
         return m
+
+    @property
+    def word2vec_embeddings(self):
+        if self._w2v is None:
+            matrix = np.zeros((len(self), 100))
+
+            for i, sent in enumerate(self):
+                matrix[i,:] = sent.word2vec
+
+            self._w2v = matrix
+        return self._w2v
 
     @property
     def tf(self):
