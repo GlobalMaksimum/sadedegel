@@ -16,6 +16,7 @@ from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
 from .token import Token
 from ..about import __version__
+from ..config import configuration
 
 
 class Span:
@@ -158,7 +159,7 @@ class Span:
 
 
 class Sentences:
-    tf_type = 'binary'
+    tf_type = configuration['tf']
 
     def __init__(self, id_: int, text: str, doc):
         self.id = id_
@@ -258,6 +259,8 @@ class Sentences:
                     'freq': self.freq_tf(),
                     'log_norm': self.log_norm_tf(),
                     'double_norm': self.double_norm_tf()}
+        if Sentences.tf_type != configuration['tf']:  # Check for config change
+            Sentences.tf_type = configuration['tf']
         return tf_funcs[Sentences.tf_type]
 
     @property

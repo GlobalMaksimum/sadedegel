@@ -17,6 +17,8 @@ from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summ
 from sadedegel import Sentences
 from sadedegel.bblock import DocBuilder
 from sadedegel import tokenizer_context
+from sadedegel.config import configs, tf_context, idf_context
+
 
 logger.disable("sadedegel")
 
@@ -41,7 +43,8 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ("TextRank(0.85) Summarizer (BERT)", TextRank(alpha=0.85)),
                ("TextRank(0.9) Summarizer (BERT)", TextRank(alpha=0.9)),
                ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95)),
-               ("TFIDF Summarizer", TFIDFSummarizer())]
+               ("TFIDF Summarizer", TFIDFSummarizer())
+               ]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:
@@ -91,23 +94,41 @@ def evaluate(table_format, tag, debug):
                     anno]
             for name, summarizer in summarizers:
                 t0 = time.time()
-                click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
+                click.echo(click.style(f"    {name} ", fg="magenta"), nl=True if 'tfidf' in summarizer else False)
                 # skip simple tokenizer for clustering models
-                if ("cluster" in summarizer or "rank" in summarizer or name == "TFIDF Summarizer") and \
+                if ("cluster" in summarizer or "rank" in summarizer or "TFIDF" in name) and \
                         word_tokenizer == "simple":
                     click.echo(click.style("SKIP", fg="yellow"))
                     continue
 
-                for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                    dot_progress(i, len(relevance), t0)
+                if 'tfidf' in summarizer and word_tokenizer == 'bert':
+                    for idf_type in configs['idf'].valid_values:
+                        for tf_type in configs['tf'].valid_values:
+                            t0 = time.time()
+                            click.echo(click.style(f"    TF: {tf_type} - IDF: {idf_type} ", fg='blue'), nl=False)
+                            with idf_context(idf_type):
+                                with tf_context(tf_type):
+                                    for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                                        dot_progress(i, len(relevance), t0)
 
-                    y_pred = [summarizer.predict(d.sents)]
+                                        y_pred = [summarizer.predict(d.sents)]
 
-                    score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
-                    score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
-                    score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
+                                        score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
+                                        score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
+                                        score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
 
-                    scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
+                                        scores[f"{name} - {tf_type} - {idf_type} - {word_tokenizer}"].append((score_10, score_50, score_80))
+                else:
+                    for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                        dot_progress(i, len(relevance), t0)
+
+                        y_pred = [summarizer.predict(d.sents)]
+
+                        score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
+                        score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
+                        score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
+
+                        scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
 
     table = [[algo, np.array([s[0] for s in scores]).mean(), np.array([s[1] for s in scores]).mean(),
               np.array([s[2] for s in scores]).mean()] for

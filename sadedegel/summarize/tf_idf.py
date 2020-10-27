@@ -8,7 +8,7 @@ from ._base import ExtractiveSummarizer
 
 
 class TFIDFSummarizer(ExtractiveSummarizer):
-    tags = ExtractiveSummarizer.tags + ['ml']
+    tags = ExtractiveSummarizer.tags + ['ml', 'tfidf']
 
     def __init__(self, normalize=True):
         super().__init__(normalize)

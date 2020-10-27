@@ -47,13 +47,15 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | Rouge1 Summarizer (precision) - bert    |        0.5295 |        0.6500 |        0.7748 |
 | Rouge1 Summarizer (recall) - bert       |    0.6851 |        0.7585 |        0.8488 |
 | Length Summarizer (char) - bert         |        0.6843 |        0.7588 |        0.8483 |
-| Length Summarizer (token) - bert        |        **0.6856** |        0.7584 |        **0.8520** |
+| Length Summarizer (token) - bert        |        0.6856 |        0.7584 |        0.8520 |
 | KMeans Summarizer - bert                |        0.6599 |        0.7434 |        0.8344 |
 | AutoKMeans Summarizer - bert            |        0.6608 |        0.7418 |        0.8333 |
 | DecomposedKMeans Summarizer - bert      |        0.6579 |        0.7440 |        0.8341 |
 | TextRank(0.05) Summarizer (BERT) - bert |        0.6212 |        0.7010 |        0.8000 |
 | TextRank(0.5) Summarizer (BERT) - bert  |        0.6232 |        0.7005 |        0.7998 |
-| TFIDF Summarizer - bert                 |        0.6781 |        **0.7592** |        0.8504 |
+| TFIDF (Binary)(Smooth) Summarizer - bert|        0.6781 |       0.7592 |        0.8504 |
+| TFIDF (Raw/Freq)(Smooth) Summarizer - bert|        0.6797 |        **0.7646** |        0.8536 |
+| TFIDF (Log Norm)(Smooth) Summarizer - bert|      **0.6920** |        0.7642 |       **0.8540** 
 
 
 
