@@ -35,6 +35,11 @@ token_re = re.compile(r"[@]?[a-zA-ZşŞiİıIğĞüÜöÖçÇ0-9]+|[\.]")
 
 puncts = string.punctuation + '”“'
 
+emoji_unicode = [
+                 "\U0001f600",  # Grinning face
+                 "\U0001F606"  # grinning squinting face
+                ]
+
 
 class Compose:
     def __init__(self, *funcs):
