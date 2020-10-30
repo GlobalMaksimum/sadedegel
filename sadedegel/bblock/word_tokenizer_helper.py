@@ -37,7 +37,8 @@ puncts = string.punctuation + '”“'
 
 emoji_unicode = [
                  "\U0001f600",  # Grinning face
-                 "\U0001F606"  # grinning squinting face
+                 "\U0001F606",  # grinning squinting face
+                 "\U0001F618"  # kiss
                 ]
 
 
