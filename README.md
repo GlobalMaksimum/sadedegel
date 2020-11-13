@@ -207,6 +207,11 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 make test
 ```
 
+## 📓 Kaggle
+
+* Check [comprehensive notebook](https://www.kaggle.com/datafan07/clickbait-news-classification-using-sadedegel) of Kaggle Master [Ertugrul Demir](https://www.kaggle.com/datafan07) explaining the capabilities of sadedegel on Turkish clickbate dataset
+
+
 ## Youtube Channel
 Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCyNG1Mehl44XWZ8LzkColuw)
 
