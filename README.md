@@ -228,13 +228,20 @@ Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCy
 [![Youtube](https://img.shields.io/youtube/likes/G_erifsGGFs?label=SadedeGel%20BERT%20Embeddings%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=G_erifsGGFs)
 
 ## References
+
+### Special Thanks
+
+* [Starlang Software](https://starlangyazilim.com/) for their contribution to open source Turkish NLP development and corpus preperation.
+
+* [Olcay Taner Yıldız, Ph.D.](https://github.com/olcaytaner), one of our refrees in [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/), for helping our development on sadedegel.
+
+* [Taner Sezer](https://github.com/tanerim) for his contribution on tokenization corpus and labeled news corpus.
+
 ### Our Community Contributors
 
 We would like to thank our community contributors for their bug/enhancement requests and questions to make sadedeGel better everyday
 
 * [Burak Işıklı](https://github.com/burakisikli)
-* [Olcay Taner Yıldız Ph.D.](https://github.com/olcaytaner) and [Starlang Software](https://starlangyazilim.com/)
-* [Taner Sezer](https://github.com/tanerim) contributes tokenization corpus.
 
 ### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
