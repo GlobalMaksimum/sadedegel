@@ -233,6 +233,8 @@ Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCy
 We would like to thank our community contributors for their bug/enhancement requests and questions to make sadedeGel better everyday
 
 * [Burak Işıklı](https://github.com/burakisikli)
+* [Olcay Taner Yıldız Ph.D.](https://github.com/olcaytaner) and [Starlang Software](https://starlangyazilim.com/)
+* [Taner Sezer](https://github.com/tanerim) contributes tokenization corpus.
 
 ### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
