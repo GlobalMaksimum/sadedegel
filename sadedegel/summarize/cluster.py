@@ -13,22 +13,32 @@ from ..config import tokenizer_context
 class KMeansSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
-    def __init__(self, n_clusters=2, random_state=42, normalize=True):
+    def __init__(self, n_clusters=2, random_state=42, normalize=True, embedding_type='bert'):
         super().__init__(normalize)
         self.n_clusters = n_clusters
         self.random_state = random_state
+        self.embedding_type = embedding_type
 
     def _predict(self, sentences: List[Sentences]):
-        with tokenizer_context('bert', warning=True):
-            if len(sentences) == 0:
-                raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-            doc = sentences[0].document
+        doc = sentences[0].document
 
-            effective_n_clusters = min(self.n_clusters, len(doc))
+        effective_n_clusters = min(self.n_clusters, len(doc))
+
+        if self.embedding_type == 'bert':
+            with tokenizer_context('bert', warning=True):
+
+                return 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
+                    doc.bert_embeddings).min(axis=1) + 1e-10)
+
+        elif self.embedding_type == 'word2vec':
 
             return 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
-                doc.bert_embeddings).min(axis=1) + 1e-10)
+                    doc.word2vec_embeddings).min(axis=1) + 1e-10)
+        else:
+            raise ValueError(f"{self.embedding_type} is not a valid embedding type supported by SadedeGel")
 
 
 class AutoKMeansSummarizer(ExtractiveSummarizer):
@@ -36,24 +46,34 @@ class AutoKMeansSummarizer(ExtractiveSummarizer):
 
     tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
-    def __init__(self, n_cluster_to_length=0.05, min_n_cluster=2, random_state=42, normalize=True):
+    def __init__(self, n_cluster_to_length=0.05, min_n_cluster=2, random_state=42, normalize=True, embedding_type='bert'):
         super().__init__(normalize)
 
         self.n_cluster_to_length = n_cluster_to_length
         self.min_n_cluster = min_n_cluster
         self.random_state = random_state
+        self.embedding_type = embedding_type
 
     def _predict(self, sentences: List[Sentences]):
-        with tokenizer_context('bert', warning=True):
-            if len(sentences) == 0:
-                raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-            doc = sentences[0].document
+        doc = sentences[0].document
 
-            effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
+        effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
 
+        if self.embedding_type == 'bert':
+            with tokenizer_context('bert', warning=True):
+
+                return 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
+                    doc.bert_embeddings).min(axis=1) + 1e-10)
+
+        elif self.embedding_type == 'word2vec':
             return 1 / (KMeans(n_clusters=effective_n_clusters, random_state=self.random_state).fit_transform(
-                doc.bert_embeddings).min(axis=1) + 1e-10)
+                doc.word2vec_embeddings).min(axis=1) + 1e-10)
+
+        else:
+            raise ValueError(f"{self.embedding_type} is not a valid embedding type supported by SadedeGel")
 
 
 class DecomposedKMeansSummarizer(ExtractiveSummarizer):
@@ -66,24 +86,31 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
 
     tags = ExtractiveSummarizer.tags + ['cluster', 'ml']
 
-    def __init__(self, n_clusters=2, n_components=48, random_state=42, normalize=True):
+    def __init__(self, n_clusters=2, n_components=48, random_state=42, normalize=True, embedding_type='bert'):
         super().__init__(normalize)
         self.n_clusters = n_clusters
         self.n_components = n_components
         self.random_state = random_state
+        self.embedding_type = embedding_type
 
     def _predict(self, sentences: List[Sentences]):
-        with tokenizer_context('bert', warning=True):
-            if len(sentences) == 0:
-                raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        if len(sentences) == 0:
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-            doc = sentences[0].document
+        doc = sentences[0].document
 
-            effective_n_clusters = min(self.n_clusters, len(doc))
-            effective_n_components = min(self.n_components, len(doc))
+        effective_n_clusters = min(self.n_clusters, len(doc))
+        effective_n_components = min(self.n_components, len(doc))
 
-            pipeline = Pipeline(
-                [('pca', PCA(effective_n_components)),
-                 ('kmeans', KMeans(effective_n_clusters, random_state=self.random_state))])
+        pipeline = Pipeline(
+            [('pca', PCA(effective_n_components)),
+             ('kmeans', KMeans(effective_n_clusters, random_state=self.random_state))])
 
-            return 1 / (pipeline.fit_transform(doc.bert_embeddings).min(axis=1) + 1e-10)
+        if self.embedding_type == 'bert':
+            with tokenizer_context('bert', warning=True):
+                return 1 / (pipeline.fit_transform(doc.bert_embeddings).min(axis=1) + 1e-10)
+        elif self.embedding_type == 'word2vec':
+            return 1 / (pipeline.fit_transform(doc.word2vec_embeddings).min(axis=1) + 1e-10)
+
+        else:
+            raise ValueError(f"{self.embedding_type} is not a valid embedding type supported by SadedeGel")

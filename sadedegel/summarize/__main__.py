@@ -31,6 +31,14 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ('KMeans Summarizer', KMeansSummarizer()),
                ('AutoKMeans Summarizer', AutoKMeansSummarizer()),
                ('DecomposedKMeans Summarizer', DecomposedKMeansSummarizer()),
+               ('KMeans Summarizer (Word2Vec-BertTokenizer)', KMeansSummarizer(embedding_type="word2vec")),
+               ('AutoKMeans Summarizer (Word2Vec-BertTokenizer)', AutoKMeansSummarizer(embedding_type="word2vec")),
+               ('DecomposedKMeans Summarizer (Word2Vec-BertTokenizer)', DecomposedKMeansSummarizer(embedding_type=
+                                                                                                   "word2vec")),
+               ('KMeans Summarizer (Word2Vec-SimpleTokenizer)', KMeansSummarizer(embedding_type="word2vec")),
+               ('AutoKMeans Summarizer (Word2Vec-SimpleTokenizer)', AutoKMeansSummarizer(embedding_type="word2vec")),
+               ('DecomposedKMeans Summarizer (Word2Vec-SimpleTokenizer)', DecomposedKMeansSummarizer(embedding_type=
+                                                                                                     "word2vec")),
                ("TextRank(0.05) Summarizer (BERT)", TextRank(alpha=0.05)),
                ("TextRank(0.15) Summarizer (BERT)", TextRank(alpha=0.15)),
                ("TextRank(0.30) Summarizer (BERT)", TextRank(alpha=0.30)),
@@ -91,7 +99,10 @@ def evaluate(table_format, tag, debug):
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
                 if ("cluster" in summarizer or "rank" in summarizer or name == "TFIDF Summarizer") and \
-                        word_tokenizer == "simple":
+                        word_tokenizer == "simple" and "Word2Vec-SimpleTokenizer" not in name:
+                    click.echo(click.style("SKIP", fg="yellow"))
+                    continue
+                if "cluster" in summarizer and word_tokenizer == "bert" and "Word2Vec-SimpleTokenizer" in name:
                     click.echo(click.style("SKIP", fg="yellow"))
                     continue
 

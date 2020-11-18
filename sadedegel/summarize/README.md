@@ -51,6 +51,12 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | KMeans Summarizer - bert                |        0.6599 |        0.7434 |        0.8344 |
 | AutoKMeans Summarizer - bert            |        0.6608 |        0.7418 |        0.8333 |
 | DecomposedKMeans Summarizer - bert      |        0.6579 |        0.7440 |        0.8341 |
+| KMeans Summarizer (Word2Vec-SimpleTokenizer) - simple           |        0.6223 |        0.7188 |        0.8204 |
+| AutoKMeans Summarizer (Word2Vec-SimpleTokenizer) - simple       |        0.6093 |        0.7117 |        0.8147 |
+| DecomposedKMeans Summarizer (Word2Vec-SimpleTokenizer) - simple |        0.6221 |        0.7189 |        0.8207 |
+| KMeans Summarizer (Word2Vec-BertTokenizer) - bert               |        0.6151 |        0.7162 |        0.8207 |
+| AutoKMeans Summarizer (Word2Vec-BertTokenizer) - bert           |        0.5976 |        0.7062 |        0.8131 |
+| DecomposedKMeans Summarizer (Word2Vec-BertTokenizer) - bert     |        0.6152 |        0.7162 |        0.8209 |
 | TextRank(0.05) Summarizer (BERT) - bert |        0.6212 |        0.7010 |        0.8000 |
 | TextRank(0.5) Summarizer (BERT) - bert  |        0.6232 |        0.7005 |        0.7998 |
 | TFIDF Summarizer - bert                 |        0.6781 |        **0.7592** |        0.8504 |
