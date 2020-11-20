@@ -266,7 +266,7 @@ class Sentences:
                 self._has_w2v = True
             else:
                 logger.info(f"All tokens in this sentence are out of vocabulary. Sentence: {self.text}")
-                self._w2v = np.zeros(100, dtype=np.float32)
+                self._w2v = np.zeros(Sentences.wv_model.vector_size, dtype=np.float32)
                 self._has_w2v = False
 
         return self._w2v
@@ -428,12 +428,7 @@ class Doc:
     @property
     def word2vec_embeddings(self):
         if self._w2v is None:
-            matrix = np.zeros((len(self), 100))
-
-            for i, sent in enumerate(self):
-                matrix[i,:] = sent.word2vec
-
-            self._w2v = matrix
+            self._w2v = np.vstack([sent.word2vec for sent in self])
         return self._w2v
 
     @property

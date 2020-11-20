@@ -19,11 +19,12 @@ def cli():
 @click.option('--num-epochs', '-e', help='Training epochs', default=10)
 @click.option('--skip-gram', '-s', help='Skip Gram or CBOW. Defaults to True for Skip Gram', default=True)
 @click.option('--retrain-from', '-r', default=None)
-def train_word2vec(model_name, corpus, tokenizer, num_epochs, skip_gram, retrain_from):
+@click.option('--embedding-size', '-s', default=100)
+def train_word2vec(model_name, corpus, tokenizer, num_epochs, skip_gram, retrain_from, embedding_size):
 
     if not retrain_from:
         sentences = GCorpus(sadedegel_corpus=corpus, tokenizer=tokenizer)
-        model = Word2Vec(size=100,
+        model = Word2Vec(size=embedding_size,
                          workers=cpu_count(),
                          min_count=3,
                          sg=skip_gram,
