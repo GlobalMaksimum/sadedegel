@@ -8,8 +8,15 @@ from tqdm import tqdm
 import json
 from smart_open import open
 import tarfile
+from tabulate import tabulate
+from loguru import logger
 
-from ._core import check_and_display
+from ._core import check_and_display, tok_eval
+from .tokenized import load_corpus as load_tokenized_corpus
+from .raw import load_corpus as load_raw_corpus
+
+
+logger.disable("sadedegel")
 
 
 @click.group(help="Tokenization Dataset Commandline.")
@@ -112,6 +119,32 @@ def prepare(data_home, data_version):
     with open(str(Path(os.path.expanduser(data_home)) / 'tokenization' / data_version / "tokenized" / "Tokenized.json"),
               'w') as j:
         json.dump(tokens, j)
+
+
+@click.option("--eval-size", "-s", help="Evaluation set size", default=1000)
+@click.option("--tokenizers", "-t", help="List of tokenizers to evaluate", default=["bert", "simple"])
+@cli.command()
+def evaluate(eval_size, tokenizers):
+    click.secho(click.style("Loading tokenization corpus...", fg='magenta'))
+    raw_docs = load_raw_corpus()
+    tokenized_docs = load_tokenized_corpus()
+    click.secho(click.style("Creating Eval Set...", fg='magenta'))
+    eval_raw, eval_tokenized = [], []
+    for raw_doc, tokenized_doc in zip(raw_docs, tokenized_docs):
+        ix = raw_doc['index']
+        if ix == eval_size:
+            break
+        eval_raw.append(raw_doc)
+        eval_tokenized.append(tokenized_doc)
+    click.secho(click.style("Evaluating", fg='magenta'))
+    table = tok_eval(eval_raw, eval_tokenized, tokenizers)
+
+    print(
+        tabulate(table,
+                 headers=['Tokenizer', 'IoU Score'],
+                 tablefmt='github',
+                 floatfmt=".4f")
+    )
 
 
 if __name__ == "__main__":

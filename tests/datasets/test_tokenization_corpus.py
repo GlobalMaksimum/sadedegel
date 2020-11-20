@@ -1,7 +1,8 @@
 import pytest
 from pathlib import Path
 from os.path import expanduser
-from .context import tokenization, check_and_display
+import numpy as np
+from .context import tokenization, check_and_display, tok_eval
 
 
 def test_submodule_import():
@@ -45,3 +46,19 @@ def test_corpus_size(loader, return_iter, expected_count):
 
     if not return_iter:
         assert len(docs) == expected_count
+
+
+def test_evaluator():
+    raw_docs = tokenization.raw.load_corpus()
+    tokenized_docs = tokenization.tokenized.load_corpus()
+    eval_raw, eval_tokenized = [], []
+    for raw_doc, tokenized_doc in zip(raw_docs, tokenized_docs):
+        ix = raw_doc['index']
+        if ix == 2:
+            break
+        eval_raw.append(raw_doc)
+        eval_tokenized.append(tokenized_doc)
+    table = tok_eval(eval_raw, eval_tokenized, ["simple", "bert"])
+
+    assert np.float16(table[0][1]) == np.float16(0.8315)
+    assert np.float16(table[1][1]) == np.float16(0.8739)
