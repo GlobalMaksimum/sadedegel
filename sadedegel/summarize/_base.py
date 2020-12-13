@@ -60,19 +60,17 @@ class ExtractiveSummarizer(ABC):
         sents = get_sentences_list(sents)
 
         if k > len(sents):
-            warnings.warn("State a summary size shorter than document's sentence count.", UserWarning)
-            summ = None
-        elif len(sents) == k:
-            summ = sents
+            warnings.warn(f"k ({k}) is greater then the number of sentences ({len(sents)})", UserWarning)
+            k = len(sents)
         elif k == 0:
-            summ = None
-        else:
-            scores = self.predict(sents)
+            return []
 
-            topk_inds = np.argpartition(scores, k)[-k:]  # returns indices of k top sentences
-            topk_inds.sort()  # fix the order of sentences
+        scores = self.predict(sents)
 
-            summ = [sents[i] for i in topk_inds]
+        topk_inds = np.argpartition(scores, k-1)[-k:]  # returns indices of k top sentences
+        topk_inds.sort()  # fix the order of sentences
+
+        summ = [sents[i] for i in topk_inds]
 
         return summ
 
