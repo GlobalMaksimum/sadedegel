@@ -465,7 +465,10 @@ class DocBuilder:
             d = Document(raw, self)
             d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
 
-            y_pred = self.sbd.predict((span.span_features() for span in d.spans))
+            if len(d.spans) > 0:
+                y_pred = self.sbd.predict((span.span_features() for span in d.spans))
+            else:
+                y_pred = []
 
             eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
 
