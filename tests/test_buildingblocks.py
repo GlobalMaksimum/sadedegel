@@ -5,9 +5,9 @@ from pytest import raises
 from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, Token
 
 
-@pytest.mark.parametrize("s", ["", " ", "\n", "\t", "\n\t"])
-def test_emptystring(s):
-    empty = Doc("")
+@pytest.mark.parametrize("string", ["", " ", "\n", "\t", "\n\t"])
+def test_emptystring(string):
+    empty = Doc(string)
 
     assert len(empty.sents) == 1
     assert len(empty[0].tokens) == 0
