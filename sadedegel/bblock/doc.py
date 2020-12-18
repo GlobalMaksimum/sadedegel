@@ -258,7 +258,10 @@ class Doc:
 
             self.spans = [Span(i, span, self) for i, span in enumerate(_spans)]
 
-            y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
+            if len(self.spans) > 0:
+                y_pred = Doc.sbd.predict((span.span_features() for span in self.spans))
+            else:
+                y_pred = []
 
             eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
 
