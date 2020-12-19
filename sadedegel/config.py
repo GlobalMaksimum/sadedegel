@@ -162,12 +162,11 @@ def to_config_dict(kw: dict):
 
 
 def load_config(kwargs: dict = None):
-    config_dict = to_config_dict(kwargs)
-
     config = ConfigParser()
     config.read([Path(dirname(__file__)) / 'default.ini', Path("~/.sadedegel/user.ini").expanduser()])
 
     if kwargs:
+        config_dict = to_config_dict(kwargs)
         config.read_dict(config_dict)
 
     return config
@@ -176,7 +175,8 @@ def load_config(kwargs: dict = None):
 def show_config(config, section=None):
     descriptions = {"default__tokenizer": "Word tokenizer to use",
                     "tf__method": "Method used in term frequency calculation",
-                    "tf__double_norm_k": "Smooth parameter used by double norm term frequency method."}
+                    "tf__double_norm_k": "Smooth parameter used by double norm term frequency method.",
+                    "idf__method": "Method used in Inverse Document Frequency calculation"}
 
     default_config = ConfigParser()
     default_config.read([Path(dirname(__file__)) / 'default.ini'])
