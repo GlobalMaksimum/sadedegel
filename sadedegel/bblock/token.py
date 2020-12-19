@@ -4,6 +4,9 @@ from math import log
 from .util import tr_lower
 from ..config import configuration
 
+IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
+IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
+
 
 def word_shape(text):
     if len(text) >= 100:
@@ -33,6 +36,7 @@ def word_shape(text):
 
 
 class Token:
+    config = None
     cache = {}
 
     def __init__(self, entry):
@@ -69,10 +73,18 @@ class Token:
 
     @property
     def idf(self):
-        if configuration['idf'] == 'smooth':
-            return smooth_idf(self)
+        if Token.config['idf']['method'] == IDF_SMOOTH:
+            return self.smooth_idf
         else:
-            return prob_idf(self)
+            return self.prob_idf
+
+    @property
+    def smooth_idf(self):
+        return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
+
+    @property
+    def prob_idf(self):
+        return log((self.entry.vocabulary.document_count - self.df) / self.df)
 
     @property
     def id(self):
@@ -90,11 +102,3 @@ class Token:
     def df_cs(self):
         """case sensitive document frequency"""
         return self.entry.df_cs
-
-
-def smooth_idf(self: Token):
-    return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
-
-
-def prob_idf(self: Token):
-    return log((self.entry.vocabulary.document_count - self.df) / self.df)

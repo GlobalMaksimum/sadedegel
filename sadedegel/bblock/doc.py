@@ -16,7 +16,7 @@ from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from ..config import load_config
 from .word_tokenizer import WordTokenizer
-from .token import Token
+from .token import Token, IDF_METHOD_VALUES
 from ..about import __version__
 
 
@@ -471,6 +471,13 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        idf_method = self.config['idf']['method']
+
+        if idf_method in IDF_METHOD_VALUES:
+            Token.config = self.config
+        else:
+            raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {','.join(idf_method)}")
 
     def __call__(self, raw):
 

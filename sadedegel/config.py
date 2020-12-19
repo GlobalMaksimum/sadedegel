@@ -99,17 +99,15 @@ def config_context(**kwargs):
 
 
 @contextmanager
-def idf_context(idf_type, warning=False):
-    current = configuration['idf']
-
-    if warning and current != idf_type:
-        warnings.warn(f"Changing idf function to {idf_type}")
+def idf_context(idf_type, warning=False):  # pylint: disable=unused-argument
+    from .bblock.token import Token  # pylint: disable=import-outside-toplevel
+    current = Token.config
 
     try:
-        set_config('idf', idf_type)
+        Token.config = {"idf": {"method": idf_type}}
         yield
     finally:
-        set_config('idf', current)
+        Token.config = current
 
 
 @contextmanager
