@@ -3,12 +3,7 @@ import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-<< << << < HEAD
 from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config_context
-== == == =
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config
->> >> >> > 1
-be6109336032074d65d3029b03282b4fba3c3fa
 
 
 @pytest.mark.parametrize("string", ["", " ", "\n", "\t", "\n\t"])
