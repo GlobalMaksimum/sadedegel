@@ -4,6 +4,7 @@ from typing import List
 from loguru import logger
 
 import click
+import time
 from tabulate import tabulate
 import warnings
 import numpy as np  # type: ignore
@@ -12,14 +13,18 @@ from sklearn.metrics import ndcg_score  # type: ignore
 from sadedegel.dataset import load_annotated_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer
-from sadedegel import Sentences, Doc
+    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, TFIDFSummarizer, BandSummarizer
+from sadedegel import Sentences
+from sadedegel.bblock import DocBuilder
 from sadedegel import tokenizer_context
 
 logger.disable("sadedegel")
 
 SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', PositionSummarizer()),
                ('LastK Summarizer', PositionSummarizer('last')), ('Rouge1 Summarizer (f1)', Rouge1Summarizer()),
+               ("Band(k=2) Summarizer", BandSummarizer(2)),
+               ("Band(k=3) Summarizer", BandSummarizer(3)),
+               ("Band(k=6) Summarizer", BandSummarizer(6)),
                ('Rouge1 Summarizer (precision)', Rouge1Summarizer('precision')),
                ('Rouge1 Summarizer (recall)', Rouge1Summarizer('recall')),
                ('Length Summarizer (char)', LengthSummarizer('token')),
@@ -53,11 +58,11 @@ def cli():
     pass
 
 
-def dot_progress(i, length):
+def dot_progress(i, length, t0):
     n = ceil(length * 0.05)
 
     if i == length - 1:
-        click.echo(".", nl=True, color="yellow")
+        click.echo(f". {(time.time() - t0):.2f} sec", nl=True, color="yellow")
     elif i % n == 0 and i != 0:
         click.echo(".", nl=False, color="yellow")
 
@@ -80,9 +85,12 @@ def evaluate(table_format, tag, debug):
 
     for word_tokenizer in ['simple', 'bert']:
         click.echo("Word Tokenizer: " + click.style(f"{word_tokenizer}", fg="blue"))
-        docs = [Doc.from_sentences(doc['sentences']) for doc in anno]  # Reset document because of memoization
-        with tokenizer_context(word_tokenizer):
+
+        with tokenizer_context(word_tokenizer) as Doc2:
+            docs = [Doc2.from_sentences(doc['sentences']) for doc in
+                    anno]
             for name, summarizer in summarizers:
+                t0 = time.time()
                 click.echo(click.style(f"    {name} ", fg="magenta"), nl=False)
                 # skip simple tokenizer for clustering models
                 if ("cluster" in summarizer or "rank" in summarizer or name == "TFIDF Summarizer") and \
@@ -91,7 +99,7 @@ def evaluate(table_format, tag, debug):
                     continue
 
                 for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                    dot_progress(i, len(relevance))
+                    dot_progress(i, len(relevance), t0)
 
                     y_pred = [summarizer.predict(d.sents)]
 

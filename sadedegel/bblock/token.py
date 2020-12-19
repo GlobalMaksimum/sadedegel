@@ -2,8 +2,10 @@ import unicodedata
 
 from math import log
 from .util import tr_lower
-from .vocabulary import Vocabulary
-from .word_tokenizer import BertTokenizer
+from ..config import configuration
+
+IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
+IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
 
 
 def word_shape(text):
@@ -34,71 +36,58 @@ def word_shape(text):
 
 
 class Token:
-    _vocabulary = None
+    config = None
     cache = {}
 
-    @classmethod
-    def vocabulary(cls):
-        if cls._vocabulary is None:
-            cls.set_vocabulary(BertTokenizer)
-
-        return cls._vocabulary
-
-    @classmethod
-    def reset(cls):
-        cls.cache.clear()
-        cls._vocabulary = None
-
-    @classmethod
-    def _get_cache(cls, word):
-        token = Token.cache.get(word, None)
-
-        return token
-
-    @classmethod
-    def set_vocabulary(cls, tokenizer):
-        cls.cache.clear()
-        cls._vocabulary = Vocabulary.load(tokenizer.__name__)
-
-    def __new__(cls, word, *args, **kwargs):
-        if cls._vocabulary is None:
-            cls._vocabulary = Vocabulary.load(BertTokenizer.__name__)
-
-        cached = cls._get_cache(word)
-
-        if cached:
-            return cached
-
-        token = super(Token, cls).__new__(cls)
-
-        return token
-
-    def __init__(self, word):
+    def __init__(self, entry):
         if self in self.cache:
             return
 
-        self.cache[word] = self
+        if isinstance(entry, str):
+            self.cache[entry] = self
 
-        self.word = word
-        self.lower_ = tr_lower(word)
-        self.is_punct = all(unicodedata.category(c).startswith("P") for c in word)
-        self.is_digit = word.isdigit()
-        self.shape = word_shape(word)
+            self.word = entry
+            self.lower_ = tr_lower(self.word)
+            self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
+            self.is_digit = self.word.isdigit()
+            self.shape = word_shape(self.word)
 
-        self.entry = None
+            self._entry = None
+        else:
+            self.cache[entry.word] = self
 
-    def smooth_idf(self):
-        return log(Token._vocabulary.document_count / (1 + self.df)) + 1
+            self.word = entry.word
+            self.lower_ = tr_lower(self.word)
+            self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
+            self.is_digit = self.word.isdigit()
+            self.shape = word_shape(self.word)
+
+            self._entry = entry
+
+    @property
+    def entry(self):
+        if self._entry is None:
+            raise ValueError(f"Token is initialized with a str object. Initialized with Vocabulary entry")
+
+        return self._entry
 
     @property
     def idf(self):
-        return self.smooth_idf()
+        if Token.config['idf']['method'] == IDF_SMOOTH:
+            return self.smooth_idf
+        else:
+            return self.prob_idf
+
+    @property
+    def smooth_idf(self):
+        return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
+
+    @property
+    def prob_idf(self):
+        return log((self.entry.vocabulary.document_count - self.df) / self.df)
 
     @property
     def id(self):
-        if self.entry is None:
-            self.entry = Token._vocabulary[self.word]
-
         return self.entry.id
 
     @property
@@ -107,7 +96,9 @@ class Token:
 
     @property
     def df(self):
-        if self.entry is None:
-            self.entry = Token._vocabulary[self.word]
-
         return self.entry.df
+
+    @property
+    def df_cs(self):
+        """case sensitive document frequency"""
+        return self.entry.df_cs

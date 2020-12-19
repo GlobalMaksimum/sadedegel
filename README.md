@@ -21,6 +21,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 ![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 [![Binder](https://mybinder.org/badge_logo.svg?style=plastic)](https://mybinder.org/v2/gh/GlobalMaksimum/sadedegel.git/master?filepath=notebook%2FBasics.ipynb)
 [![Slack](https://img.shields.io/static/v1?logo=slack&style=plastic&color=blueviolet&label=slack&labelColor=grey&message=sadedegel)](https://join.slack.com/t/sadedegel/shared_invite/zt-h77u6aeq-VzEorB5QLHyJV90Fv4Ky3A)
+[![Kaggle](http://img.shields.io/static/v1?logo=kaggle&style=plastic&color=blue&label=kaggle&labelColor=grey&message=notebooks)](https://www.kaggle.com/search?q=sadedegel+in%3Anotebooks)
 
 
 ## 📖 Documentation
@@ -74,14 +75,19 @@ Other community maintainers
   
 * Various unsupervised/supervised summarizers
   * ROUGE1 Summarizer
+  * TextRank Summarizer
   * Cluster Summarizer
   * Supervised Summarizer
  
 * Various Word Tokenizers
   * BERT Tokenizer - Trained tokenizer
   * Simple Tokenizer - Regex Based (**Experimental**)
+  
+* Various Embeddings Implementation
+  * BERT Embeddings
+  * TfIdf Embeddings
 
-📖 **For more details, refere to [sadedegel.ai](http://sadedegel.ai)**
+📖 **For more details, refer to [sadedegel.ai](http://sadedegel.ai)**
 
 ## Install sadedeGel
 
@@ -126,17 +132,21 @@ summarizer = Rouge1Summarizer()
 summarizer(d, k=5)
 ```
 
-To use our ML based sentence boundary detector
+To trigger sadedeGel NLP pipeline, initialize `Doc` instance with a document string.
+
+Access all sentences using Python built-in `list` function.
 
 ```python
 from sadedegel import Doc
 
-doc = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
+doc_str = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
 "daha büyük ölçekte. Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu. IBM 650 Model I adını taşıyan bilgisayarın "
 "satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı. Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı. "
 "Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.")
 
-Doc(doc).sents
+doc = Doc(doc_str)
+
+list(doc)
 ```
 ```python
 ['Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı.',
@@ -145,6 +155,16 @@ Doc(doc).sents
  'IBM 650 Model I adını taşıyan bilgisayarın satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı.',
  'Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı.',
  'Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.']
+```
+
+Access sentences by index.
+
+```python
+doc[2]
+```
+
+```python
+Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu.
 ```
 
 ## SadedeGel Server
@@ -187,6 +207,11 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 make test
 ```
 
+## 📓 Kaggle
+
+* Check [comprehensive notebook](https://www.kaggle.com/datafan07/clickbait-news-classification-using-sadedegel) of Kaggle Master [Ertugrul Demir](https://www.kaggle.com/datafan07) explaining the capabilities of sadedegel on Turkish clickbate dataset
+
+
 ## Youtube Channel
 Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCyNG1Mehl44XWZ8LzkColuw)
 
@@ -209,6 +234,15 @@ Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCy
 [![Youtube](https://img.shields.io/youtube/likes/G_erifsGGFs?label=SadedeGel%20BERT%20Embeddings%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=G_erifsGGFs)
 
 ## References
+
+### Special Thanks
+
+* [Starlang Software](https://starlangyazilim.com/) for their contribution to open source Turkish NLP development and corpus preperation.
+
+* [Olcay Taner Yıldız, Ph.D.](https://github.com/olcaytaner), one of our refrees in [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/), for helping our development on sadedegel.
+
+* [Taner Sezer](https://github.com/tanerim) for his contribution on tokenization corpus and labeled news corpus.
+
 ### Our Community Contributors
 
 We would like to thank our community contributors for their bug/enhancement requests and questions to make sadedeGel better everyday
