@@ -2,6 +2,7 @@ from typing import Tuple
 import click
 import requests
 from .about import __version__, __herokuapp_url__
+from .config import load_config, show_config
 
 
 def to_tuple(version_string: str) -> Tuple:
@@ -15,6 +16,14 @@ def to_str(version_tuple: Tuple) -> str:
 @click.group(help="SadedeGel commandline")
 def cli():
     pass
+
+
+@cli.command()
+@click.option("--section", "-s", default=None, help="Filter by section")
+def config(section):
+    cfg = load_config()
+
+    show_config(cfg, section)
 
 
 @cli.command()

@@ -13,3 +13,5 @@ scikit-learn==0.23.1
 nltk==3.5
 networkx==2.4
 tabulate==0.8.7
+
+rich

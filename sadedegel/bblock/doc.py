@@ -3,9 +3,6 @@ import re
 from typing import List, Union
 import warnings
 from functools import partial
-from configparser import ConfigParser
-from pathlib import Path
-from os.path import dirname
 
 import torch
 
@@ -16,7 +13,8 @@ from scipy.sparse import csr_matrix
 
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, to_config_dict
+from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from ..config import load_config
 from .word_tokenizer import WordTokenizer
 from .token import Token
 from ..about import __version__
@@ -467,17 +465,8 @@ class DocBuilder:
     bert_model = None
 
     def __init__(self, **kwargs):
-        config_dict = to_config_dict(kwargs)
 
-        self.config = ConfigParser()
-        self.config.read([Path(dirname(__file__)) / '..' / 'default.ini', Path("~/.sadedegel/user.ini").expanduser()])
-
-        self.config.read_dict(config_dict)
-
-        for section in self.config.sections():
-            print(section)
-            for k in self.config[section]:
-                print(f"\t{k}: {self.config[section][k]}")
+        self.config = load_config(kwargs)
 
         self.sbd = load_model()
 
