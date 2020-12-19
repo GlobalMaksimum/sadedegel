@@ -126,3 +126,16 @@ def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
             warnings.warn(msg, UserWarning, stacklevel=3)
 
     return normalized
+
+
+def to_config_dict(kw: dict):
+    d = defaultdict(lambda: dict())
+    for k, v in kw.items():
+        if '__' not in k:  # default section
+            d['default'][k] = v
+        else:
+            section, key = k.split('__')
+
+            d[section][key] = v
+
+    return d
