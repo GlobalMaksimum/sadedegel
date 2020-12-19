@@ -82,7 +82,14 @@ def tokenizer_context(tokenizer_name, warning=False):
     if warning:
         warnings.warn(f"Changing tokenizer to {tokenizer_name}")
 
-    yield DocBuilder(tokenizer_name)
+    yield DocBuilder(tokenizer=tokenizer_name)
+
+
+@contextmanager
+def config(**kwargs):
+    from .bblock import DocBuilder  # pylint: disable=import-outside-toplevel
+
+    yield DocBuilder(**kwargs)
 
 
 @contextmanager

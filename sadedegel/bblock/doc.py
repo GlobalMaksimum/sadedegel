@@ -2,6 +2,10 @@ from collections import Counter
 import re
 from typing import List, Union
 import warnings
+from functools import partial
+from configparser import ConfigParser
+from pathlib import Path
+from os.path import dirname
 
 import torch
 
@@ -12,8 +16,8 @@ from scipy.sparse import csr_matrix
 
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
-from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
+from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, to_config_dict
+from .word_tokenizer import WordTokenizer
 from .token import Token
 from ..about import __version__
 
@@ -157,10 +161,13 @@ class Span:
         return features
 
 
-class Sentences:
-    tf_type = 'binary'
+TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM = "binary", "raw", "freq", "log_norm", "double_norm"
+TF_METHOD_VALUES = [TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM]
 
-    def __init__(self, id_: int, text: str, doc):
+
+class Sentences:
+
+    def __init__(self, id_: int, text: str, doc, config: dict = {}):
         self.id = id_
         self.text = text
 
@@ -169,7 +176,26 @@ class Sentences:
         self._bert = None
         self.toks = None
 
-        self.f_tf = self.get_tf_func
+        # No failback to config read in here because this will slow down sentence instantiation extremely.
+        tf_method = config['tf']['method']
+
+        if tf_method == TF_BINARY:
+            self.f_tf = self.binary_tf
+        elif tf_method == TF_RAW:
+            self.f_tf = self.raw_tf
+        elif tf_method == TF_FREQ:
+            self.f_tf = self.freq_tf
+        elif tf_method == TF_LOG_NORM:
+            self.f_tf = self.log_norm_tf
+        elif tf_method == TF_DOUBLE_NORM:
+            k = config.getfloat('tf', 'double_norm_k')
+
+            if not 0 < k < 1:
+                raise ValueError(
+                    f"Invalid k value {k} for double norm term frequency. Values should be between 0 and 1.")
+            self.f_tf = partial(self.double_norm_tf, k=k)
+        else:
+            raise ValueError(f"Unknown term frequency method {tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
 
     @property
     def tokenizer(self):
@@ -181,8 +207,7 @@ class Sentences:
 
     @classmethod
     def set_tf_function(cls, tf_type):
-        if tf_type != Sentences.tf_type:
-            Sentences.tf_type = tf_type
+        raise DeprecationWarning("Function is depreciated.")
 
     @property
     def bert(self):
@@ -251,14 +276,6 @@ class Sentences:
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation")
 
         return k + (1 - k) * (self.raw_tf() / self.document.raw_tf().max())
-
-    def get_tf_func(self):
-        tf_funcs = {'binary': self.binary_tf(),
-                    'raw': self.raw_tf(),
-                    'freq': self.freq_tf(),
-                    'log_norm': self.log_norm_tf(),
-                    'double_norm': self.double_norm_tf()}
-        return tf_funcs[Sentences.tf_type]
 
     @property
     def idf(self):
@@ -449,13 +466,22 @@ class Document:
 class DocBuilder:
     bert_model = None
 
-    def __init__(self, tokenizer=None):
+    def __init__(self, **kwargs):
+        config_dict = to_config_dict(kwargs)
+
+        self.config = ConfigParser()
+        self.config.read([Path(dirname(__file__)) / '..' / 'default.ini', Path("~/.sadedegel/user.ini").expanduser()])
+
+        self.config.read_dict(config_dict)
+
+        for section in self.config.sections():
+            print(section)
+            for k in self.config[section]:
+                print(f"\t{k}: {self.config[section][k]}")
+
         self.sbd = load_model()
 
-        if tokenizer is None:
-            self.tokenizer = get_default_word_tokenizer()
-        else:
-            self.tokenizer = WordTokenizer.factory(tokenizer)
+        self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
 
     def __call__(self, raw):
 
@@ -475,11 +501,11 @@ class DocBuilder:
             if len(eos_list) > 0:
                 for i, eos in enumerate(eos_list):
                     if i == 0:
-                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d))
+                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d, self.config))
                     else:
-                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d))
+                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d, self.config))
             else:
-                d._sents.append(Sentences(0, d.raw.strip(), d))
+                d._sents.append(Sentences(0, d.raw.strip(), d, self.config))
         else:
             raise Exception(f"{raw} document text can't be None")
 
@@ -490,6 +516,6 @@ class DocBuilder:
 
         d = Document(raw, self)
         for i, s in enumerate(sentences):
-            d._sents.append(Sentences(i, s, d))
+            d._sents.append(Sentences(i, s, d, self.config))
 
         return d
