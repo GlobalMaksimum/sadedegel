@@ -33,7 +33,7 @@ date_2_re = re.compile(
 space = re.compile(r"\s+")
 token_re = re.compile(r"[@]?[a-zA-ZşŞiİıIğĞüÜöÖçÇ0-9]+|[\.]")
 
-puncts = string.punctuation + '”“'
+puncts = string.punctuation + '”“’‘…'
 
 
 class Compose:
