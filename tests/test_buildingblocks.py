@@ -137,10 +137,11 @@ def test_doc_level_tfidf():
     assert d.tfidf().shape == (1, d.vocabulary.size)
 
 
-def test_doc_level_tf_idf_value():
-    with config_context(tf__method="binary") as Doc_c:
+@pytest.mark.parametrize("method,tfidf", [("binary", 31.938), ("raw", 32.938034)])
+def test_doc_level_tf_idf_value(method, tfidf):
+    with config_context(tf__method=method) as Doc_c:
         d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
-        assert np.sum(d.tfidf().toarray()) == pytest.approx(31.938)
+        assert np.sum(d.tfidf().toarray()) == pytest.approx(tfidf)
 
 
 def test_doc_level_tf_idf_type():
