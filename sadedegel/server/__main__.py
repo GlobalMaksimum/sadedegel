@@ -144,7 +144,7 @@ def summarize(summarizer, sentences: List[Sentences], limit: float) -> Response:
 
     logger.info(sentences_limited.tolist())
 
-    return Response(sentences=[s.text for s in sentences_limited.tolist()],
+    return Response(sentences=[s[0].word if isinstance(s, list) else s.text for s in sentences_limited.tolist()],
                     original=DocSummary(sentence_count=len(sentences), word_count=word_count.sum()),
                     summary=DocSummary(sentence_count=len(sentences_limited),
                                        word_count=np.array([len(s) for s in sentences_limited.tolist()],
