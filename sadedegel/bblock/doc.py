@@ -299,18 +299,11 @@ class Sentences:
         return self.text == s  # no need for type checking, will return false for non-strings
 
     def __getitem__(self, token_ix):
-        if self._tokens is not None:
-            return self.vocabulary[self.tokens[token_ix]]
-        else:
-            self._tokens = self.tokenizer(self.text)
-            return self.vocabulary[self._tokens[token_ix]]
+        return self.vocabulary[self.tokens[token_ix]]
 
     def __iter__(self):
-        if self._tokens is not None:
-            return iter([self.vocabulary[t] for t in self.tokens])
-        else:
-            self._tokens = self.tokenizer(self.text)
-            return iter([self.vocabulary[t] for t in self._tokens])
+        for t in self.tokens:
+            yield self.vocabulary[t]
 
 
 class Document:

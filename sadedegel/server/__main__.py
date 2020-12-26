@@ -118,7 +118,7 @@ def summary_filter(sents, scores, word_count, limit=None):
 
     selected_sents_idx.sort()  # sort in ascending order to preserve order
 
-    return sents[selected_sents_idx]
+    return [sents[i] for i in selected_sents_idx]
 
 
 @app.get("/", include_in_schema=False)
@@ -140,14 +140,14 @@ def summarize(summarizer, sentences: List[Sentences], limit: float) -> Response:
     logger.info(scores)
     logger.info(word_count)
 
-    sentences_limited = summary_filter(np.array(sentences), scores, word_count, limit)
+    sentences_limited = summary_filter(sentences, scores, word_count, limit)
 
-    logger.info(sentences_limited.tolist())
+    logger.info(sentences_limited)
 
-    return Response(sentences=[s[0].word if isinstance(s, list) else s.text for s in sentences_limited.tolist()],
+    return Response(sentences=[sentences_limited[i].text for i in range(len(sentences_limited))],
                     original=DocSummary(sentence_count=len(sentences), word_count=word_count.sum()),
                     summary=DocSummary(sentence_count=len(sentences_limited),
-                                       word_count=np.array([len(s) for s in sentences_limited.tolist()],
+                                       word_count=np.array([len(s) for s in sentences_limited],
                                                            dtype=np.int).sum()))
 
 
@@ -175,6 +175,7 @@ async def random(req: Request):
     """
 
     sentences = Doc(req.doc).sents
+    logger.info(sentences)
 
     if req.unit == TimeUnitEnum.MINUTE:
         duration_in_min = req.duration
