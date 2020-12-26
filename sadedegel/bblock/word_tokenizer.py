@@ -53,10 +53,14 @@ class BertTokenizer(WordTokenizer):
     def __init__(self):
         super(BertTokenizer, self).__init__()
 
-        from transformers import AutoTokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+        self.tokenizer = None
 
     def _tokenize(self, text: str) -> List[str]:
+        if self.tokenizer is None:
+            import torch
+            from transformers import AutoTokenizer
+            self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+
         return self.tokenizer.tokenize(text)
 
     @property
