@@ -298,6 +298,13 @@ class Sentences:
     def __eq__(self, s: str):
         return self.text == s  # no need for type checking, will return false for non-strings
 
+    def __getitem__(self, token_ix):
+        return self.vocabulary[self.tokens[token_ix]]
+
+    def __iter__(self):
+        for t in self.tokens:
+            yield self.vocabulary[t]
+
 
 class Document:
     def __init__(self, raw, builder):

@@ -102,3 +102,9 @@ class Token:
     def df_cs(self):
         """case sensitive document frequency"""
         return self.entry.df_cs
+
+    def __str__(self):
+        return self.word
+
+    def __repr__(self):
+        return self.word
