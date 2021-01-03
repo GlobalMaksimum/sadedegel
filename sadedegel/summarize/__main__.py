@@ -113,13 +113,34 @@ def evaluate(table_format, tag, debug):
 
     name, summarizer = "TFIDF Summarizer", TFIDFSummarizer()
 
-    for tf in TF_METHOD_VALUES:
-        for idf in IDF_METHOD_VALUES:
-            if tf == "double_norm":
-                for k in [0.25, 0.5, 0.75]:
-                    with config_context(tokenizer="bert", tf__method=tf, idf__method=idf, tf__double_norm_k=k) as Doc2:
+    if any(_tag in summarizer for _tag in tag):
+        for tf in TF_METHOD_VALUES:
+            for idf in IDF_METHOD_VALUES:
+                if tf == "double_norm":
+                    for k in [0.25, 0.5, 0.75]:
+                        with config_context(tokenizer="bert", tf__method=tf, idf__method=idf,
+                                            tf__double_norm_k=k) as Doc2:
+                            t0 = time.time()
+                            table_key = f"{name} (tf={tf}, double_norm_k={k}, idf={idf}, tokenizer=bert)"
+                            click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+
+                            docs = [Doc2.from_sentences(doc['sentences']) for doc in
+                                    anno]
+
+                            for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                                dot_progress(i, len(relevance), t0)
+
+                                y_pred = [summarizer.predict(d.sents)]
+
+                                score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
+                                score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
+                                score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
+
+                                scores[table_key].append((score_10, score_50, score_80))
+                else:
+                    with config_context(tokenizer="bert", tf__method=tf, idf__method=idf) as Doc2:
                         t0 = time.time()
-                        table_key = f"{name} (tf={tf}, double_norm_k={k}, idf={idf}, tokenizer=bert)"
+                        table_key = f"{name} (tf={tf}, idf={idf}, tokenizer=bert)"
                         click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
 
                         docs = [Doc2.from_sentences(doc['sentences']) for doc in
@@ -135,25 +156,6 @@ def evaluate(table_format, tag, debug):
                             score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
 
                             scores[table_key].append((score_10, score_50, score_80))
-            else:
-                with config_context(tokenizer="bert", tf__method=tf, idf__method=idf) as Doc2:
-                    t0 = time.time()
-                    table_key = f"{name} (tf={tf}, idf={idf}, tokenizer=bert)"
-                    click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
-
-                    docs = [Doc2.from_sentences(doc['sentences']) for doc in
-                            anno]
-
-                    for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                        dot_progress(i, len(relevance), t0)
-
-                        y_pred = [summarizer.predict(d.sents)]
-
-                        score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
-                        score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
-                        score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
-
-                        scores[table_key].append((score_10, score_50, score_80))
 
     table = [[algo, np.array([s[0] for s in scores]).mean(), np.array([s[1] for s in scores]).mean(),
               np.array([s[2] for s in scores]).mean()] for
