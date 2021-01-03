@@ -117,3 +117,18 @@ def load_annotated_corpus(return_iter: bool = True, base_path=None):
                    map(safe_json_load, files))
     else:
         return [to_dict(safe_json_load(file)) for file in files]
+
+
+def load_stopwords(base_path=None):
+    """ Return Turkish stopwords as list from file. """
+    if base_path is None:
+        base_path = dirname(__file__)
+
+    text_path = Path(base_path) / "stopwords" / "turkce-stop-words.txt"
+
+    with open(text_path, "r") as fp:
+        stopwords = fp.readlines()
+
+    stopwords = [s.rstrip() for s in stopwords]
+
+    return stopwords

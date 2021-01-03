@@ -5,6 +5,8 @@ import networkx as nx
 from ._base import ExtractiveSummarizer
 from ..bblock import Sentences
 from ..config import tokenizer_context
+from lexrank import LexRank
+from ..dataset import load_stopwords, load_raw_corpus
 
 
 class TextRank(ExtractiveSummarizer):
@@ -56,3 +58,34 @@ class TextRank(ExtractiveSummarizer):
         scores = nx.pagerank(nx_graph, alpha=self.alpha)
 
         return np.array([scores[i] for i in range(len(scores))])
+
+
+class LexRankSummarizer(ExtractiveSummarizer):
+    """
+        Unsupervised summarizer which just like Rouge1 summarizer
+        uses sentence's similarity to other sentences.
+        Github: https://github.com/crabcamp/lexrank/
+    """
+
+    tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph']
+
+    def __init__(self, normalize=True):
+        super().__init__(normalize)
+
+        stopwords = set(load_stopwords())
+        corpus = load_raw_corpus(return_iter=False)
+        self.lxr = LexRank(corpus, stopwords=stopwords)
+
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
+        sentences = [str(s) for s in sentences]
+        scores = self.lxr.rank_sentences(
+            sentences,
+            threshold=None,
+            fast_power_method=False,
+        )
+
+        scores = np.array(scores)
+        if self.normalize:
+            return scores / scores.sum()
+        else:
+            return scores
