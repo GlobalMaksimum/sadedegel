@@ -1,4 +1,4 @@
-from loguru import logger
+import warnings
 import json
 
 
@@ -7,7 +7,7 @@ def safe_read(file: str):
         with open(file) as fp:
             return fp.read()
     except:
-        logger.exception(f"Error in reading {file}")
+        warnings.warn(f"Error in reading {file}", UserWarning)
         raise
 
 
@@ -15,5 +15,5 @@ def safe_json_load(file: str):
     try:
         return json.loads(safe_read(file))
     except:
-        logger.exception(f"JSON Decoding error in {file}")
+        warnings.warn(f"JSON Decoding error for {file}", UserWarning)
         raise

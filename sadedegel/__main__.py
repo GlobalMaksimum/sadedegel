@@ -2,6 +2,7 @@ from typing import Tuple
 import click
 import requests
 from .about import __version__, __herokuapp_url__
+from .config import load_config, show_config
 
 
 def to_tuple(version_string: str) -> Tuple:
@@ -12,13 +13,22 @@ def to_str(version_tuple: Tuple) -> str:
     return ".".join(version_tuple)
 
 
-@click.group()
+@click.group(help="SadedeGel commandline")
 def cli():
     pass
 
 
 @cli.command()
+@click.option("--section", "-s", default=None, help="Filter by section")
+def config(section):
+    cfg = load_config()
+
+    show_config(cfg, section)
+
+
+@cli.command()
 def info():
+    """SadedeGel version information in details"""
     most_recent_version = requests.get("https://pypi.python.org/pypi/sadedegel/json").json()['info']['version']
     most_recent_version = to_tuple(most_recent_version)
 
@@ -41,7 +51,7 @@ def info():
     else:
         color = "green"
 
-    click.echo(f"sadedeGel Server (__herokuapp_url__): {click.style(to_str(heroku_version), fg=color)}")
+    click.echo(f"sadedeGel Server ({__herokuapp_url__}): {click.style(to_str(heroku_version), fg=color)}")
 
 
 if __name__ == '__main__':

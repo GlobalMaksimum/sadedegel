@@ -1,5 +1,7 @@
+from typing import List
 import numpy as np
 from ._base import ExtractiveSummarizer
+from ..bblock import Sentences
 
 
 class RandomSummarizer(ExtractiveSummarizer):
@@ -13,23 +15,20 @@ class RandomSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
+    tags = ExtractiveSummarizer.tags + ['baseline']
+
     def __init__(self, seed=42, normalize=True):
+        super().__init__(normalize)
         self.seed = seed
         np.random.seed(self.seed)
-        self.normalize = normalize
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         if type(sentences) == list:
             n = len(sentences)
         else:
             n = len(list(sentences))
 
-        scores = np.random.random(n)
-
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return np.random.random(n)
 
 
 class LengthSummarizer(ExtractiveSummarizer):
@@ -44,25 +43,24 @@ class LengthSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
+    tags = ExtractiveSummarizer.tags + ['baseline']
+
     def __init__(self, mode="token", normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
 
         if mode not in ['token', 'char']:
-            raise Exception(f"mode should be one of 'token', 'char'")
+            raise ValueError(f"mode should be one of 'token', 'char'")
 
         self.mode = mode
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
 
         if self.mode == 'token':
             scores = np.array([len(sent.tokens) for sent in sentences])
         else:
             scores = np.array([sum(len(token) for token in sent.tokens) for sent in sentences])
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return scores
 
 
 class PositionSummarizer(ExtractiveSummarizer):
@@ -76,14 +74,17 @@ class PositionSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
+    tags = ExtractiveSummarizer.tags + ['baseline']
+
     def __init__(self, mode='first', normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
+
         if mode not in ['first', 'last']:
-            raise Exception(f"mode should be one of 'first', 'last'")
+            raise ValueError(f"mode should be one of 'first', 'last'")
 
         self.mode = mode
 
-    def predict(self, sentences) -> np.ndarray:
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         if type(sentences) == list:
             n = len(sentences)
         else:
@@ -94,10 +95,7 @@ class PositionSummarizer(ExtractiveSummarizer):
         else:
             scores = np.arange(n)
 
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return scores
 
 
 class BandSummarizer(ExtractiveSummarizer):
@@ -107,7 +105,7 @@ class BandSummarizer(ExtractiveSummarizer):
         1. Each band is scored by PositionSummarizer individually.
         2. Relative score for the same relative position within the band is also define by `mode` parameter.
 
-    mode : {'first', 'last'}, default='first'
+    mode : {'forward', 'backward'}, default='forward'
         Whether the smaller position indices within a band have higher scores.
 
     k : int, default=3
@@ -118,14 +116,33 @@ class BandSummarizer(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    def __init__(self, k=3, mode='first', normalized=True):
-        self.normalized = normalized
+    tags = ExtractiveSummarizer.tags + ['baseline']
+
+    def __init__(self, k=3, mode='forward', normalize=True):
+        super().__init__(normalize)
         self.k = k
 
-        if mode not in ['first', 'last']:
-            raise Exception(f"mode should be one of 'first', 'last'")
+        if mode not in ['forward', 'backward']:
+            raise ValueError(f"mode should be one of 'forward', 'backward'")
+        elif mode == 'backward':
+            raise NotImplementedError(f"mode='backward' is not implemented yet.")
 
         self.mode = mode
 
-    def predict(self, sentences) -> np.ndarray:
-        raise NotImplementedError("BandSummarizer is not completed yet.")
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
+        r = 0
+        j = 0
+        n = len(sentences)
+        scores = [0 for _ in range(n)]
+
+        while j < self.k:
+            i = j
+
+            while i < n:
+                scores[i] = r
+                r += 1
+                i += self.k
+
+            j += 1
+
+        return (n - 1) - np.array(scores)

@@ -1,0 +1,64 @@
+---
+layout: default
+title: Home
+---
+
+<section class="features">
+    <div class="container">
+        <div class="row">
+            {% for feature in site.features %}
+            <div class="col-md-4">
+                <h2 class="flex">
+                    <img src="{{feature.img}}" alt="" />{{feature.name}} {% if
+                    feature.githubUrl %}
+                    <a
+                        class="github-button"
+                        href="{{feature.githubURL}}"
+                        target="_blank"
+                        data-color-scheme="no-preference: light; light: light; dark: light;"
+                        data-icon="logo-github"
+                        data-toggle="tooltip"
+                        title="Github'da gör"
+                        aria-label="Github'da gör: GlobalMaksimum/sadedegel#install-sadedegel"
+                        >Github'da gör</a
+                    >
+                    {% endif %}
+                </h2>
+                {{ feature.content | markdownify }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <a href="details" class="big-dot cta">
+                    <span
+                        >Detayları İncele
+                        <i class="fas fa-angle-double-right"></i
+                    ></span>
+                </a>
+            </div>
+        </div>
+        <hr class="seperator" id="examples" />
+        <h1 class="text-center">Sadedegel'i hemen deneyin:</h1>
+        <hr class="seperator" />
+        {% for example in site.examples %}
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="juniper-specs" id="juniper-intro">
+                    {{example.content | markdownify}}
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="juniper-head">
+                    <h3 class="heading">Şimdi Sadedegel'i deneyin:</h3>
+                    <h3 class="version">Sadedegel version loading...</h3>
+                </div>
+                <pre data-executable>
+                    {{example.code}}
+                </pre>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+</section>

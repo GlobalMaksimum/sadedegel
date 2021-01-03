@@ -1,3 +1,5 @@
 from .baseline import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer  # noqa: F401
-from .rouge import Rouge1Summarizer
-from .lexrank_summ import LexRankSummarizer
+from .rouge import Rouge1Summarizer  # noqa: F401
+from .cluster import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer  # noqa: F401
+from .rank import TextRank, LexRankSummarizer  # noqa: F401
+from .tf_idf import TFIDFSummarizer  # noqa: F401

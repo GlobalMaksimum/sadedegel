@@ -1,0 +1,245 @@
+---
+---
+
+@import "sass_classes";
+
+#home-hero {
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+
+    h1 {
+        font-size: 36px;
+        font-weight: 100;
+        margin: 0;
+
+        @include min-yatayTablet {
+            font-size: 72px;
+            letter-spacing: -3px;
+        }
+        img {
+            width: 180px;
+        }
+    }
+
+    p {
+        font-size: 20px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+
+        @include min-yatayTablet {
+            font-size: 26px;
+        }
+
+        &.subheader {
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 25px;
+        }
+    }
+}
+
+.features {
+    color: #fff;
+    margin-bottom: 20px;
+
+    div[class*="col-md"] {
+        margin-bottom: 10px;
+        text-align: center;
+
+        @include min-yatayTablet {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+    }
+
+    h2 {
+        display: inline-block;
+        text-align: left;
+
+        img {
+            max-width: 64px;
+            max-height: 64px;
+            height: auto;
+            margin-right: 10px;
+            float: left;
+        }
+
+        span {
+            display: block;
+            margin-top: 10px;
+
+            @include min-yatayTablet {
+                margin-top: 5px;
+            }
+        }
+
+        &.flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            @include min-yatayTablet {
+                justify-content: flex-start;
+            }
+        }
+    }
+
+    p,
+    li {
+        margin-bottom: 10px;
+
+        a {
+            color: lighten($purple, 30%);
+            text-decoration: none;
+
+            &:hover,
+            &:active {
+                color: #fff;
+            }
+        }
+
+        @include min-yatayTablet {
+            font-size: 12px;
+            line-height: 1.4;
+            font-weight: 300;
+        }
+    }
+
+    pre {
+        margin: 0 0 10px;
+        border-radius: 4px;
+        overflow: hidden;
+        @include box-shadow(3px 3px 5px 0px rgba(50, 50, 50, 0.75));
+        //min-height: 30px;
+
+        @include min-yatayTablet {
+            margin-right: 20px;
+        }
+    }
+
+    .juniper-cell {
+        text-align: left;
+        margin-bottom: 30px;
+
+        pre {
+            @include box-shadow(none);
+            margin: 0;
+        }
+    }
+
+    .juniper-specs {
+        padding-top: 15px;
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+    }
+
+    ul {
+        @include min-yatayTablet {
+            padding: 0;
+        }
+    }
+
+    // .cta{
+    //   margin-top: 50px;
+    //   margin-bottom: 50px;
+    // }
+    .github-button {
+        width: 24px;
+        height: 24px;
+        float: right;
+        margin-top: 4px;
+        margin-left: 6px;
+    }
+
+    .col-md-4 {
+        .big-dot.cta {
+            @include transformScale(0.75, top, left);
+        }
+    }
+}
+
+#tech-icons {
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+
+    span {
+        display: block;
+        width: auto;
+        height: 30px;
+        padding: 4px;
+        border-radius: 4px;
+        position: relative;
+
+        &:nth-child(2) {
+            margin-right: 10px;
+            margin-left: 10px;
+        }
+
+        img {
+            height: 100%;
+
+            &.covered {
+                position: absolute;
+                top: 4px;
+                left: 4px;
+                width: calc(100% - 8px);
+                height: auto;
+                opacity: 0;
+                @include transition(all, 350ms, ease-out);
+            }
+        }
+
+        &:hover {
+            img {
+                &.covered {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+
+#crew {
+    //height         : 30px;
+
+    img {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 10px;
+        border-radius: 30px;
+        border: solid 3px #f0f0f0;
+        @include transition(border, 350ms, ease-out);
+    }
+
+    p {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    a {
+        text-align: center;
+        color: #fff;
+        white-space: nowrap;
+        @include transition(color, 350ms, ease-out);
+
+        &:hover {
+            color: $purple;
+
+            img {
+                border: solid 3px $purple;
+            }
+        }
+    }
+
+    .col-6 {
+        float: left;
+
+        @include min-yatayTablet {
+            padding: 0 !important;
+        }
+    }
+}

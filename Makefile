@@ -1,3 +1,5 @@
+.PHONY: docs
+
 # The binary to build (just the basename).
 MODULE := sadedegel
 
@@ -18,6 +20,10 @@ test:
 
 whl:
 	@python3 setup.py sdist bdist_wheel
+
+docs:
+	$(MAKE) -C docs html
+	@echo "\033[95m\n\nBuild successful! View the docs homepage at docs/_build/html/index.html.\n\033[0m"
 
 build-prod:
 	@echo "\n${BLUE}Building Production image with labels:\n"
@@ -63,4 +69,4 @@ lint:
 	@bandit -r --ini setup.cfg
 
 clean:
-	rm -rf .pytest_cache .coverage .pytest_cache coverage.xml build dist sadedegel.egg-info sadedegel/tokenize/ml/model/sbd.test.pickle
+	rm -rf .pytest_cache .coverage .pytest_cache coverage.xml build dist sadedegel.egg-info sadedegel/ml/model/sbd.test.pickle

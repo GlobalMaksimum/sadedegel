@@ -7,7 +7,7 @@ from smart_open import open
 import tarfile
 import glob
 from tqdm import tqdm
-from sadedegel.tokenize import Doc
+from sadedegel import Doc
 import json
 import sys
 
@@ -15,7 +15,7 @@ from ..util import safe_read
 from ._core import load_extended_metadata
 
 
-@click.group(help="Dataset commandline")
+@click.group(help="Extended Dataset commandline")
 def cli():
     pass
 
@@ -107,6 +107,7 @@ def sbd(data_home):
 @cli.command()
 @click.option("--data_home", '-d', help="Data home directory", default="~/.sadedegel_data")
 def metadata(data_home):
+    """Check extended dataset corpus metadata"""
     from pprint import pformat
 
     md = load_extended_metadata(data_home)

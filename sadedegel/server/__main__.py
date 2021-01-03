@@ -1,42 +1,55 @@
-from fastapi.openapi.utils import get_openapi
+from enum import Enum
 
-import uvicorn
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+import uvicorn
+
 from pydantic import BaseModel
 from pydantic.typing import List
 
-from sadedegel.tokenize import Doc, Sentences
+from sadedegel.bblock import Doc, Sentences
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer
+from sadedegel.about import __version__
+
 import click
 import numpy as np
-from sadedegel.about import __version__
-from enum import Enum
+
 from loguru import logger
 
 
 class TimeUnitEnum(str, Enum):
+    """Time unit is used to specify duration reader wants to spend in reading.
+    Together with wpm defines the summary length to be returned.
+    """
     SECOND = 'second'
     MINUTE = 'minute'
 
 
 class BasicRequest(BaseModel):
+    """Summarization request."""
     doc: str
     wpm: int = 170
 
 
 class Request(BasicRequest):
+    """Summarization request with duration added."""
     duration: int = 5
     unit: TimeUnitEnum = TimeUnitEnum.MINUTE
 
 
 class DocSummary(BaseModel):
+    """Document statistics summary.
+    Used by summarization service calculate front end material.
+    """
     sentence_count: int
     word_count: int
 
 
 class RichSummary(DocSummary):
+    """Enhanced statistics summary with reading duration."""
     wpm: int
     duration: float
     unit: TimeUnitEnum
@@ -49,6 +62,12 @@ class Response(BaseModel):
 
 
 class APIInfo(BaseModel):
+    """API Info including
+    Version installed
+    Maintainers email
+    sadedeGel website
+    Current pyPI version available
+    """
     version: str
     email: str
     website: str
@@ -86,18 +105,23 @@ app.add_middleware(
 
 
 def summary_filter(sents, scores, word_count, limit=None):
-    rank = np.argsort(scores)[::-1]
-    logger.info(rank)
+    if not (len(sents) == len(scores) and len(scores) == len(word_count)):
+        raise ValueError(
+            f"Length of sents ({len(sents)}), scores ({len(scores)}) and word_count ({len(word_count)}) should match.")
 
-    logger.info(limit)
+    rank = np.argsort(scores)[::-1]
 
     if limit:
-        return sents[rank[word_count[rank].cumsum() <= limit]]
+        selected_sents_idx = rank[word_count[rank].cumsum() <= limit]
     else:
-        return sents[rank]
+        selected_sents_idx = rank
+
+    selected_sents_idx.sort()  # sort in ascending order to preserve order
+
+    return [sents[i] for i in selected_sents_idx]
 
 
-@app.get('/')
+@app.get("/", include_in_schema=False)
 async def home():
     return RedirectResponse("http://sadedegel.ai")
 
@@ -116,14 +140,14 @@ def summarize(summarizer, sentences: List[Sentences], limit: float) -> Response:
     logger.info(scores)
     logger.info(word_count)
 
-    sentences_limited = summary_filter(np.array(sentences), scores, word_count, limit)
+    sentences_limited = summary_filter(sentences, scores, word_count, limit)
 
-    logger.info(sentences_limited.tolist())
+    logger.info(sentences_limited)
 
-    return Response(sentences=[s.text for s in sentences_limited.tolist()],
+    return Response(sentences=[sentences_limited[i].text for i in range(len(sentences_limited))],
                     original=DocSummary(sentence_count=len(sentences), word_count=word_count.sum()),
                     summary=DocSummary(sentence_count=len(sentences_limited),
-                                       word_count=np.array([len(s) for s in sentences_limited.tolist()],
+                                       word_count=np.array([len(s) for s in sentences_limited],
                                                            dtype=np.int).sum()))
 
 
@@ -151,6 +175,7 @@ async def random(req: Request):
     """
 
     sentences = Doc(req.doc).sents
+    logger.info(sentences)
 
     if req.unit == TimeUnitEnum.MINUTE:
         duration_in_min = req.duration
@@ -180,7 +205,7 @@ async def firstk(req: Request):
 
 @app.post("/api/summarizer/rouge1", tags=["Summarizer"],
           summary="Use unsupervised Rouge1 Summarizer")
-async def firstk(req: Request):
+async def rouge1(req: Request):
     """Baseline [Rouge1 Summarizer](https://github.com/GlobalMaksimum/sadedegel/tree/master/sadedegel/summarize/README.md)
 
             Rank sentences based on their rouge1 score in Document and return a list of sentences until number of total tokens is less than equal to `wpm x duration`

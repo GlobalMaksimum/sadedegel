@@ -2,10 +2,11 @@
 
 # SadedeGel: An extraction based Turkish news summarizer
 
-SadedeGel is a library for extraction-based news summarizer using pretrained BERT model.
+SadedeGel is a library for unsupervised extraction-based news summarization using several old and new NLP techniques.
+
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.8 out now!**
+💫 **Version 0.16 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -19,6 +20,8 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 ![Commit Week](https://img.shields.io/github/commit-activity/w/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 ![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 [![Binder](https://mybinder.org/badge_logo.svg?style=plastic)](https://mybinder.org/v2/gh/GlobalMaksimum/sadedegel.git/master?filepath=notebook%2FBasics.ipynb)
+[![Slack](https://img.shields.io/static/v1?logo=slack&style=plastic&color=blueviolet&label=slack&labelColor=grey&message=sadedegel)](https://join.slack.com/t/sadedegel/shared_invite/zt-h77u6aeq-VzEorB5QLHyJV90Fv4Ky3A)
+[![Kaggle](http://img.shields.io/static/v1?logo=kaggle&style=plastic&color=blue&label=kaggle&labelColor=grey&message=notebooks)](https://www.kaggle.com/search?q=sadedegel+in%3Anotebooks)
 
 
 ## 📖 Documentation
@@ -31,18 +34,25 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 
 ## 💬 Where to ask questions
 
-The SadedeGel project is maintained by [@globalmaksmum](https://github.com/GlobalMaksimum) AI team members
+The SadedeGel project is initialized by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
 [@dafajon](https://github.com/dafajon),
 [@askarbozcan](https://github.com/askarbozcan),
 [@mccakir](https://github.com/mccakir) and 
 [@husnusensoy](https://github.com/husnusensoy). 
 
+Other community maintainers
+
+* [@doruktiktiklar](https://github.com/doruktiktiklar) contributes [TFIDF Summarizer](sadedegel/summarize/tf_idf.py)
+
 | Type                     | Platforms                                              |
 | ------------------------ | ------------------------------------------------------ |
 | 🚨 **Bug Reports**       | [GitHub Issue Tracker]                                 |
 | 🎁 **Feature Requests**  | [GitHub Issue Tracker]                                 |
+| <img width="18" height="18" src="https://www.freeiconspng.com/uploads/slack-icon-2.png"/> **Questions**  | [Slack Workspace]                                 |
 
 [github issue tracker]: https://github.com/GlobalMaksimum/sadedegel/issues
+[Slack Workspace]: https://join.slack.com/t/sadedegel/shared_invite/zt-h77u6aeq-VzEorB5QLHyJV90Fv4Ky3A
+
 
 ## Features
 
@@ -65,11 +75,19 @@ The SadedeGel project is maintained by [@globalmaksmum](https://github.com/Globa
   
 * Various unsupervised/supervised summarizers
   * ROUGE1 Summarizer
+  * TextRank Summarizer
   * Cluster Summarizer
   * Supervised Summarizer
  
+* Various Word Tokenizers
+  * BERT Tokenizer - Trained tokenizer
+  * Simple Tokenizer - Regex Based (**Experimental**)
+  
+* Various Embeddings Implementation
+  * BERT Embeddings
+  * TfIdf Embeddings
 
-📖 **For more details, refere to [sadedegel.ai](http://sadedegel.ai)**
+📖 **For more details, refer to [sadedegel.ai](http://sadedegel.ai)**
 
 ## Install sadedeGel
 
@@ -102,28 +120,33 @@ pip install sadedegel
 To load SadedeGel, use `sadedegel.load()`
 
 ```python
-import sadedegel
-from sadedegel.dataset import load_sentence_corpus, load_raw_corpus
+from sadedegel import Doc
+from sadedegel.dataset import load_raw_corpus
+from sadedegel.summarize import Rouge1Summarizer
 
-nlp = sadedegel.load()
-tokenized = load_sentence_corpus()
 raw = load_raw_corpus()
 
-summary = nlp(raw[0])
-summary = nlp(tokenized[0], sentence_tokenizer=False)
+d = Doc(next(raw))
+
+summarizer = Rouge1Summarizer()
+summarizer(d, k=5)
 ```
 
-To use our ML based sentence boundary detector
+To trigger sadedeGel NLP pipeline, initialize `Doc` instance with a document string.
+
+Access all sentences using Python built-in `list` function.
 
 ```python
-from sadedegel.tokenize import Doc
+from sadedegel import Doc
 
-doc = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
+doc_str = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
 "daha büyük ölçekte. Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu. IBM 650 Model I adını taşıyan bilgisayarın "
 "satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı. Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı. "
 "Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.")
 
-Doc(doc).sents
+doc = Doc(doc_str)
+
+list(doc)
 ```
 ```python
 ['Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı.',
@@ -132,6 +155,16 @@ Doc(doc).sents
  'IBM 650 Model I adını taşıyan bilgisayarın satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı.',
  'Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı.',
  'Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.']
+```
+
+Access sentences by index.
+
+```python
+doc[2]
+```
+
+```python
+Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu.
 ```
 
 ## SadedeGel Server
@@ -174,7 +207,48 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 make test
 ```
 
+## 📓 Kaggle
+
+* Check [comprehensive notebook](https://www.kaggle.com/datafan07/clickbait-news-classification-using-sadedegel) of Kaggle Master [Ertugrul Demir](https://www.kaggle.com/datafan07) explaining the capabilities of sadedegel on Turkish clickbate dataset
+
+
+## Youtube Channel
+Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCyNG1Mehl44XWZ8LzkColuw)
+
+### SkyLab YTU Webinar Playlist
+
+[![Youtube](https://img.shields.io/youtube/likes/xoEERspk6Is?label=SadedeGel%20Subprojects%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=xoEERspk6Is)
+
+[![Youtube](https://img.shields.io/youtube/likes/HfWIzAwf5u8?label=SadedeGel%20Scraper%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=HfWIzAwf5u8)
+
+[![Youtube](https://img.shields.io/youtube/likes/PkUmYhahiMw?label=SadedeGel%20Evaluation-nDCG%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=PkUmYhahiMw)
+
+[![Youtube](https://img.shields.io/youtube/likes/AxpK7fOndRQ?label=SadedeGel%20Annotator%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=AxpK7fOndRQ)
+
+[![Youtube](https://img.shields.io/youtube/likes/jKh_t9ZOJ-g?label=SadedeGel%20Baseline%20Özetleyiciler%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=jKh_t9ZOJ-g)
+
+[![Youtube](https://img.shields.io/youtube/likes/3DO1X7de1FI?label=SadedeGel%20ROUGE1%20Özetleyici%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=3DO1X7de1FI)
+
+[![Youtube](https://img.shields.io/youtube/likes/KGg3DJQVH9c?label=SadedeGel%20Kümeleme%20Bazlı%20Özetleyiciler%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=KGg3DJQVH9c)
+
+[![Youtube](https://img.shields.io/youtube/likes/G_erifsGGFs?label=SadedeGel%20BERT%20Embeddings%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=G_erifsGGFs)
+
 ## References
+
+### Special Thanks
+
+* [Starlang Software](https://starlangyazilim.com/) for their contribution to open source Turkish NLP development and corpus preperation.
+
+* [Olcay Taner Yıldız, Ph.D.](https://github.com/olcaytaner), one of our refrees in [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/), for helping our development on sadedegel.
+
+* [Taner Sezer](https://github.com/tanerim) for his contribution on tokenization corpus and labeled news corpus.
+
+### Our Community Contributors
+
+We would like to thank our community contributors for their bug/enhancement requests and questions to make sadedeGel better everyday
+
+* [Burak Işıklı](https://github.com/burakisikli)
+
 ### Software Engineering
 * Special thanks to [spaCy](https://github.com/explosion/spaCy) project for their work in showing us the way to implement a proper python module rather than merely explaining it.
     * We have borrowed many document and style related stuff from their code base :smile:
@@ -186,7 +260,7 @@ make test
       * Automating our SLM via [Github Actions](https://github.com/features/actions)
   * [Google Cloud Google Storage Service](https://cloud.google.com/products/storage) for providing low cost storage buckets making it possible to store `sadedegel.dataset.extended` data.
   * [Heroku](https://heroku.com) for hosting [sadedeGel Server](https://sadedegel.herokuapp.com/api/info) in their free tier dynos.
-  * [CodeConv](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
+  * [CodeCov](https://codecov.io/) for allowing us to transparently share our [test coverage](https://codecov.io/gh/globalmaksimum/sadedegel)
   * [PyPI](https://pypi.org/) for allowing us to share [sadedegel](https://pypi.org/project/sadedegel) with you.
   * [binder](https://mybinder.org/) for 
      * Allowing us to share our example [notebooks](notebook/)
@@ -201,3 +275,4 @@ make test
 * Other NLP related references
 
     * [ROUGE: A Package for Automatic Evaluation of Summaries](https://www.aclweb.org/anthology/W04-1013.pdf)
+    * [Speech and Language Processing, Second Edition](https://web.stanford.edu/~jurafsky/slp3/)

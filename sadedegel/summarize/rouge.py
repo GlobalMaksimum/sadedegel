@@ -1,5 +1,7 @@
-import numpy as np
+from typing import List
+import numpy as np  # type: ignore
 from ._base import ExtractiveSummarizer
+from ..bblock import Sentences
 
 
 class Rouge1Summarizer(ExtractiveSummarizer):
@@ -13,17 +15,14 @@ class Rouge1Summarizer(ExtractiveSummarizer):
         Otherwise, return L2 normalized score vector.
     """
 
+    tags = ExtractiveSummarizer.tags + ['self-supervised', 'ml']
+
     def __init__(self, metric='f1', normalize=True):
-        self.normalize = normalize
+        super().__init__(normalize)
         if metric not in ['f1', 'precision', 'recall']:
-            raise Exception(f"mode should be one of 'f1', 'precision','recall'")
+            raise ValueError(f"mode should be one of 'f1', 'precision','recall'")
 
         self.metric = metric
 
-    def predict(self, sentences):
-        scores = np.array([sent.rouge1(self.metric) for sent in sentences])
-
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+    def _predict(self, sentences: List[Sentences]):
+        return np.array([sent.rouge1(self.metric) for sent in sentences])

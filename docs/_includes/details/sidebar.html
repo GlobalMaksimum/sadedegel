@@ -1,0 +1,52 @@
+<div id="side-bar">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="/sadedegel">
+            <img src="/sadedegel/assets/img/logo-2.png" alt="AI" />
+        </a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#side-menu"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+    <div
+        class="collapse navbar-collapse"
+        data-toggle="collapse"
+        data-target=".navbar-collapse.show"
+        id="side-menu"
+    >
+        {% for detail in site.details %} {% if detail.parent %}
+        <div class="list-group panel">
+            <a href="#{{detail.div_id}}" class="list-group-item active">
+                {{detail.title}}
+            </a>
+            <div
+                class="collapse show list-group-submenu"
+                id="{{detail.div_id}}"
+            >
+                {% for child in site.details %} {% if child.id contains
+                detail.id and child.id!=detail.id %}
+                <a
+                    href="#{{child.div_id}}"
+                    class="list-group-item"
+                    data-parent="#{{detail.div_id}}"
+                    >{{child.title}}</a
+                >
+                {% endif %} {% endfor %}
+            </div>
+        </div>
+        {% elsif detail.parent_name==nil %}
+        <a
+            href="#{{detail.div_id}}"
+            class="list-group-item"
+            data-parent="#MainMenu"
+            data-toggle="collapse"
+            data-target=".navbar-collapse.show"
+            >{{detail.title}}</a
+        >
+        {% endif %} {% endfor %}
+    </div>
+</div>

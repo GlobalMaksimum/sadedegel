@@ -90,6 +90,7 @@ ENV/
 
 .idea/
 .pytest_cache/
+.vscode/
 
 # Confidential
 credentials.*
@@ -109,4 +110,5 @@ config.env
 *.pem
 
 # model files
-sadedegel/tokenize/ml/model/sbd.test.pickle
+sadedegel/ml/model/sbd.test.pickle
+*.DS_Store
