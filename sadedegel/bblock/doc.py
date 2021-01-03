@@ -16,7 +16,7 @@ from ..metrics import rouge1_score
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
 from ..config import load_config
 from .word_tokenizer import WordTokenizer
-from .token import Token, IDF_METHOD_VALUES
+from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from ..about import __version__
 
 
@@ -163,29 +163,77 @@ TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM = "binary", "raw", "freq
 TF_METHOD_VALUES = [TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM]
 
 
-class Sentences:
+class TFImpl:
+    def __init__(self):
+        pass
+
+    def raw_tf(self):
+        v = np.zeros(len(self.vocabulary))
+
+        counter = Counter(self.tokens)
+
+        for token in self.tokens:
+            t = self.vocabulary[token]
+            if not t.is_oov:
+                v[t.id] = counter[token]
+
+        return v
+
+    def binary_tf(self):
+        return self.raw_tf().clip(max=1)
+
+    def freq_tf(self):
+        return self.raw_tf() / self.raw_tf().sum()
+
+    def log_norm_tf(self):
+        return np.log1p(self.raw_tf())
+
+    def double_norm_tf(self, k=0.5):
+        if not (0 < k < 1):
+            raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
+
+        return k + (1 - k) * (self.raw_tf() / self.raw_tf().max())
+
+    def get_tf(self, method=TF_BINARY, **kwargs):
+        if method == TF_BINARY:
+            return self.binary_tf()
+        elif method == TF_RAW:
+            return self.raw_tf()
+        elif method == TF_FREQ:
+            return self.freq_tf()
+        elif method == TF_LOG_NORM:
+            return self.log_norm_tf()
+        elif method == TF_DOUBLE_NORM:
+            return self.double_norm_tf(**kwargs)
+        else:
+            raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
+
+
+class Sentences(TFImpl, IDFImpl):
 
     def __init__(self, id_: int, text: str, doc, config: dict = {}):
+        TFImpl.__init__(self)
+        IDFImpl.__init__(self)
+
         self.id = id_
         self.text = text
 
         self._tokens = None
         self.document = doc
         self._bert = None
-        self.toks = None
 
         # No failback to config read in here because this will slow down sentence instantiation extremely.
-        tf_method = config['tf']['method']
+        self.tf_method = config['tf']['method']
 
-        if tf_method == TF_BINARY:
+        if self.tf_method == TF_BINARY:
             self.f_tf = self.binary_tf
-        elif tf_method == TF_RAW:
+        elif self.tf_method == TF_RAW:
             self.f_tf = self.raw_tf
-        elif tf_method == TF_FREQ:
+        elif self.tf_method == TF_FREQ:
             self.f_tf = self.freq_tf
-        elif tf_method == TF_LOG_NORM:
+        elif self.tf_method == TF_LOG_NORM:
             self.f_tf = self.log_norm_tf
-        elif tf_method == TF_DOUBLE_NORM:
+        elif self.tf_method == TF_DOUBLE_NORM:
             k = config.getfloat('tf', 'double_norm_k')
 
             if not 0 < k < 1:
@@ -235,45 +283,15 @@ class Sentences:
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
-    @property
-    def _doc_toks(self):
-        return dict(Counter([tok for sent in self.document for tok in sent.tokens]))
-
-    @property
-    def _doc_len(self):
-        return len([tok for sent in self.document for tok in sent.tokens])
-
     def tfidf(self):
         return self.tf * self.idf
+
+    def get_tfidf(self, tf_method, idf_method, **kwargs):
+        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
     @property
     def tf(self):
         return self.f_tf()
-
-    def binary_tf(self):
-        return self.raw_tf().clip(max=1)
-
-    def raw_tf(self):
-        v = np.zeros(len(self.vocabulary))
-
-        for token in self.tokens:
-            t = self.vocabulary[token]
-            if not t.is_oov:
-                v[t.id] = self._doc_toks[token]
-
-        return v
-
-    def freq_tf(self):
-        return self.raw_tf() / self.document.raw_tf().sum()
-
-    def log_norm_tf(self):
-        return np.log1p(self.raw_tf())
-
-    def double_norm_tf(self, k=0.5):
-        if not (0 < k < 1):
-            raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation")
-
-        return k + (1 - k) * (self.raw_tf() / self.document.raw_tf().max())
 
     @property
     def idf(self):
@@ -306,13 +324,27 @@ class Sentences:
             yield self.vocabulary[t]
 
 
-class Document:
+class Document(TFImpl, IDFImpl):
     def __init__(self, raw, builder):
+        TFImpl.__init__(self)
+        IDFImpl.__init__(self)
+
         self.raw = raw
         self.spans = []
         self._sents = []
+        self._tokens = None
         self._bert = None
         self.builder = builder
+
+    @property
+    def tokens(self):
+        if self._tokens is None:
+            self._tokens = []
+            for s in self:
+                for t in s.tokens:
+                    self._tokens.append(t)
+
+        return self._tokens
 
     @property
     def vocabulary(self):
@@ -403,6 +435,11 @@ class Document:
 
     @property
     def tfidf_embeddings(self):
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                "Doc.tfidf_embeddings is deprecated and will be removed by 0.18. "
+                , DeprecationWarning,
+                stacklevel=2)
 
         indptr = [0]
         indices = []
@@ -421,48 +458,35 @@ class Document:
 
     @property
     def tf(self):
-        indptr = [0]
-        indices = []
-        data = []
-        for i in range(len(self)):
-            _tf = self[i].tf
-            for idx in _tf.nonzero()[0]:
-                indices.append(idx)
-                data.append(_tf[idx])
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("Doc.tf is deprecated and will be removed by 0.18. "
+                 "Use get_tf function instead."), DeprecationWarning,
+                stacklevel=2)
 
-            indptr.append(len(indices))
+        return self.get_tf(self.builder.config['tf']['method'])
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
-
-        return m.max(axis=0)
-
-    def raw_tf(self):
-        v = np.zeros(len(self.vocabulary))
-
-        for s in self:
-            v += s.raw_tf()
-
-        return v
+    def get_tfidf(self, tf_method, idf_method, **kwargs):
+        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
     @property
     def idf(self):
-        indptr = [0]
-        indices = []
-        data = []
-        for i in range(len(self.sents)):
-            idf = self.sents[i].idf
-            for idx in idf.nonzero()[0]:
-                indices.append(idx)
-                data.append(idf[idx])
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("Doc.idf is deprecated and will be removed by 0.18. "
+                 "Use get_idf function instead."), DeprecationWarning,
+                stacklevel=2)
 
-            indptr.append(len(indices))
-
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
-
-        return m.max(axis=0)
+        return self.get_idf(self.builder.config['idf']['method'])
 
     def tfidf(self):
-        return self.tf.multiply(self.idf)
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("Doc.tfidf is deprecated and will be removed by 0.18. "
+                 "Use get_tfidf function instead."), DeprecationWarning,
+                stacklevel=2)
+
+        return csr_matrix((self.tf * self.idf).reshape(1, -1))
 
     def from_sentences(self, sentences: List[str]):
         return self.builder.from_sentences(sentences)
@@ -484,7 +508,7 @@ class DocBuilder:
         if idf_method in IDF_METHOD_VALUES:
             Token.config = self.config
         else:
-            raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {','.join(idf_method)}")
+            raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {','.join(IDF_METHOD_VALUES)}")
 
     def __call__(self, raw):
 

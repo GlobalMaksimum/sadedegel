@@ -1,11 +1,36 @@
 import unicodedata
 
 from math import log
+import numpy as np
 from .util import tr_lower
 from ..config import configuration
 
 IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
 IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
+
+
+class IDFImpl:
+    def __init__(self):
+        pass
+
+    def get_idf(self, method=IDF_SMOOTH, **kwargs):
+        v = np.zeros(len(self.vocabulary))
+
+        if method == IDF_SMOOTH:
+            for token in self.tokens:
+                t = self.vocabulary[token]
+                if not t.is_oov:
+                    v[t.id] = t.smooth_idf
+
+        elif method == IDF_PROBABILISTIC:
+            for token in self.tokens:
+                t = self.vocabulary[token]
+                if not t.is_oov:
+                    v[t.id] = t.prob_idf
+        else:
+            raise ValueError(f"Unknown idf method ({method}). Choose one of {dir(IDF_METHOD_VALUES)}")
+
+        return v
 
 
 def word_shape(text):
