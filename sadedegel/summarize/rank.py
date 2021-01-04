@@ -6,7 +6,8 @@ from ._base import ExtractiveSummarizer
 from ..bblock import Sentences
 from ..config import tokenizer_context
 from lexrank import LexRank
-from ..dataset import load_stopwords, load_raw_corpus
+from ..dataset import load_raw_corpus
+from ..bblock.util import load_stopwords
 
 from .util.power_method import degree_centrality_scores
 from ..bblock.doc import TF_RAW, TF_FREQ, TF_BINARY, TF_LOG_NORM, TF_DOUBLE_NORM

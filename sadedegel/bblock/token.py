@@ -2,9 +2,8 @@ import unicodedata
 
 from math import log
 import numpy as np
-from .util import tr_lower
+from .util import tr_lower, load_stopwords
 from ..config import configuration
-from ..dataset import load_stopwords
 
 IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
 IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]

@@ -2,6 +2,8 @@ from typing import List
 import numpy as np
 import warnings
 from collections import defaultdict
+from os.path import dirname
+from pathlib import Path
 
 __tr_upper__ = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
 __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
@@ -139,3 +141,18 @@ def to_config_dict(kw: dict):
             d[section][key] = v
 
     return d
+
+
+def load_stopwords(base_path=None):
+    """ Return Turkish stopwords as list from file. """
+    if base_path is None:
+        base_path = dirname(__file__)
+
+    text_path = Path(base_path) / "data" / "stop-words.txt"
+
+    with open(text_path, "r") as fp:
+        stopwords = fp.readlines()
+
+    stopwords = [s.rstrip() for s in stopwords]
+
+    return stopwords

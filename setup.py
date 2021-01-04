@@ -25,7 +25,7 @@ setup(
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
-        'sadedegel.bblock': ['data/vocabulary.json'],
+        'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
     # Needed for dependencies
