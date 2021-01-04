@@ -167,44 +167,59 @@ class TFImpl:
     def __init__(self):
         pass
 
-    def raw_tf(self):
+    def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False):
         v = np.zeros(len(self.vocabulary))
 
-        counter = Counter(self.tokens)
+        if lowercase:
+            tokens = [tr_lower(t) for t in self.tokens]
+        else:
+            tokens = self.tokens
 
-        for token in self.tokens:
+        counter = Counter(tokens)
+
+        for token in tokens:
             t = self.vocabulary[token]
-            if not t.is_oov:
-                v[t.id] = counter[token]
+            if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
+                    drop_punct and t.is_punct):
+                continue
+
+            v[t.id] = counter[token]
 
         return v
 
-    def binary_tf(self):
-        return self.raw_tf().clip(max=1)
+    def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
-    def freq_tf(self):
-        return self.raw_tf() / self.raw_tf().sum()
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
+        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / self.raw_tf(drop_stopwords, lowercase,
+                                                                                             drop_prefix,
+                                                                                             drop_punct).sum()
 
-    def log_norm_tf(self):
-        return np.log1p(self.raw_tf())
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
+        return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
-    def double_norm_tf(self, k=0.5):
+    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
-        return k + (1 - k) * (self.raw_tf() / self.raw_tf().max())
+        return k + (1 - k) * (
+                self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / self.raw_tf(drop_stopwords,
+                                                                                              lowercase,
+                                                                                              drop_prefix,
+                                                                                              drop_punct).max())
 
-    def get_tf(self, method=TF_BINARY, **kwargs):
+    def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
+               **kwargs):
         if method == TF_BINARY:
-            return self.binary_tf()
+            return self.binary_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
         elif method == TF_RAW:
-            return self.raw_tf()
+            return self.raw_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
         elif method == TF_FREQ:
-            return self.freq_tf()
+            return self.freq_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
         elif method == TF_LOG_NORM:
-            return self.log_norm_tf()
+            return self.log_norm_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
         elif method == TF_DOUBLE_NORM:
-            return self.double_norm_tf(**kwargs)
+            return self.double_norm_tf(drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
         else:
             raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
 
@@ -241,7 +256,8 @@ class Sentences(TFImpl, IDFImpl):
                     f"Invalid k value {k} for double norm term frequency. Values should be between 0 and 1.")
             self.f_tf = partial(self.double_norm_tf, k=k)
         else:
-            raise ValueError(f"Unknown term frequency method {tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
+            raise ValueError(
+                f"Unknown term frequency method {self.tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
 
     @property
     def tokenizer(self):
@@ -286,8 +302,10 @@ class Sentences(TFImpl, IDFImpl):
     def tfidf(self):
         return self.tf * self.idf
 
-    def get_tfidf(self, tf_method, idf_method, **kwargs):
-        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
+    def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
+                  drop_punct=False, **kwargs):
+        return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
+            idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
     @property
     def tf(self):

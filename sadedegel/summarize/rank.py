@@ -8,6 +8,10 @@ from ..config import tokenizer_context
 from lexrank import LexRank
 from ..dataset import load_stopwords, load_raw_corpus
 
+from .util.power_method import degree_centrality_scores
+from ..bblock.doc import TF_RAW, TF_FREQ, TF_BINARY, TF_LOG_NORM, TF_DOUBLE_NORM
+from ..bblock.token import IDF_PROBABILISTIC, IDF_SMOOTH
+
 
 class TextRank(ExtractiveSummarizer):
     """Assign a higher importance score to longer sentences.
@@ -84,8 +88,55 @@ class LexRankSummarizer(ExtractiveSummarizer):
             fast_power_method=False,
         )
 
-        scores = np.array(scores)
-        if self.normalize:
-            return scores / scores.sum()
-        else:
-            return scores
+        return np.array(scores)
+
+
+class LexRankPureSummarizer(ExtractiveSummarizer):
+    """
+        Unsupervised summarizer which just like Rouge1 summarizer
+        uses sentence's similarity to other sentences.
+    """
+
+    tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph9']
+
+    def __init__(self, normalize=True, tf_method=None, idf_method=None, threshold=.03, fast_power_method=True,
+                 **kwargs):
+        super().__init__(normalize)
+
+        self.tf_method = tf_method
+        self.idf_method = idf_method
+
+        if not (threshold is None or isinstance(threshold, float) and 0 <= threshold < 1):
+            raise ValueError("'threshold' should be a floating-point number from the interval [0, 1) or None")
+
+        self.threshold = threshold
+        self.fast_power_method = fast_power_method
+
+    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
+        similarity_matrix = np.zeros((len(sentences), len(sentences)))
+
+        for i in range(len(sentences)):
+            for j in range(len(sentences)):
+                if i == j:
+                    continue
+
+                s1 = sentences[i]
+                s2 = sentences[j]
+
+                similarity_matrix[i][j] = \
+                    cosine_similarity(s1.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=True, lowercase=True,
+                                                   drop_suffix=True,
+                                                   drop_punct=True).reshape(1, -1),
+                                      s2.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=True, lowercase=True,
+                                                   drop_suffix=True,
+                                                   drop_punct=True).reshape(1,
+                                                                            -1))[
+                        0, 0]
+
+        scores = degree_centrality_scores(
+            similarity_matrix,
+            threshold=self.threshold,
+            increase_power=self.fast_power_method,
+        )
+
+        return scores

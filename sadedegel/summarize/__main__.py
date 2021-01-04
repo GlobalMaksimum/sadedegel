@@ -13,7 +13,8 @@ from sklearn.metrics import ndcg_score  # type: ignore
 from sadedegel.dataset import load_annotated_corpus
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, Rouge1Summarizer, KMeansSummarizer, \
     AutoKMeansSummarizer, \
-    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, LexRankSummarizer, TFIDFSummarizer, BandSummarizer
+    DecomposedKMeansSummarizer, LengthSummarizer, TextRank, LexRankSummarizer, LexRankPureSummarizer, TFIDFSummarizer, \
+    BandSummarizer
 from sadedegel import Sentences
 from sadedegel.bblock import DocBuilder
 from sadedegel import tokenizer_context
@@ -43,7 +44,8 @@ SUMMARIZERS = [('Random Summarizer', RandomSummarizer()), ('FirstK Summarizer', 
                ("TextRank(0.85) Summarizer (BERT)", TextRank(alpha=0.85)),
                ("TextRank(0.9) Summarizer (BERT)", TextRank(alpha=0.9)),
                ("TextRank(0.95) Summarizer (BERT)", TextRank(alpha=0.95)),
-               ("LexRank Summarizer", LexRankSummarizer())]
+               ("LexRank Summarizer", LexRankSummarizer()),
+               ("LexRankPure Summarizer", LexRankPureSummarizer(tf_method="raw", idf_method="probabilistic"))]
 
 
 def to_sentence_list(sents: List[str]) -> List[Sentences]:

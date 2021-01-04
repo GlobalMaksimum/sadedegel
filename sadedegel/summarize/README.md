@@ -80,6 +80,7 @@ ground truth human annotation (Best possible total `relevance` score that can be
 | TFIDF Summarizer (tf=double_norm, double_norm_k=0.5, idf=probabilistic, tokenizer=bert)  |        0.6704 |        0.7372 |        0.8338 |
 | TFIDF Summarizer (tf=double_norm, double_norm_k=0.75, idf=probabilistic, tokenizer=bert) |        0.6706 |        0.7374 |        0.8343 |
 | LexRank Summarizer - bert |        0.6293 |        0.6894 |        0.7948 |
+| LexRankPure Summarizer - bert |        0.6709 |        0.7147 |        0.8186 |
 
 #### Release 0.15
 

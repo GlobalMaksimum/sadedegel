@@ -4,6 +4,7 @@ from math import log
 import numpy as np
 from .util import tr_lower
 from ..config import configuration
+from ..dataset import load_stopwords
 
 IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
 IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
@@ -13,22 +14,29 @@ class IDFImpl:
     def __init__(self):
         pass
 
-    def get_idf(self, method=IDF_SMOOTH, **kwargs):
+    def get_idf(self, method=IDF_SMOOTH, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
+                **kwargs):
+
+        if method not in IDF_METHOD_VALUES:
+            raise ValueError(f"Unknown idf method ({method}). Choose one of {IDF_METHOD_VALUES}")
+
         v = np.zeros(len(self.vocabulary))
 
-        if method == IDF_SMOOTH:
-            for token in self.tokens:
-                t = self.vocabulary[token]
-                if not t.is_oov:
-                    v[t.id] = t.smooth_idf
-
-        elif method == IDF_PROBABILISTIC:
-            for token in self.tokens:
-                t = self.vocabulary[token]
-                if not t.is_oov:
-                    v[t.id] = t.prob_idf
+        if lowercase:
+            tokens = [tr_lower(t) for t in self.tokens]
         else:
-            raise ValueError(f"Unknown idf method ({method}). Choose one of {dir(IDF_METHOD_VALUES)}")
+            tokens = self.tokens
+
+        for token in tokens:
+            t = self.vocabulary[token]
+            if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
+                    drop_punct and t.is_punct):
+                continue
+
+            if method == IDF_SMOOTH:
+                v[t.id] = t.smooth_idf
+            else:
+                v[t.id] = t.prob_idf
 
         return v
 
@@ -62,6 +70,7 @@ def word_shape(text):
 
 class Token:
     config = None
+    STOPWORDS = None
     cache = {}
 
     def __init__(self, entry):
@@ -75,6 +84,7 @@ class Token:
             self.lower_ = tr_lower(self.word)
             self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
             self.is_digit = self.word.isdigit()
+            self.is_suffix = self.word.startswith('##')
             self.shape = word_shape(self.word)
 
             self._entry = None
@@ -85,6 +95,7 @@ class Token:
             self.lower_ = tr_lower(self.word)
             self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
             self.is_digit = self.word.isdigit()
+            self.is_suffix = self.word.startswith('##')
             self.shape = word_shape(self.word)
 
             self._entry = entry
@@ -118,6 +129,13 @@ class Token:
     @property
     def is_oov(self):
         return self.id == -1
+
+    @property
+    def is_stopword(self):
+        if Token.STOPWORDS is None:
+            Token.STOPWORDS = set(load_stopwords())
+
+        return self.lower_ in Token.STOPWORDS
 
     @property
     def df(self):
