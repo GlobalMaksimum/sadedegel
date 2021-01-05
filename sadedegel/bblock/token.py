@@ -2,7 +2,6 @@ import unicodedata
 
 from math import log
 from .util import tr_lower
-from ..config import configuration
 
 IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
 IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]

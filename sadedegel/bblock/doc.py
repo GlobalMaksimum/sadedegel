@@ -484,7 +484,7 @@ class DocBuilder:
         if idf_method in IDF_METHOD_VALUES:
             Token.config = self.config
         else:
-            raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {','.join(idf_method)}")
+            raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {IDF_METHOD_VALUES}")
 
     def __call__(self, raw):
 
