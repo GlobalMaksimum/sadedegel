@@ -40,5 +40,5 @@ def test_idf_setting():
 
 def test_invalid_idf_method():
     with raises(Exception, match=r"Unknown term frequency method.*"):
-        with idf_context("plain") as Doc:
+        with idf_context("plain") as _:
             pass

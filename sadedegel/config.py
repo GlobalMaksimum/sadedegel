@@ -7,14 +7,14 @@ from configparser import ConfigParser
 from pathlib import Path
 from os.path import dirname
 import warnings
-from .about import __version__
-
 from rich.console import Console
 from rich.table import Table
 
+from .about import __version__
 
-def set_config(config: str, value: Any):
-    if tuple(map(int, __version__.split('.'))) < (0, 18):
+
+def set_config(config: str, value: Any):  # pylint: disable=unused-argument
+    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
         raise DeprecationWarning(
             "set_config is deprecated with 0.16. Use *_context functions for runtime configuration changes.")
     else:
@@ -46,22 +46,22 @@ def idf_context(idf_type, warning=False):  # pylint: disable=unused-argument
 
 
 @contextmanager
-def tf_context(tf_type, warning=False):
+def tf_context(tf_type, warning=False):  # pylint: disable=unused-argument
     from .bblock import DocBuilder  # pylint: disable=import-outside-toplevel
 
     yield DocBuilder(tf__method=tf_type)
 
 
-def get_config(config: str):  # pylint: disable=inconsistent-return-statements
-    if tuple(map(int, __version__.split('.'))) < (0, 18):
+def get_config(config: str):  # pylint: disable=unused-argument
+    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
         raise DeprecationWarning(
             "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
     else:
         raise Exception("get_config function should be removed.")
 
 
-def describe_config(config: str, print_desc=False):  # pylint: disable=inconsistent-return-statements
-    if tuple(map(int, __version__.split('.'))) < (0, 18):
+def describe_config(config: str, print_desc=False):  # pylint: disable=unused-argument
+    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
         raise DeprecationWarning(
             "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
     else:
@@ -69,7 +69,7 @@ def describe_config(config: str, print_desc=False):  # pylint: disable=inconsist
 
 
 def get_all_configs():
-    if tuple(map(int, __version__.split('.'))) < (0, 18):
+    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
         raise DeprecationWarning(
             "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
     else:
