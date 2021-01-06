@@ -352,6 +352,7 @@ class Document(TFImpl, IDFImpl):
         self._sents = []
         self._tokens = None
         self._bert = None
+        self._parent_sentence_ix = []
         self.builder = builder
 
     @property
@@ -401,7 +402,7 @@ class Document(TFImpl, IDFImpl):
 
     def max_length(self):
         """Maximum length of a sentence including special symbols."""
-        return max(len(s.tokens_with_special_symbols) for s in self._sents)
+        return min(512, max(len(s.tokens_with_special_symbols) for s in self._sents))
 
     def padded_matrix(self, return_numpy=False, return_mask=True):
         """Returns a 0 padded numpy.array or torch.tensor
@@ -415,8 +416,25 @@ class Document(TFImpl, IDFImpl):
         max_len = self.max_length()
 
         if not return_numpy:
-            mat = torch.tensor([pad(s.input_ids, max_len) for s in self])
-
+            # mat = torch.tensor([pad(s.input_ids, max_len) for s in self])
+            mat = []
+            for i, s in enumerate(self):
+                diff = len(s.input_ids) - max_len
+                if diff > 0:
+                    if self.builder.exceeding_sentence_method == 'slide':
+                        for n in range(diff):
+                            mat.append(s.input_ids[0+n:512+n])  # append sliding window
+                            self._parent_sentence_ix.append(i)
+                    elif self.builder.exceeding_sentence_method == 'slice':
+                        n_segments = len(s.input_ids)//512 + 1
+                        for n in range(n_segments):
+                            mat.append(s.input_ids[512*n:512*(n+1)] if n+1 != n_segments else  # append sliced
+                                       pad(s.input_ids[512*n:], max_len))
+                            self._parent_sentence_ix.append(i)
+                else:
+                    mat.append(pad(s.input_ids, max_len))  # append padded
+                    self._parent_sentence_ix.append(i)
+            mat = torch.tensor(mat)
             if return_mask:
                 return mat, (mat > 0).to(int)
             else:
@@ -520,6 +538,8 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        self.exceeding_sentence_method = self.config['exceeding_sentence']['method']
 
         idf_method = self.config['idf']['method']
 
