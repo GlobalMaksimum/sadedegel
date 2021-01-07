@@ -6,6 +6,7 @@ from rich.progress import track
 from itertools import tee, islice
 from random import randint
 
+import pytest
 from pytest import raises
 
 BATCH_SIZE = 10
@@ -19,6 +20,7 @@ def test_pipeline_training():
     pipeline.fit(X, [randint(0, 1) for _ in range(len(X))])
 
 
+@pytest.mark.skip()
 def test_online_pipeline_training():
     pipeline = OnlinePipeline([('sg_tfidf', TfidfVectorizer()),
                                ('lr', SGDClassifier())])
@@ -38,7 +40,7 @@ def test_online_pipeline_training():
 
     pipeline.partial_fit(batch, [1 for _ in range(len(batch))])
 
-
+@pytest.mark.skip()
 def test_online_pipeline_training_divisable_batch():
     pipeline = OnlinePipeline([('sg_tfidf', TfidfVectorizer()),
                                ('lr', SGDClassifier())])
