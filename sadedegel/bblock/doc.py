@@ -423,17 +423,18 @@ class Document(TFImpl, IDFImpl):
                 if diff > 0:
                     if self.builder.exceeding_sentence_method == 'slide':
                         for n in range(diff):
-                            mat.append(s.input_ids[0+n:512+n])  # append sliding window
+                            mat.append(s.input_ids[0+n:512+n])  # append sliding window separated sentence
                             self._parent_sentence_ix.append(i)
                     elif self.builder.exceeding_sentence_method == 'slice':
                         n_segments = len(s.input_ids)//512 + 1
                         for n in range(n_segments):
-                            mat.append(s.input_ids[512*n:512*(n+1)] if n+1 != n_segments else  # append sliced
+                            mat.append(s.input_ids[512*n:512*(n+1)] if n+1 != n_segments else  # append sliced sentence
                                        pad(s.input_ids[512*n:], max_len))
                             self._parent_sentence_ix.append(i)
                 else:
-                    mat.append(pad(s.input_ids, max_len))  # append padded
+                    mat.append(pad(s.input_ids, max_len))  # append padded non-divided sentence
                     self._parent_sentence_ix.append(i)
+            logger.info(str(self._parent_sentence_ix))
             mat = torch.tensor(mat)
             if return_mask:
                 return mat, (mat > 0).to(int)
@@ -466,6 +467,12 @@ class Document(TFImpl, IDFImpl):
             twelve_layers = outputs[2][1:]
 
             self._bert = select_layer(twelve_layers, [11], return_cls=False)
+
+            if self._parent_sentence_ix:
+                self._bert = \
+                    np.vstack([self._bert[np.where(np.array(self._parent_sentence_ix) == parent_sentence_index)[0]]
+                              .mean(axis=0) for
+                               parent_sentence_index in sorted(set(self._parent_sentence_ix))])
 
         return self._bert
 

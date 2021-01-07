@@ -46,9 +46,11 @@ def test_bert_embedding_exceed(exceeding_sentence_method):
         d = Doc2("merhaba " * 514 + ".")
 
         if exceeding_sentence_method == 'slide':
-            assert d.bert_embeddings.shape == (5, 768)
+            assert d.bert_embeddings.shape == (1, 768)
+            assert len(d._parent_sentence_ix) == 5
         elif exceeding_sentence_method == 'slice':
-            assert d.bert_embeddings.shape == (2, 768)
+            assert d.bert_embeddings.shape == (1, 768)
+            assert len(d._parent_sentence_ix) == 2
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
