@@ -15,6 +15,20 @@ def check_type(X):
         raise ValueError(f"X should be an iterable string (documents)")
 
 
+import numpy as np
+from sklearn.pipeline import Pipeline
+
+
+class OnlinePipeline(Pipeline):
+    def partial_fit(self, X, y=None, **kwargs):
+        for i, step in enumerate(self.steps):
+            name, est = step
+            est.partial_fit(X, y, **kwargs)
+            if i < len(self.steps) - 1:
+                X = est.transform(X)
+        return self
+
+
 class TfidfVectorizer(BaseEstimator, TransformerMixin):
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True, lowercase=True,
                  drop_suffix=True, drop_punct=True):
@@ -28,6 +42,9 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         return self
 
+    def partial_fit(self, X, y=None, **kwargs):
+        return self
+
     def transform(self, X, y=None):
         if isinstance(X, list):
             check_type(X)
@@ -37,6 +54,9 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
 
             check_type(X1)
             n_total = sum((1 for _ in X2))
+
+        if n_total == 0:
+            raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
 
         with config_context(tokenizer="bert") as Doc:
             indptr = [0]

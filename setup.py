@@ -19,7 +19,7 @@ setup(
     name='sadedegel',
     # Needed to actually package something
     packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
-              'sadedegel.summarize.util',
+              'sadedegel.summarize.util', 'sadedegel.extension',
               'sadedegel.tokenize', 'sadedegel.ml',
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
