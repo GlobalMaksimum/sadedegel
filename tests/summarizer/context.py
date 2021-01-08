@@ -10,3 +10,4 @@ from sadedegel.summarize import TextRank  # noqa # pylint: disable=unused-import
 from sadedegel.summarize import TFIDFSummarizer # noqa # pylint: disable=unused-import
 from sadedegel import Doc, set_config, tokenizer_context # noqa # pylint: disable=unused-import, wrong
 from sadedegel.bblock import BertTokenizer, SimpleTokenizer # noqa # pylint: disable=unused-import, wrong
+from sadedegel.config import tf_context # noqa # pylint: disable=unused-import, wrong

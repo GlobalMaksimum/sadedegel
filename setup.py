@@ -18,15 +18,15 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended',
-              'sadedegel.dataset.tokenization',
-              'sadedegel.summarize',
+    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
+              'sadedegel.summarize.util', 'sadedegel.extension',
               'sadedegel.tokenize', 'sadedegel.ml',
               'sadedegel.server', 'sadedegel.metrics'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
-        'sadedegel.bblock': ['data/vocabulary.json']
+        'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
+        'sadedegel': ['default.ini']
     },
     # Needed for dependencies
     install_requires=install_requires,
