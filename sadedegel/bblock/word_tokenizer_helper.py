@@ -31,7 +31,7 @@ date_2_re = re.compile(
     r'\b(?P<day>0?[0-9]|1[0-9]|2[0-9]|3[01])(?:\s+|[:\-\./])(?P<month>(?:1[0-2]|0?[1-9]))(?:\s+|[:\-\./])(?P<year>\d{4})',
     flags=re.IGNORECASE)
 space = re.compile(r"\s+")
-token_re = re.compile(r"[@]?[a-zA-ZşŞiİıIğĞüÜöÖçÇ0-9]+|[\.]")
+token_re = re.compile(r"[@]?[a-zA-ZşŞiİıIğĞüÜöÖçÇ0-9]+|[\.]+|[\u263a-\U0001f645]")
 
 puncts = string.punctuation + '”“’‘…'
 

@@ -17,3 +17,5 @@ tabulate==0.8.7
 
 rich
 lexrank
+
+emoji>=0.4.5,<1.0.0
