@@ -17,9 +17,9 @@ import warnings
 def build_vocabulary(max_doc, min_df, word_tokenizer):
     """Build vocabulary"""
 
-    if tuple(map(int, __version__.split('.'))) < (0, 17):
+    if tuple(map(int, __version__.split('.'))) < (0, 18):
         warnings.warn(
-            ("sadedegel.bblock.__main__ is deprecated and will be dropped by release 0.17."
+            ("sadedegel.bblock.__main__ is deprecated and will be dropped by release 0.18."
              " Please use sadedegel.bblock.cli tokenizer-evaluate"),
             DeprecationWarning,
             stacklevel=2)
