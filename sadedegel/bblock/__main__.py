@@ -1,12 +1,12 @@
-from tqdm import tqdm
-from collections import defaultdict
-from itertools import islice
+from rich.progress import track
+from itertools import islice, tee
 import click
 
-from .doc import DocBuilder
 from ..dataset.extended import load_extended_sents_corpus
-from .util import tr_lower
+from ..config import tokenizer_context
 from .vocabulary import Vocabulary
+from ..about import __version__
+import warnings
 
 
 @click.command()
@@ -15,29 +15,43 @@ from .vocabulary import Vocabulary
 @click.option('--word-tokenizer', type=click.Choice(['bert'], case_sensitive=False),
               help="Word tokenizer to be used in building vocabulary.", default='bert')
 def build_vocabulary(max_doc, min_df, word_tokenizer):
-    """Build vocabulary.
-    """
+    """Build vocabulary"""
+
+    if tuple(map(int, __version__.split('.'))) < (0, 17):
+        warnings.warn(
+            ("sadedegel.bblock.__main__ is deprecated and will be dropped by release 0.17."
+             " Please use sadedegel.bblock.cli tokenizer-evaluate"),
+            DeprecationWarning,
+            stacklevel=2)
+    else:
+        raise Exception("Remove sadedegel.bblock.__main__ before release.")
+
     if max_doc > 0:
         corpus = islice(load_extended_sents_corpus(), max_doc)
     else:
         corpus = load_extended_sents_corpus()
 
+    corpus, replica = tee(corpus, 2)
+    total = sum(1 for _ in replica)
+
     vocab = Vocabulary.factory(word_tokenizer)
 
     click.secho(click.style(f"...Frequency calculation over extended dataset", fg="blue"))
 
-    for i, d in tqdm(enumerate(corpus), unit=" doc"):
-        doc = DocBuilder(word_tokenizer).from_sentences(d['sentences'])
+    with tokenizer_context(word_tokenizer) as Doc:
+        for i, d in track(enumerate(corpus), total=max_doc if max_doc > 0 else total,
+                          description="Building vocabulary..."):
+            doc = Doc.from_sentences(d['sentences'])
 
-        for sent in doc:
-            for word in sent.tokens:
-                vocab.add_word_to_doc(word, i)
+            for sent in doc:
+                for word in sent.tokens:
+                    vocab.add_word_to_doc(word, i)
 
     vocab.build(min_df)
     vocab.save()
 
     click.secho(click.style(f"Total documents {vocab.document_count}", fg="blue"))
-    click.secho(click.style(f"Vocabulary size {len(vocab)} (words occured more than {min_df} documents)", fg="blue"))
+    click.secho(click.style(f"Vocabulary size {len(vocab)} (words occurred more than {min_df} documents)", fg="blue"))
 
 
 if __name__ == '__main__':
