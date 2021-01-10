@@ -24,3 +24,7 @@ from sadedegel.dataset.tscorpus import CATEGORIES
 
 y_pred_label = [CATEGORIES.index(_y_pred) for _y_pred in y_pred]
 ```
+
+#### Accuracy
+
+Current prebuilt model has an average class prediction cv-3 accuracy of `0.746` 
