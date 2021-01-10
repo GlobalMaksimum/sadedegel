@@ -11,7 +11,7 @@ import boto3
 
 from loguru import logger
 
-from ._core import load_tokenization_tokenized, load_tokenization_raw, CORPUS_SIZE, tok_eval, tarballs
+from ._core import load_tokenization_tokenized, load_tokenization_raw, CORPUS_SIZE, tarballs
 
 from rich.console import Console
 from rich.table import Table
