@@ -372,20 +372,8 @@ class Document(TFImpl, IDFImpl):
     def tokenizer(self):
         return self.builder.tokenizer
 
-    @property
-    def sents(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 17):
-            warnings.warn(
-                ("Doc.sents is deprecated and will be removed by 0.17. "
-                 "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
-                stacklevel=2)
-        else:
-            raise Exception("Remove .sent before release.")
-
-        return self._sents
-
-    def __getitem__(self, sent_idx):
-        return self._sents[sent_idx]
+    def __getitem__(self, key):
+        return self._sents[key]
 
     def __iter__(self):
         return iter(self._sents)
