@@ -31,13 +31,14 @@ class OnlinePipeline(Pipeline):
 
 class TfidfVectorizer(BaseEstimator, TransformerMixin):
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True, lowercase=True,
-                 drop_suffix=True, drop_punct=True):
+                 drop_suffix=True, drop_punct=True, show_progress=True):
         self.tf_method = tf_method
         self.idf_method = idf_method
         self.lowercase = lowercase
         self.drop_suffix = drop_suffix
         self.drop_stopwords = drop_stopwords
         self.drop_punct = drop_punct
+        self.show_progress = show_progress
 
     def fit(self, X, y=None):
         return self
@@ -62,7 +63,8 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
             indptr = [0]
             indices = []
             data = []
-            for doc in track(X, total=n_total, description="Transforming corpus", update_period=1):
+            for doc in track(X, total=n_total, description="Transforming corpus", update_period=1,
+                             disable=not self.show_progress):
                 d = Doc(doc)
                 n_vocabulary = len(d.builder.tokenizer.vocabulary)
                 tfidf = d.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
