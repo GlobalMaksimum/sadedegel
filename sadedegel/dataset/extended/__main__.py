@@ -95,7 +95,7 @@ def sbd(data_home):
 
                         with open(target, 'w') as wp:
                             json.dump(
-                                dict(sentences=[s.text for s in d.sents], rouge1=[s.rouge1("f1") for s in d.sents]),
+                                dict(sentences=[s.text for s in d], rouge1=[s.rouge1("f1") for s in d]),
                                 wp,
                                 ensure_ascii=False)
                     except:

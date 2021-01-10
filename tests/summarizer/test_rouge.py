@@ -10,7 +10,7 @@ from .context import Rouge1Summarizer, tokenizer_context, SimpleTokenizer, BertT
 def test_rouge1_summarizer_precision_all_lower(tokenizer, score_true):
     with tokenizer_context(tokenizer) as Doc2:
         summ = Rouge1Summarizer(normalize=False, metric="precision")
-        assert summ.predict(Doc2('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(
+        assert summ.predict(Doc2('ali topu tut. oya ip atla. ahmet topu at.')) == approx(
             score_true)
 
 
@@ -21,7 +21,7 @@ def test_rouge1_summarizer_precision_proper_case(tokenizer, score_true):
     with tokenizer_context(tokenizer) as Doc2:
         summ = Rouge1Summarizer(normalize=False, metric="precision")
 
-        assert summ.predict(Doc2('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(
+        assert summ.predict(Doc2('Ali topu tut. Oya ip atla. Ahmet topu at.')) == approx(
             score_true)
 
 
@@ -32,7 +32,7 @@ def test_rouge1_summarizer_recall_all_lower(tokenizer, score_true):
     with tokenizer_context(tokenizer) as Doc2:
         summ = Rouge1Summarizer(normalize=False, metric="recall")
 
-        assert summ.predict(Doc2('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(
+        assert summ.predict(Doc2('ali topu tut. oya ip atla. ahmet topu at.')) == approx(
             score_true)
 
 
@@ -42,7 +42,7 @@ def test_rouge1_summarizer_recall_all_lower(tokenizer, score_true):
 def test_rouge1_summarizer_recall_proper_case(tokenizer, score_true):
     with tokenizer_context(tokenizer) as Doc2:
         summ = Rouge1Summarizer(normalize=False, metric="recall")
-        assert summ.predict(Doc2('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(
+        assert summ.predict(Doc2('Ali topu tut. Oya ip atla. Ahmet topu at.')) == approx(
             score_true)
 
 
@@ -52,7 +52,7 @@ def test_rouge1_summarizer_recall_proper_case(tokenizer, score_true):
 def test_rouge1_summarizer_f1_all_lower(tokenizer, score_true):
     with tokenizer_context(tokenizer) as Doc2:
         summ = Rouge1Summarizer(normalize=False)
-        assert summ.predict(Doc2('ali topu tut. oya ip atla. ahmet topu at.').sents) == approx(
+        assert summ.predict(Doc2('ali topu tut. oya ip atla. ahmet topu at.')) == approx(
             score_true)
 
 
@@ -62,7 +62,7 @@ def test_rouge1_summarizer_f1_all_lower(tokenizer, score_true):
 def test_rouge1_summarizer_f1_proper_case(tokenizer, score_true):
     with tokenizer_context(tokenizer) as Doc2:
         summ = Rouge1Summarizer(normalize=False)
-        assert summ.predict(Doc2('Ali topu tut. Oya ip atla. Ahmet topu at.').sents) == approx(
+        assert summ.predict(Doc2('Ali topu tut. Oya ip atla. Ahmet topu at.')) == approx(
             score_true)
 
 
@@ -72,7 +72,7 @@ def test_rouge1_summarize_text(tokenizer):
         summ = Rouge1Summarizer()
         doc = Doc2('ali topu tut. oya ip atla. ahmet topu at.')
 
-        assert summ(doc, k=1) == [doc.sents[2]]
+        assert summ(doc, k=1) == [doc[2]]
 
 
 def test_rouge1_summarizer_unknown_mode():

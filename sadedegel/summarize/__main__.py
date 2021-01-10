@@ -105,7 +105,7 @@ def evaluate(table_format, tag, debug):
                 for i, (y_true, d) in enumerate(zip(relevance, docs)):
                     dot_progress(i, len(relevance), t0)
 
-                    y_pred = [summarizer.predict(d.sents)]
+                    y_pred = [summarizer.predict(d)]
 
                     score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                     score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
@@ -132,7 +132,7 @@ def evaluate(table_format, tag, debug):
                             for i, (y_true, d) in enumerate(zip(relevance, docs)):
                                 dot_progress(i, len(relevance), t0)
 
-                                y_pred = [summarizer.predict(d.sents)]
+                                y_pred = [summarizer.predict(d)]
 
                                 score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                                 score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
@@ -151,7 +151,7 @@ def evaluate(table_format, tag, debug):
                         for i, (y_true, d) in enumerate(zip(relevance, docs)):
                             dot_progress(i, len(relevance), t0)
 
-                            y_pred = [summarizer.predict(d.sents)]
+                            y_pred = [summarizer.predict(d)]
 
                             score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                             score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
