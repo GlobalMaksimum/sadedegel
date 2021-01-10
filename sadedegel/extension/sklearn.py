@@ -40,6 +40,8 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
         self.drop_punct = drop_punct
         self.show_progress = show_progress
 
+        self.Doc = None
+
     def fit(self, X, y=None):
         return self
 
@@ -59,23 +61,26 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
         if n_total == 0:
             raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
 
-        with config_context(tokenizer="bert") as Doc:
-            indptr = [0]
-            indices = []
-            data = []
-            for doc in track(X, total=n_total, description="Transforming corpus", update_period=1,
-                             disable=not self.show_progress):
-                d = Doc(doc)
-                n_vocabulary = len(d.builder.tokenizer.vocabulary)
-                tfidf = d.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
-                                    lowercase=self.lowercase,
-                                    drop_suffix=self.drop_suffix,
-                                    drop_punct=self.drop_punct)
+        if self.Doc is None:
+            with config_context(tokenizer="bert") as Doc:
+                self.Doc = Doc
 
-                for idx in tfidf.nonzero()[0]:
-                    indices.append(idx)
-                    data.append(tfidf[idx])
+        indptr = [0]
+        indices = []
+        data = []
+        for doc in track(X, total=n_total, description="Transforming corpus", update_period=1,
+                         disable=not self.show_progress):
+            d = self.Doc(doc)
+            n_vocabulary = len(d.builder.tokenizer.vocabulary)
+            tfidf = d.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
+                                lowercase=self.lowercase,
+                                drop_suffix=self.drop_suffix,
+                                drop_punct=self.drop_punct)
 
-                indptr.append(len(indices))
+            for idx in tfidf.nonzero()[0]:
+                indices.append(idx)
+                data.append(tfidf[idx])
 
-            return csr_matrix((data, indices, indptr), dtype=np.float32, shape=(n_total, n_vocabulary))
+            indptr.append(len(indices))
+
+        return csr_matrix((data, indices, indptr), dtype=np.float32, shape=(n_total, n_vocabulary))
