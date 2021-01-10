@@ -62,7 +62,7 @@ def build(max_rows=100_000):
 
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    dump(pipeline, (model_dir / 'news_classification.joblib').absolute())
+    dump(pipeline, (model_dir / 'news_classification.joblib').absolute(), compress=('gzip', 9))
 
 
 def load(model_name="news_classification"):
