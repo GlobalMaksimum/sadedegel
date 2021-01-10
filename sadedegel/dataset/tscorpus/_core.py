@@ -21,6 +21,8 @@ tarballs = ["art_culture.jsonl.gz", "education.jsonl.gz", "horoscope.jsonl.gz", 
             "politics.jsonl.gz", "technology.jsonl.gz", "economics.jsonl.gz", "health.jsonl.gz",
             "life.jsonl.gz", "magazine.jsonl.gz", "sports.jsonl.gz", "travel.jsonl.gz"]
 
+CATEGORIES = [tb.replace('.jsonl.gz', '') for tb in tarballs]
+
 CORPUS_SIZE = 302936
 
 __general_download_message__ = """Ensure that you have properly downloaded extended or tokenization corpus using
@@ -75,15 +77,24 @@ def check_directory_structure(path: str) -> bool:
     return False
 
 
+def load_tscorpus_raw(data_home="~/.sadedegel_data") -> Iterator[str]:
+    if not check_directory_structure(data_home):
+        raise Exception("Ts Corpus validation error")
+
+    for tarball in tarballs:
+        with gzip.open(Path(expanduser(data_home)) / 'tscorpus' / 'raw' / tarball, 'rt') as fp:
+            for line in fp:
+                yield json.loads(line)
+
+
 def load_tokenization_raw(data_home="~/.sadedegel_data") -> Iterator[str]:
-    if check_directory_structure(data_home):
-        for tarball in tarballs:
-            with gzip.open(Path(expanduser(data_home)) / 'tscorpus' / 'raw' / tarball, 'rt') as fp:
-                for line in fp:
-                    d = json.loads(line)
-                    yield dict(id=d['id'], text=d['text'])
-    else:
-        return None
+    for d in load_tscorpus_raw(data_home):
+        yield dict(id=d['id'], text=d['text'])
+
+
+def load_classification_raw(data_home="~/.sadedegel_data") -> Iterator[str]:
+    for d in load_tscorpus_raw(data_home):
+        yield dict(id=d['id'], category=CATEGORIES.index(d['category']), text=d['text'])
 
 
 def load_tokenization_tokenized(data_home="~/.sadedegel_data") -> Iterator[str]:
