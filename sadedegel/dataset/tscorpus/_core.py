@@ -21,6 +21,8 @@ tarballs = ["art_culture.jsonl.gz", "education.jsonl.gz", "horoscope.jsonl.gz", 
             "politics.jsonl.gz", "technology.jsonl.gz", "economics.jsonl.gz", "health.jsonl.gz",
             "life.jsonl.gz", "magazine.jsonl.gz", "sports.jsonl.gz", "travel.jsonl.gz"]
 
+CATEGORIES = [tb.replace('.jsonl.gz', '') for tb in tarballs]
+
 CORPUS_SIZE = 302936
 
 __general_download_message__ = """Ensure that you have properly downloaded extended or tokenization corpus using
@@ -91,10 +93,8 @@ def load_tokenization_raw(data_home="~/.sadedegel_data") -> Iterator[str]:
 
 
 def load_classification_raw(data_home="~/.sadedegel_data") -> Iterator[str]:
-    categories = [tb.replace('.jsonl.gz', '') for tb in tarballs]
-
     for d in load_tscorpus_raw(data_home):
-        yield dict(id=d['id'], category=categories.index(d['category']), text=d['text'])
+        yield dict(id=d['id'], category=CATEGORIES.index(d['category']), text=d['text'])
 
 
 def load_tokenization_tokenized(data_home="~/.sadedegel_data") -> Iterator[str]:
