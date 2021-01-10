@@ -22,10 +22,11 @@ setup(
               'sadedegel.summarize.util', 'sadedegel.extension',
               'sadedegel.dataset.tscorpus', 'sadedegel.bblock.cli',
               'sadedegel.tokenize', 'sadedegel.ml',
-              'sadedegel.server', 'sadedegel.metrics'],
+              'sadedegel.server', 'sadedegel.metrics', 'sadedegel.prebuilt'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
+        'sadedegel.prebuilt': ['model/news_classification.joblib'],
         'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
