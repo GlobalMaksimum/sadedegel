@@ -8,7 +8,7 @@ from sklearn.utils import shuffle
 from rich.console import Console
 from rich.progress import Progress
 
-from joblib import dump, load
+from joblib import dump, load as jl_load
 
 import numpy as np
 
@@ -66,7 +66,7 @@ def build(max_rows=100_000):
 
 
 def load(model_name="news_classification"):
-    return load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+    return jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
 
 
 if __name__ == '__main__':
