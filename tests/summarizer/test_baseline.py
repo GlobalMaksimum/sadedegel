@@ -49,7 +49,7 @@ def test_first_summ():
 
     doc = Doc("Ali gel. Ayşe gel. Ahmet git.")
 
-    assert summarizer(doc, k=2) == doc.sents[:2]
+    assert summarizer(doc, k=2) == doc[:2]
 
 
 @pytest.mark.parametrize("input", [['0', '1']])
@@ -69,7 +69,7 @@ def test_token_length_summarizer():
     summarizer = LengthSummarizer(normalize=False)
 
     assert summarizer.predict(
-        Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.').sents) == approx(
+        list(Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.'))) == approx(
         np.array([9, 7]))
 
 
@@ -77,7 +77,7 @@ def test_token_length_summarizer_normalized():
     summarizer = LengthSummarizer(normalize=True)
 
     assert summarizer.predict(
-        Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.').sents) == approx(
+        list(Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.'))) == approx(
         np.array([9 / 16, 7 / 16]))
 
 
@@ -85,7 +85,7 @@ def test_char_length_summarizer():
     summarizer = LengthSummarizer(mode="char", normalize=False)
 
     assert summarizer.predict(
-        Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.').sents) == approx(
+        list(Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.'))) == approx(
         np.array([56, 42]))
 
 
@@ -93,5 +93,5 @@ def test_token_char_summarizer_normalized():
     summarizer = LengthSummarizer(mode="char", normalize=True)
 
     assert summarizer.predict(
-        Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.').sents) == approx(
+        list(Doc('Meksikalılaştıramadıklarımızdan olduğunuz kesin. Meksikalı olmadığımızın bilincindeyim.'))) == approx(
         np.array([56 / 98, 42 / 98]))

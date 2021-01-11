@@ -19,12 +19,15 @@ setup(
     name='sadedegel',
     # Needed to actually package something
     packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
+              'sadedegel.summarize.util', 'sadedegel.extension',
+              'sadedegel.dataset.tscorpus', 'sadedegel.bblock.cli',
               'sadedegel.tokenize', 'sadedegel.ml',
-              'sadedegel.server', 'sadedegel.metrics'],
+              'sadedegel.server', 'sadedegel.metrics', 'sadedegel.prebuilt'],
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
-        'sadedegel.bblock': ['data/vocabulary.json'],
+        'sadedegel.prebuilt': ['model/news_classification.joblib'],
+        'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
     # Needed for dependencies
@@ -37,6 +40,8 @@ setup(
         sadedegel=sadedegel.__main__:cli
         sadedegel-dataset=sadedegel.dataset.__main__:cli
         sadedegel-dataset-extended=sadedegel.dataset.extended.__main__:cli
+        sadedegel-dataset-tscorpus=sadedegel.dataset.tscorpus.__main__:cli
+        sadedegel-bblock=sadedegel.bblock.cli.__main__:cli
         sadedegel-summarize=sadedegel.summarize.__main__:cli
         sadedegel-sbd=sadedegel.tokenize.__main__:cli
         sadedegel-server=sadedegel.server.__main__:server

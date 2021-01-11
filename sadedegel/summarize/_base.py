@@ -8,12 +8,12 @@ import warnings
 
 def get_sentences_list(X: Union[Document, List[Sentences], List[str]]):
     if type(X) == Document:
-        sentences = X.sents  # Get the list of Sentences from Doc
+        sentences = list(X)  # Get the list of Sentences from Doc
     elif type(X) != list:
         raise ValueError(f"sents parameter should be one of Doc, List[Sentences] or List[str]. Found {type(X)}")
     elif all(type(s) == str for s in X):
         d = DocBuilder().from_sentences(X)
-        sentences = d.sents
+        sentences = list(d)
     elif all(type(s) == Sentences for s in X):
         sentences = X
     else:
