@@ -6,7 +6,7 @@ import boto3
 from smart_open import open
 import tarfile
 import glob
-from tqdm import tqdm
+from rich.progress import track
 from sadedegel import Doc
 import json
 import sys
@@ -83,8 +83,8 @@ def sbd(data_home):
         if section.is_dir():
             sents_dir.mkdir(parents=True, exist_ok=True)
 
-            for raw in tqdm(glob.glob(str((raw_dir / section / '*.txt').absolute())), desc=f"{section.name} documents",
-                            unit="doc"):
+            for raw in track(glob.glob(str((raw_dir / section / '*.txt').absolute())),
+                             description=f"{section.name} documents"):
                 fn_noext, _ = os.path.splitext(os.path.basename(raw))
 
                 target = (sents_dir / f"{fn_noext}.json").absolute()

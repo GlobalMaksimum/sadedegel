@@ -4,7 +4,7 @@ from os.path import join as pjoin
 import glob
 from loguru import logger
 import json
-from tqdm import tqdm
+from rich.progress import track
 import sys
 
 
@@ -43,7 +43,7 @@ def sentences(dataset_dir: str, tokenizer: str, force: bool):
     logger.info("|raw documents|: {}".format(len(raws)))
     logger.info("Sentence tokenizer: {}".format(tokenizer))
 
-    for file in tqdm(raws):
+    for file in track(raws, description="Building sentence corpus..."):
         basename = os.path.basename(file)
         name, _ = os.path.splitext(basename)
 
@@ -62,7 +62,8 @@ def sentences(dataset_dir: str, tokenizer: str, force: bool):
 @click.option("-v", count=True)
 @click.option("--base-path", help="Base data path", default=None)
 def validate(v, base_path):
-    from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, load_annotated_corpus, file_paths, CorpusTypeEnum
+    from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, load_annotated_corpus, file_paths, \
+        CorpusTypeEnum
 
     click.secho("Corpus loading...")
     raw = load_raw_corpus(False, base_path)
