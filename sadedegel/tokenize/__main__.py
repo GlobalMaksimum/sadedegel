@@ -56,7 +56,7 @@ def evaluate(v):
 
     iou_eval("RegexpSentenceTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
-    y_pred = [[s.text for s in Doc(doc).sents] for doc in raw]
+    y_pred = [[s.text for s in Doc(doc)] for doc in raw]
 
     iou_eval("MLBasedTokenizer", y_true, y_pred, file_paths() if v > 0 else None)
 
@@ -69,7 +69,7 @@ def diff():
 
     y_true = [doc['sentences'] for doc in sents]
 
-    y_pred = [DocBuilder(doc).sents for doc in raw]
+    y_pred = [Doc(doc) for doc in raw]
 
     paths = file_paths()
 
@@ -98,9 +98,9 @@ def build():
     raw_corpus = load_raw_corpus(False)
     sent_corpus = load_sentence_corpus(False)
 
-    features = flatten([[span.span_features() for span in DocBuilder(raw).spans] for raw in raw_corpus])
+    features = flatten([[span.span_features() for span in Doc(raw).spans] for raw in raw_corpus])
     y = flatten(
-        [[is_eos(span, sent['sentences']) for span in DocBuilder(raw).spans] for raw, sent in
+        [[is_eos(span, sent['sentences']) for span in Doc(raw).spans] for raw, sent in
          zip(raw_corpus, sent_corpus)])
 
     if len(features) != len(y):
