@@ -5,7 +5,19 @@ from loguru import logger
 
 import click
 import time
-from tabulate import tabulate
+import warnings
+from sadedegel.about import __version__
+
+if tuple(map(int, __version__.split('.'))) < (0, 18):
+    warnings.warn(
+        "tabulate package is deprecated and will be removed by 0.18. "
+        , DeprecationWarning,
+        stacklevel=2)
+
+    from tabulate import tabulate
+else:
+    raise Exception("Drop tabulate dependency")
+
 import warnings
 import numpy as np  # type: ignore
 from sklearn.metrics import ndcg_score  # type: ignore
