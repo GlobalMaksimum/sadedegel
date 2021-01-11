@@ -29,7 +29,7 @@ def build(max_rows=100_000):
         import pandas as pd
     except ImportError:
         console.log(("pandas package is not a general sadedegel dependency."
-                     " But we do have a dependency on building our prebuild models"))
+                     " But we do have a dependency on building our prebuilt models"))
 
     raw = load_classification_raw()
     df = pd.DataFrame.from_records(raw)

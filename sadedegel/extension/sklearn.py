@@ -68,7 +68,7 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
         indptr = [0]
         indices = []
         data = []
-        for doc in track(X, total=n_total, description="Transforming corpus", update_period=1,
+        for doc in track(X, total=n_total, description="Transforming document(s)", update_period=1,
                          disable=not self.show_progress):
             d = self.Doc(doc)
             n_vocabulary = len(d.builder.tokenizer.vocabulary)
