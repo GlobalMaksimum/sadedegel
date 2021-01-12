@@ -190,23 +190,26 @@ class TFImpl:
     def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
-    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
-        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / self.raw_tf(drop_stopwords, lowercase,
-                                                                                             drop_prefix,
-                                                                                             drop_punct).sum()
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, epsilon=1e-5):
+        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / (self.raw_tf(drop_stopwords, lowercase,
+                                                                                              drop_prefix,
+                                                                                              drop_punct).sum() +
+                                                                                  epsilon)
 
-    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
-    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
+    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5,
+                       epsilon=1e-5):
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
         return k + (1 - k) * (
-                self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / self.raw_tf(drop_stopwords,
-                                                                                              lowercase,
-                                                                                              drop_prefix,
-                                                                                              drop_punct).max())
+                self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / (self.raw_tf(drop_stopwords,
+                                                                                               lowercase,
+                                                                                               drop_prefix,
+                                                                                               drop_punct).max() +
+                                                                                   epsilon))
 
     def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
                **kwargs):
