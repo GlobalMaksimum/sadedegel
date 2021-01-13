@@ -428,7 +428,6 @@ class Document(TFImpl, IDFImpl):
 
                 DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
                                                                   output_hidden_states=True)
-                DocBuilder.bert_model.resize_token_embeddings(35779)
                 DocBuilder.bert_model.eval()
 
             with torch.no_grad():
