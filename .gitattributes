@@ -3,3 +3,6 @@ sadedegel/dataset/sents/*.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/dataset/annotated/*.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/bblock/data/vocabulary.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/prebuilt/model/news_classification.joblib filter=lfs diff=lfs merge=lfs -text
+sadedegel/prebuilt/data/tweet/tweet_sentiment_train.csv.gz filter=lfs diff=lfs merge=lfs -text
+sadedegel/prebuilt/model/tweet_sentiment_v1.joblib filter=lfs diff=lfs merge=lfs -text
+

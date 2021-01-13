@@ -27,4 +27,24 @@ y_pred_label = [CATEGORIES.index(_y_pred) for _y_pred in y_pred]
 
 #### Accuracy
 
-Current prebuilt model has an average class prediction cv-3 accuracy of `0.746` 
+Current prebuilt model has an average class prediction cv-3 accuracy of `0.746`
+
+### Turkish Tweet Sentiment Classification
+
+Classifier assigns each Turkish tweet texts into two categories ('POSITIVE', 'NEGATIVE') by using sadedegel built-in pipeline.
+
+#### Loading and Predicting with the Model:
+
+```python
+from sadedegel.prebuilt import tweet.sentiment
+
+# We load our prebuilt model:
+model = tweet_sentiment.load()
+
+# Here we enter our text to get sentiment predictions.
+y_pred = model.predict([])
+```
+
+#### Accuracy
+
+Current prebuilt model has 3-fold cross validation accuracy score of 0.791 and having accuracy 0.746 on private test set.
