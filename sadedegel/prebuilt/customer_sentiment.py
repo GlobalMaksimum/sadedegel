@@ -9,14 +9,13 @@ from os.path import dirname
 from rich.console import Console
 from rich.progress import Progress
 
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import SGDClassifier
 from ..extension.sklearn import TfidfVectorizer, OnlinePipeline
 
 console = Console()
 
-_classes = {0: 'NEUTRAL',
-            1: 'NEGATIVE',
-            2: 'POSITIVE'}
+_classes = {0: 'NEGATIVE',
+            1: 'POSITIVE'}
 
 
 def empty_model():
@@ -24,18 +23,18 @@ def empty_model():
         ("tfidf", TfidfVectorizer(tf_method='freq', idf_method='smooth',
                                   drop_stopwords=False, lowercase=False,
                                   drop_suffix=False)),
-        ("nb_model", MultinomialNB(alpha=0.1805))
-    ])
+        ("sgd_model", SGDClassifier(alpha=0.00716))
+        ])
 
 
-def build(max_rows=7500):
+def build(max_rows=5000):
     try:
         import pandas as pd
     except ImportError:
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
 
-    data_dir = Path(dirname(__file__)) / 'data' / 'customer_satisfaction' / 'customer_train.csv.gz'
+    data_dir = Path(dirname(__file__)) / 'data' / 'customer_satisfaction' / 'customer_train_binary.csv.gz'
     df = pd.read_csv(data_dir)
 
     if max_rows > 0:
@@ -59,7 +58,7 @@ def build(max_rows=7500):
 
         for batch in batches:
             try:
-                pipeline.partial_fit(batch.text, batch.sentiment, classes=[i for i in range(len(df.sentiment.unique()))])
+                pipeline.partial_fit(batch.text, batch.sentiment, classes=[i for i in range(len(_classes))])
             except:
                 print(batch.text)
             progress.update(building_task, advance=len(batch))
@@ -70,10 +69,10 @@ def build(max_rows=7500):
 
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    dump(pipeline, (model_dir / 'customer_sentiment_v1.joblib').absolute(), compress=('gzip', 9))
+    dump(pipeline, (model_dir / 'customer_sentiment_v2.joblib').absolute(), compress=('gzip', 9))
 
 
-def load(model_version='v1'):
+def load(model_version='v2'):
     return jl_load(Path(dirname(__file__)) / 'model' / f"customer_sentiment_{model_version}.joblib")
 
 

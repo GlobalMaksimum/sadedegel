@@ -31,7 +31,7 @@ Current prebuilt model has an average class prediction cv-3 accuracy of `0.746`
 
 ### Customer Sentiment Analysis
 
-Classifier assigns each customer product review into one of `POSITIVE`, `NEGATIVE`, `NEUTRAL` categories.
+Classifier assigns each customer product review into one of `POSITIVE`, `NEGATIVE` categories.
 
 #### Loading model
 ```python
@@ -51,4 +51,4 @@ y_pred_sentiment = [customer_sentiment._classes[pred] for pred in predictions]
 
 #### Accuracy
 
-Current prebuilt customer sentiment model has an accuracy of `0.685` on an unseen evaluation set.
+Current prebuilt customer sentiment model has an accuracy of `0.754` on 3-fold CV.
