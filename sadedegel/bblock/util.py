@@ -4,12 +4,15 @@ import warnings
 from collections import defaultdict
 from os.path import dirname
 from pathlib import Path
+from emoji import UNICODE_EMOJI
 
 __tr_upper__ = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
 __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
 
 __tr_lower_abbrv__ = ['hz.', 'dr.', 'prof.', 'doç.', 'org.', 'sn.', 'st.', 'mah.', 'mh.', 'sok.', 'sk.', 'alb.', 'gen.',
                       'av.', 'ist.', 'ank.', 'izm.', 'm.ö.', 'k.k.t.c.']
+
+__emojis__ = {e.replace(' ', ''): t for e, t in UNICODE_EMOJI.items()}
 
 
 def tr_lower(s: str) -> str:

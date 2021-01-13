@@ -8,7 +8,7 @@ from sadedegel.summarize import RandomSummarizer, PositionSummarizer, LengthSumm
 from sadedegel.tokenize import NLTKPunctTokenizer, RegexpSentenceTokenizer  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock import Doc, Sentences, BertTokenizer, SimpleTokenizer, WordTokenizer # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel import Token # noqa # pylint: disable=unused-import, wrong-import-position
-from sadedegel.bblock.util import tr_upper, tr_lower, __tr_lower__, __tr_upper__ # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.bblock.util import tr_upper, tr_lower, __tr_lower__, __tr_upper__, __emojis__ # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock.util import flatten, is_eos  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.ml import create_model, load_model, save_model  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.metrics import rouge1_score # noqa # pylint: disable=unused-import, wrong-import-position

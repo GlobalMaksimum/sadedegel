@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from .word_tokenizer_helper import word_tokenize
-from .util import normalize_tokenizer_name
+from .util import normalize_tokenizer_name, __emojis__
 from .vocabulary import Vocabulary
 from ..about import __version__
 import warnings
@@ -60,6 +60,7 @@ class BertTokenizer(WordTokenizer):
             import torch
             from transformers import AutoTokenizer
             self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+            self.tokenizer.add_tokens(list(__emojis__.keys()))
 
         return self.tokenizer.tokenize(text)
 
