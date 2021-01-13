@@ -191,9 +191,11 @@ class TFImpl:
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
     def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
-        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / self.raw_tf(drop_stopwords, lowercase,
-                                                                                             drop_prefix,
-                                                                                             drop_punct).sum()
+        normalizing_factor = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).sum()
+        if normalizing_factor != 0:
+            return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / normalizing_factor
+        else:
+            return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
     def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
@@ -201,12 +203,12 @@ class TFImpl:
     def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
-
-        return k + (1 - k) * (
-                self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / self.raw_tf(drop_stopwords,
-                                                                                              lowercase,
-                                                                                              drop_prefix,
-                                                                                              drop_punct).max())
+        normalizing_factor = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).max()
+        if normalizing_factor != 0:
+            return k + (1 - k) * (
+                    self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / normalizing_factor)
+        else:
+            return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
     def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
                **kwargs):
