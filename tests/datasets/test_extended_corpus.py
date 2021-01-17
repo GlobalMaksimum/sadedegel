@@ -1,6 +1,6 @@
 import pytest
-from os.path import expanduser
-from pathlib import Path
+from pathlib import Path  # pylint: disable=unused-import
+from os.path import expanduser  # pylint: disable=unused-import
 from .context import load_extended_metadata, load_extended_raw_corpus, load_extended_sents_corpus
 
 
