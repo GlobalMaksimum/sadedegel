@@ -190,26 +190,30 @@ class TFImpl:
     def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
-    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
-        normalizing_factor = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).sum()
-        if normalizing_factor != 0:
-            return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / normalizing_factor
-        else:
-            return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+        tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
-    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
+        normalization = tf.sum()
+
+        if normalization > 0:
+            return tf / normalization
+        else:
+            return tf
+
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
     def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
-        normalizing_factor = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).max()
-        if normalizing_factor != 0:
-            return k + (1 - k) * (
-                    self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / normalizing_factor)
+        tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
+        normalization = tf.max()
+
+        if normalization > 0:
+            return k + (1 - k) * (tf / normalization)
         else:
-            return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
+            return tf
 
     def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
                **kwargs):
