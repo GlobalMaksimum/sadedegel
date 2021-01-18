@@ -26,7 +26,7 @@ setup(
     package_data={
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
-        'sadedegel.prebuilt': ['model/news_classification.joblib'],
+        'sadedegel.prebuilt': ['model/*.joblib'],
         'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
