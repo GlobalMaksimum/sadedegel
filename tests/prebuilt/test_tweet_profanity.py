@@ -1,14 +1,14 @@
-from .context import tweet_profanity
-from sklearn.linear_model import SGDClassifier
+from .context import tweet_profanity, CLASS_VALUES
 
 
 def test_model_load():
-    model = tweet_profanity.load('v1')
-    assert isinstance(model['sgd_model'], SGDClassifier)
+    _ = tweet_profanity.load()
 
 
 def test_inference():
-    model = tweet_profanity.load('v1')
+    model = tweet_profanity.load()
+
     pred = model.predict(['amk hepinizin.', 'harika fikir.'])
-    assert tweet_profanity._classes[pred[0]] == 'PROFANE'
-    assert tweet_profanity._classes[pred[1]] == 'PROPER'
+
+    assert CLASS_VALUES[pred[0]] == 'OFF'
+    assert CLASS_VALUES[pred[1]] == 'NOT'
