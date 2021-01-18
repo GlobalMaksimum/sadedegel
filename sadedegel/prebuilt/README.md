@@ -31,7 +31,8 @@ Current prebuilt model has an average class prediction cv-3 accuracy of `0.746`
 
 ### Turkish Tweets Profanity Classification
 
-This classifier assigns Turkish tweets to one of `PROFANE`, `PROPER` labels based on whether a tweet contains a profane language or not by using a `sadedegel`pipeline.
+This classifier assigns Turkish tweets to one of `OFF`, `NOT` classes based on 
+whether a tweet contains a profane language or not, by using a `sadedegel`pipeline.
 
 #### Load Model
 ```python
@@ -44,9 +45,15 @@ y_pred = model.predict(['bir takım ağza alınmayacak sözcükler.'])
 To convert predictions to profanity label by class mapping:
 
 ```python
-y_pred_profanity = [tweet_profanity._classes[pred] for pred in predictions]
+from sadedegel.prebuilt.tweet_profanity import load, CLASS_VALUES
+model = load()
+
+y_pred = model.predict(['bir takım ağza alınmayacak sözcükler.'])
+
+y_pred_value = [CLASS_VALUES[_y_pred] for _y_pred in y_pred]
 ```
 
 #### Accuracy
 
-Current prebuilt tweet profanity model has an **ROC-AUC** score of `0.824` on 3-fold CV.
+Current prebuilt tweet profanity model has an **macro-F1** score of `0.6619` on test set.
+> Best model in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) has `0.8258` accuracy
