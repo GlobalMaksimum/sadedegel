@@ -3,4 +3,3 @@ sadedegel/dataset/sents/*.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/dataset/annotated/*.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/bblock/data/vocabulary.json filter=lfs diff=lfs merge=lfs -text
 sadedegel/prebuilt/model/*.joblib filter=lfs diff=lfs merge=lfs -text
-sadedegel/prebuilt/data/*/*.csv.gz filter=lfs diff=lfs merge=lfs -t
