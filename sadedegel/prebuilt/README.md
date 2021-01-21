@@ -69,4 +69,4 @@ y_pred = model.predict([])
 ```
 ### Accuracy
 
-Current prebuilt model has an average class prediction cv-3 accuracy of `0.746`
+Current prebuilt model has 3-fold cross validation accuracy score of 0.791 and having accuracy 0.746 on private test set.
