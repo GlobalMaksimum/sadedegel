@@ -10,7 +10,7 @@ from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_
 def test_emptystring(string):
     empty = Doc(string)
 
-    assert len(empty.sents) == 1
+    assert len(empty) == 1
     assert len(empty[0].tokens) == 0
 
 
@@ -19,8 +19,7 @@ def test_tokens(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
-        with pytest.warns(DeprecationWarning):
-            s0 = d.sents[0]
+        s0 = d[0]
 
         assert s0.tokens == ['Ali', 'topu', 'tut', '.']
 
@@ -52,7 +51,7 @@ def test_tfidf_compare_doc_and_sent(tf_type):
     with tf_context(tf_type):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-        for i, sent in enumerate(d.sents):
+        for i, sent in enumerate(d):
             assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
 
 
@@ -108,9 +107,8 @@ def test_doc_with_no_sentence():
 
     d = Doc(raw)
 
-    with pytest.warns(DeprecationWarning):
-        assert d.sents[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
-                                                         "dolayı çamur ve toprak bulunmaktadır")]).sents[0].tokens
+    assert d[0].tokens == Doc.from_sentences([("söz konusu adreste bulunan yolda yağmurdan "
+                                               "dolayı çamur ve toprak bulunmaktadır")])[0].tokens
 
 
 def test_doc_index():

@@ -190,24 +190,30 @@ class TFImpl:
     def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
-    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, epsilon=1e-5):
-        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / (self.raw_tf(drop_stopwords, lowercase,
-                                                                                             drop_prefix,
-                                                                                             drop_punct).sum() + epsilon)
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+        tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
-    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, ):
+        normalization = tf.sum()
+
+        if normalization > 0:
+            return tf / normalization
+        else:
+            return tf
+
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
-    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5,
-                       epsilon=1e-5):
+    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
-        return k + (1 - k) * (
-                self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct) / (self.raw_tf(drop_stopwords,
-                                                                                              lowercase,
-                                                                                              drop_prefix,
-                                                                                              drop_punct).max())+epsilon)
+        tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
+        normalization = tf.max()
+
+        if normalization > 0:
+            return k + (1 - k) * (tf / normalization)
+        else:
+            return tf
 
     def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
                **kwargs):
@@ -373,20 +379,8 @@ class Document(TFImpl, IDFImpl):
     def tokenizer(self):
         return self.builder.tokenizer
 
-    @property
-    def sents(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 17):
-            warnings.warn(
-                ("Doc.sents is deprecated and will be removed by 0.17. "
-                 "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
-                stacklevel=2)
-        else:
-            raise Exception("Remove .sent before release.")
-
-        return self._sents
-
-    def __getitem__(self, sent_idx):
-        return self._sents[sent_idx]
+    def __getitem__(self, key):
+        return self._sents[key]
 
     def __iter__(self):
         return iter(self._sents)
@@ -408,7 +402,6 @@ class Document(TFImpl, IDFImpl):
         """Returns a 0 padded numpy.array or torch.tensor
               One row for each sentence
               One column for each token (pad 0 if length of sentence is shorter than the max length)
-
         :param return_numpy: Whether to return numpy.array or torch.tensor
         :param return_mask: Whether to return padding mask
         :return:

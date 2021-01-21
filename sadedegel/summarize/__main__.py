@@ -5,7 +5,19 @@ from loguru import logger
 
 import click
 import time
-from tabulate import tabulate
+import warnings
+from sadedegel.about import __version__
+
+if tuple(map(int, __version__.split('.'))) < (0, 18):
+    warnings.warn(
+        "tabulate package is deprecated and will be removed by 0.18. "
+        , DeprecationWarning,
+        stacklevel=2)
+
+    from tabulate import tabulate
+else:
+    raise Exception("Drop tabulate dependency")
+
 import warnings
 import numpy as np  # type: ignore
 from sklearn.metrics import ndcg_score  # type: ignore
@@ -105,7 +117,7 @@ def evaluate(table_format, tag, debug):
                 for i, (y_true, d) in enumerate(zip(relevance, docs)):
                     dot_progress(i, len(relevance), t0)
 
-                    y_pred = [summarizer.predict(d.sents)]
+                    y_pred = [summarizer.predict(d)]
 
                     score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                     score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
@@ -132,7 +144,7 @@ def evaluate(table_format, tag, debug):
                             for i, (y_true, d) in enumerate(zip(relevance, docs)):
                                 dot_progress(i, len(relevance), t0)
 
-                                y_pred = [summarizer.predict(d.sents)]
+                                y_pred = [summarizer.predict(d)]
 
                                 score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                                 score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
@@ -151,7 +163,7 @@ def evaluate(table_format, tag, debug):
                         for i, (y_true, d) in enumerate(zip(relevance, docs)):
                             dot_progress(i, len(relevance), t0)
 
-                            y_pred = [summarizer.predict(d.sents)]
+                            y_pred = [summarizer.predict(d)]
 
                             score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                             score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))

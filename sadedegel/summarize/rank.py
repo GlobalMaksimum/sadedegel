@@ -1,4 +1,5 @@
 from typing import List
+import warnings
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import networkx as nx
@@ -8,6 +9,7 @@ from ..config import tokenizer_context
 from lexrank import LexRank
 from ..dataset import load_raw_corpus
 from ..bblock.util import load_stopwords
+from ..about import __version__
 
 from .util.power_method import degree_centrality_scores
 from ..bblock.doc import TF_RAW, TF_FREQ, TF_BINARY, TF_LOG_NORM, TF_DOUBLE_NORM
@@ -103,6 +105,14 @@ class LexRankPureSummarizer(ExtractiveSummarizer):
     def __init__(self, normalize=True, tf_method=None, idf_method=None, threshold=.03, fast_power_method=True,
                  **kwargs):
         super().__init__(normalize)
+
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("LexRankPureSummarizer is a pure sadedegel based implementation of lexrank."
+                 "It is deprecated as LexRankPureSummarizer has a better performance than original LexRankSummarizer,"
+                 "so we will rename this summarizer as LexRankSummarizer and drop lexrank dependency by 0.18.")
+                , DeprecationWarning,
+                stacklevel=2)
 
         self.tf_method = tf_method
         self.idf_method = idf_method

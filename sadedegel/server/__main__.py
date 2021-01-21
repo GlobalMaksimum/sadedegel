@@ -155,7 +155,7 @@ def summarize(summarizer, sentences: List[Sentences], limit: float) -> Response:
 async def duration(req: BasicRequest):
     """Calculates the approximate reading duration for the document based on reader read speed"""
 
-    sentences = Doc(req.doc).sents
+    sentences = list(Doc(req.doc))
 
     word_count = sum((len(s) for s in sentences))
 
@@ -174,7 +174,7 @@ async def random(req: Request):
             Picks up random sentences until total number of tokens is less than equal to `wpm x duration`
     """
 
-    sentences = Doc(req.doc).sents
+    sentences = list(Doc(req.doc))
     logger.info(sentences)
 
     if req.unit == TimeUnitEnum.MINUTE:
@@ -193,7 +193,7 @@ async def firstk(req: Request):
             Picks up first a few sentences until total number of tokens is less than equal to `wpm x duration`
     """
 
-    sentences = Doc(req.doc).sents
+    sentences = list(Doc(req.doc))
 
     if req.unit == TimeUnitEnum.MINUTE:
         duration_in_min = req.duration
@@ -211,7 +211,7 @@ async def rouge1(req: Request):
             Rank sentences based on their rouge1 score in Document and return a list of sentences until number of total tokens is less than equal to `wpm x duration`
     """
 
-    sentences = Doc(req.doc).sents
+    sentences = list(Doc(req.doc))
 
     if req.unit == TimeUnitEnum.MINUTE:
         duration_in_min = req.duration
