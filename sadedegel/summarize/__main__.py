@@ -176,48 +176,52 @@ def evaluate(table_format, tag, debug):
     name, summarizer = "BM25 Summarizer", BM25Summarizer()
 
     if any(_tag in summarizer for _tag in tag):
-        for tf in TF_METHOD_VALUES:
-            for idf in IDF_METHOD_VALUES:
-                if tf == "double_norm":
-                    for k in [0.25, 0.5, 0.75]:
-                        with config_context(tokenizer="bert", tf__method=tf, idf__method=idf,
-                                            tf__double_norm_k=k) as Doc2:
-                            t0 = time.time()
-                            table_key = f"{name} (tf={tf}, double_norm_k={k}, idf={idf}, tokenizer=bert)"
-                            click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+        for k1 in np.linspace(1.2, 2.0, 5):
+            for b in np.linspace(0.5, 0.8, 5):
+                summarizer = BM25Summarizer(k1=k1, b=b)
+                for tf in TF_METHOD_VALUES:
+                    for idf in IDF_METHOD_VALUES:
+                        if tf == "double_norm":
+                            for k in [0.25, 0.5, 0.75]:
+                                with config_context(tokenizer="bert", tf__method=tf, idf__method=idf,
+                                                    tf__double_norm_k=k) as Doc2:
+                                    t0 = time.time()
+                                    table_key = f"{name} (tf={tf}, double_norm_k={k}, idf={idf}, k1={k1}, b={b}, " \
+                                                f"tokenizer=bert)"
+                                    click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
 
-                            docs = [Doc2.from_sentences(doc['sentences']) for doc in
-                                    anno]
+                                    docs = [Doc2.from_sentences(doc['sentences']) for doc in
+                                            anno]
 
-                            for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                                dot_progress(i, len(relevance), t0)
+                                    for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                                        dot_progress(i, len(relevance), t0)
 
-                                y_pred = [summarizer.predict(d)]
+                                        y_pred = [summarizer.predict(d)]
 
-                                score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
-                                score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
-                                score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
+                                        score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
+                                        score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
+                                        score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
 
-                                scores[table_key].append((score_10, score_50, score_80))
-                else:
-                    with config_context(tokenizer="bert", tf__method=tf, idf__method=idf) as Doc2:
-                        t0 = time.time()
-                        table_key = f"{name} (tf={tf}, idf={idf}, tokenizer=bert)"
-                        click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+                                        scores[table_key].append((score_10, score_50, score_80))
+                        else:
+                            with config_context(tokenizer="bert", tf__method=tf, idf__method=idf) as Doc2:
+                                t0 = time.time()
+                                table_key = f"{name} (tf={tf}, idf={idf}, k1={k1}, b={b}, tokenizer=bert)"
+                                click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
 
-                        docs = [Doc2.from_sentences(doc['sentences']) for doc in
-                                anno]
+                                docs = [Doc2.from_sentences(doc['sentences']) for doc in
+                                        anno]
 
-                        for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                            dot_progress(i, len(relevance), t0)
+                                for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                                    dot_progress(i, len(relevance), t0)
 
-                            y_pred = [summarizer.predict(d)]
+                                    y_pred = [summarizer.predict(d)]
 
-                            score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
-                            score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
-                            score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
+                                    score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
+                                    score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
+                                    score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
 
-                            scores[table_key].append((score_10, score_50, score_80))
+                                    scores[table_key].append((score_10, score_50, score_80))
 
     table = [[algo, np.array([s[0] for s in scores]).mean(), np.array([s[1] for s in scores]).mean(),
               np.array([s[2] for s in scores]).mean()] for
