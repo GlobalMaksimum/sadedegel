@@ -69,4 +69,4 @@ y_pred = model.predict([])
 ```
 ### Accuracy
 
-Current prebuilt model has 3-fold cross validation F1 macro score of 0.754.
+Current prebuilt model has 3-fold cross validation F1 macro score of 0.783.
