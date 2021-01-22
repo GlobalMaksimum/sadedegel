@@ -309,7 +309,7 @@ class Sentences(TFImpl, IDFImpl):
     def tfidf(self):
         return self.tf * self.idf
 
-    def bm25(self, k1=1.25, b=0.75) -> np.float16:
+    def bm25(self, k1=1.25, b=0.75) -> np.float32:
         """
         Calculate BM25 Weighting for a given sentence w.r.t. to the document and corpus it resides.
         More information on BM25 http://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
@@ -330,7 +330,7 @@ class Sentences(TFImpl, IDFImpl):
 
         m_factor = k1 + 1
         add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
-        score = np.sum(self.idf * (self.tf * m_factor) / (self.tf + add_smooth), dtype=np.float16)
+        score = np.sum(self.idf * (self.tf * m_factor) / (self.tf + add_smooth), dtype=np.float32)
 
         return score
 
