@@ -324,6 +324,10 @@ class Sentences(TFImpl, IDFImpl):
         elif active_tokenizer == 'simple':
             avg_doc_len = 525
 
+        if k1 == 0:
+            raise UserWarning("Out of empirical bounds and involves risk of losing smoothing for a TF vector "
+                              "with zero elements.")
+
         m_factor = k1 + 1
         add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
         score = np.sum(self.idf * (self.tf * m_factor) / (self.tf + add_smooth), dtype=np.float16)
