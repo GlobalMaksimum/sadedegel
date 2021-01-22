@@ -6,7 +6,7 @@ from ._base import ExtractiveSummarizer
 
 
 class TFIDFSummarizer(ExtractiveSummarizer):
-    tags = ExtractiveSummarizer.tags + ['ml', 'tfidf']
+    tags = ExtractiveSummarizer.tags + ['ml', 'tfidf', 'info-retrieval']
 
     def __init__(self, normalize=True):
         super().__init__(normalize)
