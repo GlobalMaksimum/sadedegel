@@ -309,6 +309,27 @@ class Sentences(TFImpl, IDFImpl):
     def tfidf(self):
         return self.tf * self.idf
 
+    def bm25(self, k1=1.25, b=0.75) -> np.float16:
+        """
+        Calculate BM25 Weighting for a given sentence w.r.t. to the document and corpus it resides.
+        More information on BM25 http://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
+
+        :param k1: Free parameter. Empirical practice range (1.2, 2), default=1.2
+        :param b: Free parameter. Empirical practice range (0.5, 0.8), default=0.75
+        :return: BM25 Weighting Score for the Sentences instance.
+        """
+        active_tokenizer = self.document.builder.config['default']['tokenizer']
+        if active_tokenizer == 'bert':
+            avg_doc_len = 750
+        elif active_tokenizer == 'simple':
+            avg_doc_len = 525
+
+        m_factor = k1 + 1
+        add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
+        score = np.sum(self.idf * (self.tf * m_factor) / (self.tf + add_smooth), dtype=np.float16)
+
+        return score
+
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs):
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
