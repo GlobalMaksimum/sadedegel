@@ -3,7 +3,7 @@ from math import ceil
 from pathlib import Path
 from os.path import dirname
 
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import PassiveAggressiveClassifier
 
 from rich.console import Console
 from rich.progress import Progress
@@ -18,8 +18,8 @@ console = Console()
 
 def empty_model():
     return OnlinePipeline(
-        [('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth')),
-        ('pa', SGDClassifier(alpha=0.0009951711542447474, loss='log'))
+        [('tfidf', TfidfVectorizer(tf_method='binary', idf_method='probabilistic')),
+        ('pa', PassiveAggressiveClassifier(C=0.05438952044776904, average=True))
         ]
     )
 

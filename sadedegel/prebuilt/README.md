@@ -69,4 +69,4 @@ y_pred = model.predict([])
 ```
 ### Accuracy
 
-Current prebuilt model has 3-fold cross validation accuracy score of 0.791 and having accuracy 0.746 on private test set.
+Current prebuilt model has 3-fold cross validation F1 macro score of 0.754.
