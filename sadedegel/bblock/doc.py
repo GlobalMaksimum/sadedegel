@@ -330,7 +330,8 @@ class Sentences(TFImpl, IDFImpl):
 
         m_factor = k1 + 1
         add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
-        score = np.sum(self.idf * (self.tf * m_factor) / (self.tf + add_smooth), dtype=np.float32)
+        len_factor = len(self.tokens)/18.14
+        score = np.sum(self.idf * (self.tf * m_factor * len_factor) / (self.tf + add_smooth), dtype=np.float32)
 
         return score
 
