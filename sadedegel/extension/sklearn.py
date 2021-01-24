@@ -87,8 +87,8 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
 
 
 class BM25Vectorizer(BaseEstimator, TransformerMixin):
-    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, drop_stopwords=True, lowercase=True,
-                 drop_suffix=True, drop_punct=True, show_progress=True):
+    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, drop_stopwords=True,
+                 lowercase=True, drop_suffix=True, drop_punct=True, show_progress=True):
         self.tf_method = tf_method
         self.idf_method = idf_method
         self.lowercase = lowercase
