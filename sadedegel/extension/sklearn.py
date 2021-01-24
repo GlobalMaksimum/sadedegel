@@ -84,3 +84,63 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
             indptr.append(len(indices))
 
         return csr_matrix((data, indices, indptr), dtype=np.float32, shape=(n_total, n_vocabulary))
+
+
+class BM25Vectorizer(BaseEstimator, TransformerMixin):
+    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, drop_stopwords=True, lowercase=True,
+                 drop_suffix=True, drop_punct=True, show_progress=True):
+        self.tf_method = tf_method
+        self.idf_method = idf_method
+        self.lowercase = lowercase
+        self.drop_suffix = drop_suffix
+        self.drop_stopwords = drop_stopwords
+        self.drop_punct = drop_punct
+        self.show_progress = show_progress
+        self.k1 = k1
+        self.b = b
+
+        self.Doc = None
+
+    def fit(self, X, y=None):
+        return self
+
+    def partial_fit(self, X, y=None, **kwargs):
+        return self
+
+    def transform(self, X, y=None):
+        if isinstance(X, list):
+            check_type(X)
+            n_total = len(X)
+        else:
+            X1, X2, X = tee(X, 3)
+
+            check_type(X1)
+            n_total = sum((1 for _ in X2))
+
+        if n_total == 0:
+            raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
+
+        if self.Doc is None:
+            with config_context(tokenizer="bert") as Doc:
+                self.Doc = Doc
+
+        indptr = [0]
+        indices = []
+        data = []
+        for doc in track(X, total=n_total, description="Transforming document(s)", update_period=1,
+                         disable=not self.show_progress):
+            d = self.Doc(doc)
+            n_vocabulary = len(d.builder.tokenizer.vocabulary)
+            bm25 = d.get_bm25(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
+                              lowercase=self.lowercase,
+                              drop_suffix=self.drop_suffix,
+                              drop_punct=self.drop_punct,
+                              k1=self.k1, b=self.b)
+
+            for idx in bm25.nonzero()[0]:
+                indices.append(idx)
+                data.append(bm25[idx])
+
+            indptr.append(len(indices))
+
+        return csr_matrix((data, indices, indptr), dtype=np.float32, shape=(n_total, n_vocabulary))
