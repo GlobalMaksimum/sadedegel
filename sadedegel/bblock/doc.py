@@ -237,16 +237,20 @@ class BM25Impl:
         self.b = None
 
     def _sentence_len_term(self):
-        return len(self.tokens)/18.14
+        if isinstance(self, Sentences):
+            return len(self.tokens)/18.14
+        elif isinstance(self, Document):
+            return 1
 
     def _document_len_term(self):
-        active_tokenizer = self.document.builder.config['default']['tokenizer']
-        if active_tokenizer == 'bert':
-            avg_doc_len = 750
-        elif active_tokenizer == 'simple':
-            avg_doc_len = 525
+        avg_doc_len = {'bert': 750, 'simple': 525}
 
-        return len(self.document.tokens) / avg_doc_len
+        if isinstance(self, Sentences):
+            active_tokenizer = self.document.builder.config['default']['tokenizer']
+            return len(self.document.tokens) / avg_doc_len[active_tokenizer]
+        elif isinstance(self, Document):
+            active_tokenizer = self.builder.config['default']['tokenizer']
+            return len(self.tokens) / avg_doc_len[active_tokenizer]
 
     def _add_smooth_term(self):
         return self.k1 * (1 - self.b + self.b * self._document_len_term())
@@ -366,8 +370,8 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
                               "with zero elements.")
 
         m_factor = k1 + 1
-        add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
-        len_factor = len(self.tokens)/18.14  # Normalized with mean sentence length in sadedegel.dataset.raw
+        add_smooth = k1 * (1 - b + b * len(self.document.tokens)/avg_doc_len)
+        len_factor = len(self.tokens) / 18.14  # Normalized with mean sentence length in sadedegel.dataset.raw
         score = np.sum(self.idf * (self.tf * m_factor * len_factor) / (self.tf + add_smooth), dtype=np.float32)
 
         return score
@@ -433,10 +437,11 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
             yield self.vocabulary[t]
 
 
-class Document(TFImpl, IDFImpl):
+class Document(TFImpl, IDFImpl, BM25Impl):
     def __init__(self, raw, builder):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
+        BM25Impl.__init__(self)
 
         self.raw = raw
         self.spans = []
@@ -565,6 +570,9 @@ class Document(TFImpl, IDFImpl):
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
+
+    def get_bm25(self, tf_method, idf_method, k1=1.25, b=0.75, **kwargs):
+        return self.get_bm_calc(tf_method=tf_method, idf_method=idf_method, k1=k1, b=b, **kwargs)
 
     @property
     def idf(self):
