@@ -330,7 +330,7 @@ class Sentences(TFImpl, IDFImpl):
 
         m_factor = k1 + 1
         add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
-        len_factor = len(self.tokens)/18.14
+        len_factor = len(self.tokens)/18.14  # Normalized with mean sentence length in sadedegel.dataset.raw
         score = np.sum(self.idf * (self.tf * m_factor * len_factor) / (self.tf + add_smooth), dtype=np.float32)
 
         return score
@@ -339,6 +339,43 @@ class Sentences(TFImpl, IDFImpl):
                   drop_punct=False, **kwargs):
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
             idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+
+    def get_bm25(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
+                 drop_punct=False, k1=1.25, b=0.75, **kwargs):
+        """
+        Obtain bm25 weighted document-word representation of a Sentence instance. BM25 is calculated in terms of TF,
+        IDF, normalized sentence length, normalized document length and free parameters that control the combination.
+
+        :param tf_method: Method for Term Frequency calculation.
+        :param idf_method: Method for Inverse Document Frequency calculation
+        :param drop_stopwords: Drop stopwords flag. default=False
+        :param lowercase: Convert to lowercase flag. default=False
+        :param drop_suffix: Drop suffix flag. default=False
+        :param drop_punct: Drop punctuations from sentence when calculating tf, idf scores. default=False
+        :param k1: Free parameter. Empirical practice range (1.2, 2), default=1.2
+        :param b: Free parameter. Empirical practice range (0.5, 0.8), default=0.75
+        :param kwargs:
+        :return:
+        """
+        active_tokenizer = self.document.builder.config['default']['tokenizer']
+        if active_tokenizer == 'bert':
+            avg_doc_len = 750
+        elif active_tokenizer == 'simple':
+            avg_doc_len = 525
+
+        if k1 == 0:
+            raise UserWarning("Out of empirical bounds and involves risk of losing smoothing for a TF vector "
+                              "with zero elements.")
+
+        m_factor = k1 + 1
+        add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
+        len_factor = len(self.tokens) / 18.14  # Normalized with mean sentence length in sadedegel.dataset.raw
+
+        tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+        idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+
+        bm25 = idf * tf * m_factor * len_factor / (tf + add_smooth)
+        return bm25
 
     @property
     def tf(self):
