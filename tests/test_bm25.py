@@ -1,6 +1,6 @@
+from itertools import product
 import numpy as np
 import pytest
-from itertools import product
 from .context import Doc, load_raw_corpus
 
 __famous_quote__ = "Merhaba dünya. Biz dostuz. Barış için geldik."
@@ -8,7 +8,7 @@ __famous_quote__ = "Merhaba dünya. Biz dostuz. Barış için geldik."
 
 def test_bm25():
     d = Doc(__famous_quote__)
-    assert np.sum(d[0].bm25()) == pytest.approx(13.99788 * len(d[0].tokens)/18.14)
+    assert np.sum(d[0].bm25()) == pytest.approx(13.99788 * len(d[0].tokens) / 18.14)
     with pytest.raises(UserWarning, match=r"Out of empirical bounds *."):
         d[0].bm25(k1=0)
 

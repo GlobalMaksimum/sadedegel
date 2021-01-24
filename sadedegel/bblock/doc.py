@@ -231,11 +231,48 @@ class TFImpl:
             raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
 
 
-class Sentences(TFImpl, IDFImpl):
+class BM25Impl:
+    def __init__(self):
+        self.k1 = None
+        self.b = None
+
+    def _sentence_len_term(self):
+        return len(self.tokens)/18.14
+
+    def _document_len_term(self):
+        active_tokenizer = self.document.builder.config['default']['tokenizer']
+        if active_tokenizer == 'bert':
+            avg_doc_len = 750
+        elif active_tokenizer == 'simple':
+            avg_doc_len = 525
+
+        return len(self.document.tokens) / avg_doc_len
+
+    def _add_smooth_term(self):
+        return self.k1 * (1 - self.b + self.b * self._document_len_term())
+
+    def _multiplying_factor(self):
+        return 1 + self.k1
+
+    def get_bm_calc(self, tf_method, idf_method, k1, b, drop_stopwords=False, lowercase=False, drop_suffix=False,
+                    drop_punct=False, **kwargs):
+        self.k1 = k1
+        self.b = b
+
+        tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+        idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+
+        bm25 = idf * tf * self._multiplying_factor() * self._sentence_len_term() / (tf + self._add_smooth_term())
+
+        return bm25
+
+
+class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     def __init__(self, id_: int, text: str, doc, config: dict = {}):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
+        BM25Impl.__init__(self)
 
         self.id = id_
         self.text = text
@@ -355,27 +392,11 @@ class Sentences(TFImpl, IDFImpl):
         :param k1: Free parameter. Empirical practice range (1.2, 2), default=1.2
         :param b: Free parameter. Empirical practice range (0.5, 0.8), default=0.75
         :param kwargs:
-        :return:
+        :return: np.ndarray of size (, size_vocabulary)
         """
-        active_tokenizer = self.document.builder.config['default']['tokenizer']
-        if active_tokenizer == 'bert':
-            avg_doc_len = 750
-        elif active_tokenizer == 'simple':
-            avg_doc_len = 525
 
-        if k1 == 0:
-            raise UserWarning("Out of empirical bounds and involves risk of losing smoothing for a TF vector "
-                              "with zero elements.")
-
-        m_factor = k1 + 1
-        add_smooth = k1 * (1 - b + b*len(self.document.tokens)/avg_doc_len)
-        len_factor = len(self.tokens) / 18.14  # Normalized with mean sentence length in sadedegel.dataset.raw
-
-        tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
-        idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
-
-        bm25 = idf * tf * m_factor * len_factor / (tf + add_smooth)
-        return bm25
+        return self.get_bm_calc(tf_method, idf_method, drop_stopwords=drop_stopwords, lowercase=lowercase,
+                                drop_suffix=drop_suffix, drop_punct=drop_punct, k1=k1, b=b, **kwargs)
 
     @property
     def tf(self):
