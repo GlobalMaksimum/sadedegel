@@ -133,9 +133,10 @@ def evaluate(table_format, tag, debug):
     suffix = [True, False]
     lower = [True, False]
 
-    tfidf_word_settings = product(stopword, punct, suffix, lower)
+    tfidf_word_settings = list(product(stopword, punct, suffix, lower))
 
     if any(_tag in summarizer for _tag in tag):
+        c = 0
         for tf in TF_METHOD_VALUES:
             for idf in IDF_METHOD_VALUES:
                 for drop_stopwords, drop_punct, drop_suffix, lowercase in tfidf_word_settings:
@@ -143,13 +144,14 @@ def evaluate(table_format, tag, debug):
                                                  drop_suffix=drop_suffix, lowercase=lowercase)
                     if tf == "double_norm":
                         for k in [0.25, 0.5, 0.75]:
+                            c += 1
                             with config_context(tokenizer="bert", tf__method=tf, idf__method=idf,
                                                 tf__double_norm_k=k) as Doc2:
                                 t0 = time.time()
                                 table_key = f"{name} (tf={tf}, double_norm_k={k}, idf={idf}, " \
                                             f"drop_stopwords={drop_stopwords}, drop_punct={drop_punct}, " \
                                             f"drop_suffix={drop_suffix}, lowercase={lowercase}, tokenizer=bert)"
-                                click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+                                click.echo(click.style(f"{c}-    {table_key}", fg="magenta"), nl=False)
 
                                 docs = [Doc2.from_sentences(doc['sentences']) for doc in
                                         anno]
@@ -165,12 +167,13 @@ def evaluate(table_format, tag, debug):
 
                                     scores[table_key].append((score_10, score_50, score_80))
                     else:
+                        c += 1
                         with config_context(tokenizer="bert", tf__method=tf, idf__method=idf) as Doc2:
                             t0 = time.time()
                             table_key = f"{name} (tf={tf}, idf={idf}, " \
                                         f"drop_stopwords={drop_stopwords}, drop_punct={drop_punct}, " \
                                         f"drop_suffix={drop_suffix}, lowercase={lowercase}, tokenizer=bert)"
-                            click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+                            click.echo(click.style(f"{c}-    {table_key}", fg="magenta"), nl=False)
 
                             docs = [Doc2.from_sentences(doc['sentences']) for doc in
                                     anno]
