@@ -1,7 +1,7 @@
 ---
 short_name: tagging
 name: Veri Etiketleme Aracı
-img: /sadedegel/assets/img/etiket-icon.png
+img: /assets/img/etiket-icon.png
 githubURL: https://github.com/GlobalMaksimum/sadedegel-annotator
 ---
 

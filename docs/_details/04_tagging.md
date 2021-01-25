@@ -19,7 +19,7 @@ Sadedegel Veri Etiketleme aracı, her turda metnin anlamına en az katkı sağla
                         <div class="col-md-4">
                             <br>
                             <video width="250" height="330" controls="" autoplay="">
-                                <source src="/sadedegel/assets/img/annotator.mp4" type="video/mp4">
+                                <source src="/assets/img/annotator.mp4" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                         </div>

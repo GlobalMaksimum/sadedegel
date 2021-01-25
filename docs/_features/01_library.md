@@ -1,7 +1,7 @@
 ---
 short_name: library
 name: Açık Kaynak Kodlu Kütüphane
-img: /sadedegel/assets/img/nedir-icon.png
+img: /assets/img/nedir-icon.png
 githubURL: https://github.com/GlobalMaksimum/sadedegel
 ---
 

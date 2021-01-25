@@ -1,7 +1,7 @@
 ---
 short_name: extension
 name: Chrome Tarayıcı Eklentisi
-img: /sadedegel/assets/img/neden-icon.png
+img: /assets/img/neden-icon.png
 githubURL: https://github.com/GlobalMaksimum/sadedegel-chrome-extension
 ---
 

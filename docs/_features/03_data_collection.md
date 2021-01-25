@@ -1,7 +1,7 @@
 ---
 short_name: data_collection
 name: Veri Toplama Aracı
-img: /sadedegel/assets/img/nasil-icon.png
+img: /assets/img/nasil-icon.png
 githubURL: https://github.com/GlobalMaksimum/sadedegel-scraper
 ---
 
