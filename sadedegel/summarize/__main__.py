@@ -181,13 +181,13 @@ def evaluate(table_format, tag, debug):
     suffix = [True, False]
     lower = [True, False]
 
-    bm25_word_settings = product(stopword, punct, suffix, lower)
+    bm25_word_settings = list(product(stopword, punct, suffix, lower))
 
     if any(_tag in summarizer for _tag in tag):
         c = 0
         for k1 in np.linspace(1.2, 2.0, 5):
             for b in np.linspace(0.5, 0.8, 5):
-                for drop_stopwords, drop_punct, drop_suffix, lowercase in list(bm25_word_settings):
+                for drop_stopwords, drop_punct, drop_suffix, lowercase in bm25_word_settings:
                     for tf in TF_METHOD_VALUES:
                         for idf in IDF_METHOD_VALUES:
                             summarizer = BM25Summarizer(k1=k1, b=b,
