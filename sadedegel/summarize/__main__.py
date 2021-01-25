@@ -184,23 +184,26 @@ def evaluate(table_format, tag, debug):
     bm25_word_settings = product(stopword, punct, suffix, lower)
 
     if any(_tag in summarizer for _tag in tag):
+        c = 0
         for k1 in np.linspace(1.2, 2.0, 5):
             for b in np.linspace(0.5, 0.8, 5):
-                for drop_stopwords, drop_punct, drop_suffix, lowercase in bm25_word_settings:
-                    summarizer = BM25Summarizer(k1=k1, b=b,
-                                                drop_stopwords=drop_stopwords, drop_punct=drop_punct,
-                                                drop_suffix=drop_suffix, lowercase=lowercase)
+                for drop_stopwords, drop_punct, drop_suffix, lowercase in list(bm25_word_settings):
                     for tf in TF_METHOD_VALUES:
                         for idf in IDF_METHOD_VALUES:
+                            summarizer = BM25Summarizer(k1=k1, b=b,
+                                                        drop_stopwords=drop_stopwords, drop_punct=drop_punct,
+                                                        drop_suffix=drop_suffix, lowercase=lowercase)
+
                             if tf == "double_norm":
                                 for k in [0.25, 0.5, 0.75]:
+                                    c += 1
                                     with config_context(tokenizer="bert", tf__method=tf, idf__method=idf,
                                                         tf__double_norm_k=k) as Doc2:
                                         t0 = time.time()
                                         table_key = f"{name} (tf={tf}, double_norm_k={k}, idf={idf}, k1={k1}, b={b}, " \
                                                     f"drop_stopwords={drop_stopwords}, drop_punct={drop_punct}, " \
                                                     f"drop_suffix={drop_suffix}, lowercase={lowercase}, tokenizer=bert)"
-                                        click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+                                        click.echo(click.style(f"{c}-    {table_key}", fg="magenta"), nl=False)
 
                                         docs = [Doc2.from_sentences(doc['sentences']) for doc in
                                                 anno]
@@ -216,12 +219,13 @@ def evaluate(table_format, tag, debug):
 
                                             scores[table_key].append((score_10, score_50, score_80))
                             else:
+                                c += 1
                                 with config_context(tokenizer="bert", tf__method=tf, idf__method=idf) as Doc2:
                                     t0 = time.time()
                                     table_key = f"{name} (tf={tf}, idf={idf}, k1={k1}, b={b}," \
                                                 f"drop_stopwords={drop_stopwords}, drop_punct={drop_punct}, " \
                                                 f"drop_suffix={drop_suffix}, lowercase={lowercase}, tokenizer=bert)"
-                                    click.echo(click.style(f"    {table_key}", fg="magenta"), nl=False)
+                                    click.echo(click.style(f"{c}-    {table_key}", fg="magenta"), nl=False)
 
                                     docs = [Doc2.from_sentences(doc['sentences']) for doc in
                                             anno]
