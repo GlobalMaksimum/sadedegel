@@ -238,7 +238,7 @@ class BM25Impl:
 
     def _sentence_len_term(self):
         if isinstance(self, Sentences):
-            return len(self.tokens)/18.14
+            return len(self.tokens)/len(self.document.tokens)
         elif isinstance(self, Document):
             return 1
 
