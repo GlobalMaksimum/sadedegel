@@ -15,7 +15,7 @@ class BM25Summarizer(ExtractiveSummarizer):
         If ``False``, return a raw score vector.
         Otherwise, return L2 normalized score vector.
     """
-    tags = ExtractiveSummarizer.tags + ['self-supervised', 'ml', 'info-retrieval']
+    tags = ExtractiveSummarizer.tags + ['self-supervised', 'ml', 'info-retrieval', 'bm']
 
     def __init__(self, k1=1.25, b=0.75,
                  tf_method=None, idf_method=None,
