@@ -65,12 +65,20 @@ def validate():
         train_clone, train = tee(train, 2)
 
         n_train = sum(1 for _ in train_clone)
+        categories = set([row['sentiment'] for row in train])
 
         if n_train == CORPUS_SIZE:
             console.log("Cardinality check [yellow]DONE[/yellow]")
         else:
             console.log("Cardinality check [red]FAILED[/red]")
             console.log(f"|Tweet sentiment (train)| : {n_train}")
+            sys.exit(1)
+
+        if categories == set(['POSITIVE', 'NEGATIVE']):
+            console.log("Label check [yellow]DONE[/yellow]")
+        else:
+            console.log("Cardinality check [red]FAILED[/red]")
+            console.log(f"|Tweet sentiment labels (train)| : {categories}")
             sys.exit(1)
 
 
