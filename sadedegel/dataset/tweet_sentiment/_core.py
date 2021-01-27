@@ -48,4 +48,4 @@ def load_tweet_sentiment_train(data_home="~/.sadedegel_data"):
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(id=rec['text_uuid'], tweet=rec['text'], sentiment=CLASS_VALUES.index(rec['sentiment']))
+            yield dict(text_uuid=rec['text_uuid'], text=rec['text'], sentiment=CLASS_VALUES.index(rec['sentiment']))
