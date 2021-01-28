@@ -3,6 +3,8 @@ from math import ceil
 from typing import List
 from loguru import logger
 
+import wandb
+
 import click
 import time
 import warnings
@@ -92,6 +94,8 @@ def evaluate(table_format, tag, debug):
     if not debug:
         warnings.filterwarnings("ignore")
 
+    wandb.init(project="sadedegel-sadedegel_summarize")
+
     anno = load_annotated_corpus(False)
     relevance = [[doc['relevance']] for doc in anno]
 
@@ -113,8 +117,9 @@ def evaluate(table_format, tag, debug):
                         word_tokenizer == "simple":
                     click.echo(click.style("SKIP", fg="yellow"))
                     continue
-
+                step = 0
                 for i, (y_true, d) in enumerate(zip(relevance, docs)):
+                    step += 1
                     dot_progress(i, len(relevance), t0)
 
                     y_pred = [summarizer.predict(d)]
@@ -122,6 +127,10 @@ def evaluate(table_format, tag, debug):
                     score_10 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.1))
                     score_50 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.5))
                     score_80 = ndcg_score(y_true, y_pred, k=ceil(len(d) * 0.8))
+
+                    wandb.log({f'{name} - {word_tokenizer} - NDGC k=0.1': score_10, "Doc": i})
+                    wandb.log({f'{name} - {word_tokenizer} - NDGC k=0.5': score_50, "Doc": i})
+                    wandb.log({f'{name} - {word_tokenizer} - NDGC k=0.8': score_80, "Doc": i})
 
                     scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
 
