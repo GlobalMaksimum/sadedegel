@@ -117,9 +117,7 @@ def evaluate(table_format, tag, debug):
                         word_tokenizer == "simple":
                     click.echo(click.style("SKIP", fg="yellow"))
                     continue
-                step = 0
                 for i, (y_true, d) in enumerate(zip(relevance, docs)):
-                    step += 1
                     dot_progress(i, len(relevance), t0)
 
                     y_pred = [summarizer.predict(d)]
@@ -133,6 +131,13 @@ def evaluate(table_format, tag, debug):
                     wandb.log({f'{name} - {word_tokenizer} - NDGC k=0.8': score_80, "Doc": i})
 
                     scores[f"{name} - {word_tokenizer}"].append((score_10, score_50, score_80))
+
+                wandb.run.summary[f'{name} - {word_tokenizer} - Mean - NDGC k=0.1'] = \
+                    np.array(scores[f"{name} - {word_tokenizer}"])[:, 0].mean()
+                wandb.run.summary[f'{name} - {word_tokenizer} - Mean - NDGC k=0.5'] = \
+                    np.array(scores[f"{name} - {word_tokenizer}"])[:, 1].mean()
+                wandb.run.summary[f'{name} - {word_tokenizer} - Mean - NDGC k=0.8'] = \
+                    np.array(scores[f"{name} - {word_tokenizer}"])[:, 2].mean()
 
     name, summarizer = "TFIDF Summarizer", TFIDFSummarizer()
 
