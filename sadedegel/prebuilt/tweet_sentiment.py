@@ -12,6 +12,8 @@ from joblib import dump, load as jl_load
 
 import numpy as np
 
+from sadedegel.tweet_sentiment import load_tweet_sentiment_train
+
 from ..extension.sklearn import TfidfVectorizer, OnlinePipeline
 
 console = Console()
@@ -30,8 +32,8 @@ def build(max_rows=10000):
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
 
-    # read csv gonna be updated with download (Issue #200)
-    df = pd.read_csv(Path(dirname(__file__)) / 'data' / 'tweet' / 'tweet_sentiment_train.csv.gz', compression='gzip')
+    raw = load_tweet_sentiment_train()
+    df = pd.DataFrame.from_records(raw)
 
     if df.isna().sum().sum() > 0:
         console.log((f"[red]Warning![/red] The data has {df.isna().sum().sum()} NaN values."
