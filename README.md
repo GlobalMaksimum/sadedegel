@@ -6,7 +6,7 @@ SadedeGel is a library for unsupervised extraction-based news summarization usin
 
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.15 out now!**
+💫 **Version 0.17 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -21,6 +21,7 @@ Development of the library takes place as a part of [Açık Kaynak Hackathon Pro
 ![Last Commit](https://img.shields.io/github/last-commit/globalmaksimum/sadedegel?style=plastic&logo=GitHub)
 [![Binder](https://mybinder.org/badge_logo.svg?style=plastic)](https://mybinder.org/v2/gh/GlobalMaksimum/sadedegel.git/master?filepath=notebook%2FBasics.ipynb)
 [![Slack](https://img.shields.io/static/v1?logo=slack&style=plastic&color=blueviolet&label=slack&labelColor=grey&message=sadedegel)](https://join.slack.com/t/sadedegel/shared_invite/zt-h77u6aeq-VzEorB5QLHyJV90Fv4Ky3A)
+[![Kaggle](http://img.shields.io/static/v1?logo=kaggle&style=plastic&color=blue&label=kaggle&labelColor=grey&message=notebooks)](https://www.kaggle.com/search?q=sadedegel+in%3Anotebooks)
 
 
 ## 📖 Documentation
@@ -63,28 +64,47 @@ Other community maintainers
   * [Extended corpus](sadedegel/dataset/README.md)
       * Raw corpus (`sadedegel.dataset.extended.load_extended_raw_corpus`)
       * Sentences tokenized corpus (`sadedegel.dataset.extended.load_extended_sents_corpus`)
+      
+  * TsCorpus(`sadedegel.dataset.tscorpus`)
+      * Thanks to [Taner Sezer](https://github.com/tanerim), over 300K documents from tscorpus is also a part of sadedegel. Allowing us to
+        * [Evaluate](sadedegel/bblock/TOKENIZER.md) our tokenizers (word tokenizers)
+        * Build our [prebuilt news category classifier](sadedegel/prebuilt/README.md)  
 * ML based sentence boundary detector (**SBD**) trained for Turkish language (`sadedegel.dataset`)
-* Various baseline summarizers
-  * Position Summarizer
-    * First Important Summarizer
-    * Last Important Summarizer
-  * Length Summarizer
-  * Band Summarizer
-  * Random Summarizer
+* Sadedegel Extractive Summarizers
+  * Various baseline summarizers
+    * Position Summarizer
+    * Length Summarizer
+    * Band Summarizer
+    * Random Summarizer
   
-* Various unsupervised/supervised summarizers
-  * ROUGE1 Summarizer
-  * TextRank Summarizer
-  * Cluster Summarizer
-  * Supervised Summarizer
+  * Various unsupervised/supervised summarizers
+    * ROUGE1 Summarizer
+    * TextRank Summarizer
+    * Cluster Summarizer
+    * Lexrank Summarizer
  
 * Various Word Tokenizers
   * BERT Tokenizer - Trained tokenizer
-  * Simple Tokenizer - Regex Based (**Experimental**)
+  * [**Experimental**] Simple Tokenizer - Regex Based
   
 * Various Embeddings Implementation
   * BERT Embeddings
   * TfIdf Embeddings
+  
+* [**Experimental**] Prebuilt models for several common NLP tasks ([`sadedegel.prebuilt`](sadedegel/prebuilt/README.md)).
+
+```python
+from sadedegel.prebuilt import news_classification
+
+model = news_classification.load()
+
+doc_str = ("Bilişim sektörü, günlük devrimlerin yaşandığı ve hızına yetişilemeyen dev bir alan haline geleli uzun bir zaman olmadı. Günümüz bilgisayarlarının tarihi, yarım asırı yeni tamamlarken; yaşanan gelişmeler çok "
+"daha büyük ölçekte. Türkiye de bu gelişmelere 1960 yılında Karayolları Umum Müdürlüğü (şimdiki Karayolları Genel Müdürlüğü) için IBM’den satın aldığı ilk bilgisayarıyla dahil oldu. IBM 650 Model I adını taşıyan bilgisayarın "
+"satın alınma amacı ise yol yapımında gereken hesaplamaların daha hızlı yapılmasıydı. Türkiye’nin ilk bilgisayar destekli karayolu olan 63 km uzunluğundaki Polatlı - Sivrihisar yolu için yapılan hesaplamalar IBM 650 ile 1 saatte yapıldı. "
+"Daha öncesinde 3 - 4 ayı bulan hesaplamaların 1 saate inmesi; teknolojinin, ekonomik ve toplumsal dönüşüme büyük etkide bulunacağının habercisiydi.")
+
+y_pred = model.predict([doc_str])
+```
 
 📖 **For more details, refer to [sadedegel.ai](http://sadedegel.ai)**
 
@@ -103,6 +123,11 @@ Using pip, sadedeGel releases are available as source packages and binary wheels
 
 ```bash
 pip install sadedegel
+```
+or update now
+
+```bash
+pip install sadedegel -U
 ```
 
 When using pip it is generally recommended to install packages in a virtual
@@ -206,6 +231,11 @@ that directory. Don't forget to also install the test utilities via sadedeGel's
 make test
 ```
 
+## 📓 Kaggle
+
+* Check [comprehensive notebook](https://www.kaggle.com/datafan07/clickbait-news-classification-using-sadedegel) of Kaggle Master [Ertugrul Demir](https://www.kaggle.com/datafan07) explaining the capabilities of sadedegel on Turkish clickbate dataset
+
+
 ## Youtube Channel
 Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCyNG1Mehl44XWZ8LzkColuw)
 
@@ -228,6 +258,15 @@ Some videos from [sadedeGel YouTube Channel](https://www.youtube.com/channel/UCy
 [![Youtube](https://img.shields.io/youtube/likes/G_erifsGGFs?label=SadedeGel%20BERT%20Embeddings%20(Turkish)&style=social&withDislikes)](https://www.youtube.com/watch?v=G_erifsGGFs)
 
 ## References
+
+### Special Thanks
+
+* [Starlang Software](https://starlangyazilim.com/) for their contribution to open source Turkish NLP development and corpus preperation.
+
+* [Olcay Taner Yıldız, Ph.D.](https://github.com/olcaytaner), one of our refrees in [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/), for helping our development on sadedegel.
+
+* [Taner Sezer](https://github.com/tanerim) for his contribution on tokenization corpus and labeled news corpus.
+
 ### Our Community Contributors
 
 We would like to thank our community contributors for their bug/enhancement requests and questions to make sadedeGel better everyday

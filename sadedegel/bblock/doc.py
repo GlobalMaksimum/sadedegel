@@ -2,6 +2,7 @@ from collections import Counter
 import re
 from typing import List, Union
 import warnings
+from functools import partial
 
 import torch
 
@@ -13,8 +14,9 @@ from scipy.sparse import csr_matrix
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
 from .util import tr_lower, __tr_lower_abbrv__, flatten, pad
-from .word_tokenizer import get_default_word_tokenizer, WordTokenizer
-from .token import Token
+from ..config import load_config
+from .word_tokenizer import WordTokenizer
+from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from ..about import __version__
 from ._bert_wrapper import BertWrapper
 
@@ -157,19 +159,112 @@ class Span:
         return features
 
 
-class Sentences:
-    tf_type = 'binary'
+TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM = "binary", "raw", "freq", "log_norm", "double_norm"
+TF_METHOD_VALUES = [TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM]
 
-    def __init__(self, id_: int, text: str, doc):
+
+class TFImpl:
+    def __init__(self):
+        pass
+
+    def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False):
+        v = np.zeros(len(self.vocabulary))
+
+        if lowercase:
+            tokens = [tr_lower(t) for t in self.tokens]
+        else:
+            tokens = self.tokens
+
+        counter = Counter(tokens)
+
+        for token in tokens:
+            t = self.vocabulary[token]
+            if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
+                    drop_punct and t.is_punct):
+                continue
+
+            v[t.id] = counter[token]
+
+        return v
+
+    def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+        return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
+
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+        tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
+
+        normalization = tf.sum()
+
+        if normalization > 0:
+            return tf / normalization
+        else:
+            return tf
+
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+        return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
+
+    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
+        if not (0 < k < 1):
+            raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
+
+        tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
+        normalization = tf.max()
+
+        if normalization > 0:
+            return k + (1 - k) * (tf / normalization)
+        else:
+            return tf
+
+    def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
+               **kwargs):
+        if method == TF_BINARY:
+            return self.binary_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
+        elif method == TF_RAW:
+            return self.raw_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
+        elif method == TF_FREQ:
+            return self.freq_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
+        elif method == TF_LOG_NORM:
+            return self.log_norm_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
+        elif method == TF_DOUBLE_NORM:
+            return self.double_norm_tf(drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+        else:
+            raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
+
+
+class Sentences(TFImpl, IDFImpl):
+
+    def __init__(self, id_: int, text: str, doc, config: dict = {}):
+        TFImpl.__init__(self)
+        IDFImpl.__init__(self)
+
         self.id = id_
         self.text = text
 
         self._tokens = None
         self.document = doc
         self._bert_emb = None
-        self.toks = None
 
-        self.f_tf = self.get_tf_func
+        # No failback to config read in here because this will slow down sentence instantiation extremely.
+        self.tf_method = config['tf']['method']
+
+        if self.tf_method == TF_BINARY:
+            self.f_tf = self.binary_tf
+        elif self.tf_method == TF_RAW:
+            self.f_tf = self.raw_tf
+        elif self.tf_method == TF_FREQ:
+            self.f_tf = self.freq_tf
+        elif self.tf_method == TF_LOG_NORM:
+            self.f_tf = self.log_norm_tf
+        elif self.tf_method == TF_DOUBLE_NORM:
+            k = config.getfloat('tf', 'double_norm_k')
+
+            if not 0 < k < 1:
+                raise ValueError(
+                    f"Invalid k value {k} for double norm term frequency. Values should be between 0 and 1.")
+            self.f_tf = partial(self.double_norm_tf, k=k)
+        else:
+            raise ValueError(
+                f"Unknown term frequency method {self.tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
 
     @property
     def tokenizer(self):
@@ -181,8 +276,7 @@ class Sentences:
 
     @classmethod
     def set_tf_function(cls, tf_type):
-        if tf_type != Sentences.tf_type:
-            Sentences.tf_type = tf_type
+        raise DeprecationWarning("Function is depreciated.")
 
     @property
     def bert(self):
@@ -215,53 +309,17 @@ class Sentences:
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
-    @property
-    def _doc_toks(self):
-        return dict(Counter([tok for sent in self.document for tok in sent.tokens]))
-
-    @property
-    def _doc_len(self):
-        return len([tok for sent in self.document for tok in sent.tokens])
-
     def tfidf(self):
         return self.tf * self.idf
+
+    def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
+                  drop_punct=False, **kwargs):
+        return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
+            idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
     @property
     def tf(self):
         return self.f_tf()
-
-    def binary_tf(self):
-        return self.raw_tf().clip(max=1)
-
-    def raw_tf(self):
-        v = np.zeros(len(self.vocabulary))
-
-        for token in self.tokens:
-            t = self.vocabulary[token]
-            if not t.is_oov:
-                v[t.id] = self._doc_toks[token]
-
-        return v
-
-    def freq_tf(self):
-        return self.raw_tf() / self.document.raw_tf().sum()
-
-    def log_norm_tf(self):
-        return np.log1p(self.raw_tf())
-
-    def double_norm_tf(self, k=0.5):
-        if not (0 < k < 1):
-            raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation")
-
-        return k + (1 - k) * (self.raw_tf() / self.document.raw_tf().max())
-
-    def get_tf_func(self):
-        tf_funcs = {'binary': self.binary_tf(),
-                    'raw': self.raw_tf(),
-                    'freq': self.freq_tf(),
-                    'log_norm': self.log_norm_tf(),
-                    'double_norm': self.double_norm_tf()}
-        return tf_funcs[Sentences.tf_type]
 
     @property
     def idf(self):
@@ -286,14 +344,35 @@ class Sentences:
     def __eq__(self, s: str):
         return self.text == s  # no need for type checking, will return false for non-strings
 
+    def __getitem__(self, token_ix):
+        return self.vocabulary[self.tokens[token_ix]]
 
-class Document:
+    def __iter__(self):
+        for t in self.tokens:
+            yield self.vocabulary[t]
+
+
+class Document(TFImpl, IDFImpl):
     def __init__(self, raw, builder):
+        TFImpl.__init__(self)
+        IDFImpl.__init__(self)
+
         self.raw = raw
         self.spans = []
         self._sents = []
+        self._tokens = None
         self._bert = None
         self.builder = builder
+
+    @property
+    def tokens(self):
+        if self._tokens is None:
+            self._tokens = []
+            for s in self:
+                for t in s.tokens:
+                    self._tokens.append(t)
+
+        return self._tokens
 
     @property
     def vocabulary(self):
@@ -303,20 +382,8 @@ class Document:
     def tokenizer(self):
         return self.builder.tokenizer
 
-    @property
-    def sents(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 17):
-            warnings.warn(
-                ("Doc.sents is deprecated and will be removed by 0.17. "
-                 "Use either iter(Doc) or Doc[i] to access specific sentences in document."), DeprecationWarning,
-                stacklevel=2)
-        else:
-            raise Exception("Remove .sent before release.")
-
-        return self._sents
-
-    def __getitem__(self, sent_idx):
-        return self._sents[sent_idx]
+    def __getitem__(self, key):
+        return self._sents[key]
 
     def __iter__(self):
         return iter(self._sents)
@@ -371,6 +438,11 @@ class Document:
 
     @property
     def tfidf_embeddings(self):
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                "Doc.tfidf_embeddings is deprecated and will be removed by 0.18. "
+                , DeprecationWarning,
+                stacklevel=2)
 
         indptr = [0]
         indices = []
@@ -389,48 +461,35 @@ class Document:
 
     @property
     def tf(self):
-        indptr = [0]
-        indices = []
-        data = []
-        for i in range(len(self)):
-            _tf = self[i].tf
-            for idx in _tf.nonzero()[0]:
-                indices.append(idx)
-                data.append(_tf[idx])
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("Doc.tf is deprecated and will be removed by 0.18. "
+                 "Use get_tf function instead."), DeprecationWarning,
+                stacklevel=2)
 
-            indptr.append(len(indices))
+        return self.get_tf(self.builder.config['tf']['method'])
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
-
-        return m.max(axis=0)
-
-    def raw_tf(self):
-        v = np.zeros(len(self.vocabulary))
-
-        for s in self:
-            v += s.raw_tf()
-
-        return v
+    def get_tfidf(self, tf_method, idf_method, **kwargs):
+        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
     @property
     def idf(self):
-        indptr = [0]
-        indices = []
-        data = []
-        for i in range(len(self.sents)):
-            idf = self.sents[i].idf
-            for idx in idf.nonzero()[0]:
-                indices.append(idx)
-                data.append(idf[idx])
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("Doc.idf is deprecated and will be removed by 0.18. "
+                 "Use get_idf function instead."), DeprecationWarning,
+                stacklevel=2)
 
-            indptr.append(len(indices))
-
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
-
-        return m.max(axis=0)
+        return self.get_idf(self.builder.config['idf']['method'])
 
     def tfidf(self):
-        return self.tf.multiply(self.idf)
+        if tuple(map(int, __version__.split('.'))) < (0, 18):
+            warnings.warn(
+                ("Doc.tfidf is deprecated and will be removed by 0.18. "
+                 "Use get_tfidf function instead."), DeprecationWarning,
+                stacklevel=2)
+
+        return csr_matrix((self.tf * self.idf).reshape(1, -1))
 
     def from_sentences(self, sentences: List[str]):
         return self.builder.from_sentences(sentences)
@@ -453,13 +512,20 @@ class DocBuilderMeta(type):
 class DocBuilder(metaclass=DocBuilderMeta):
     _bert_wrapper = None # loaded on access to .bert class property
 
-    def __init__(self, tokenizer=None):
+    def __init__(self, **kwargs):
+
+        self.config = load_config(kwargs)
+
         self.sbd = load_model()
 
-        if tokenizer is None:
-            self.tokenizer = get_default_word_tokenizer()
+        self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        idf_method = self.config['idf']['method']
+
+        if idf_method in IDF_METHOD_VALUES:
+            Token.config = self.config
         else:
-            self.tokenizer = WordTokenizer.factory(tokenizer)
+            raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {IDF_METHOD_VALUES}")
 
     def __call__(self, raw):
 
@@ -469,18 +535,21 @@ class DocBuilder(metaclass=DocBuilderMeta):
             d = Document(raw, self)
             d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
 
-            y_pred = self.sbd.predict((span.span_features() for span in d.spans))
+            if len(d.spans) > 0:
+                y_pred = self.sbd.predict((span.span_features() for span in d.spans))
+            else:
+                y_pred = []
 
             eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
 
             if len(eos_list) > 0:
                 for i, eos in enumerate(eos_list):
                     if i == 0:
-                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d))
+                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d, self.config))
                     else:
-                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d))
+                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d, self.config))
             else:
-                d._sents.append(Sentences(0, d.raw.strip(), d))
+                d._sents.append(Sentences(0, d.raw.strip(), d, self.config))
         else:
             raise Exception(f"{raw} document text can't be None")
 
@@ -491,6 +560,6 @@ class DocBuilder(metaclass=DocBuilderMeta):
 
         d = Document(raw, self)
         for i, s in enumerate(sentences):
-            d._sents.append(Sentences(i, s, d))
+            d._sents.append(Sentences(i, s, d, self.config))
 
         return d

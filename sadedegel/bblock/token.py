@@ -1,8 +1,42 @@
 import unicodedata
 
 from math import log
-from .util import tr_lower
-from ..config import configuration
+import numpy as np
+from .util import tr_lower, load_stopwords
+
+IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
+IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
+
+
+class IDFImpl:
+    def __init__(self):
+        pass
+
+    def get_idf(self, method=IDF_SMOOTH, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
+                **kwargs):
+
+        if method not in IDF_METHOD_VALUES:
+            raise ValueError(f"Unknown idf method ({method}). Choose one of {IDF_METHOD_VALUES}")
+
+        v = np.zeros(len(self.vocabulary))
+
+        if lowercase:
+            tokens = [tr_lower(t) for t in self.tokens]
+        else:
+            tokens = self.tokens
+
+        for token in tokens:
+            t = self.vocabulary[token]
+            if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
+                    drop_punct and t.is_punct):
+                continue
+
+            if method == IDF_SMOOTH:
+                v[t.id] = t.smooth_idf
+            else:
+                v[t.id] = t.prob_idf
+
+        return v
 
 
 def word_shape(text):
@@ -33,6 +67,8 @@ def word_shape(text):
 
 
 class Token:
+    config = None
+    STOPWORDS = None
     cache = {}
 
     def __init__(self, entry):
@@ -46,6 +82,7 @@ class Token:
             self.lower_ = tr_lower(self.word)
             self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
             self.is_digit = self.word.isdigit()
+            self.is_suffix = self.word.startswith('##')
             self.shape = word_shape(self.word)
 
             self._entry = None
@@ -56,6 +93,7 @@ class Token:
             self.lower_ = tr_lower(self.word)
             self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
             self.is_digit = self.word.isdigit()
+            self.is_suffix = self.word.startswith('##')
             self.shape = word_shape(self.word)
 
             self._entry = entry
@@ -69,10 +107,18 @@ class Token:
 
     @property
     def idf(self):
-        if configuration['idf'] == 'smooth':
-            return smooth_idf(self)
+        if Token.config['idf']['method'] == IDF_SMOOTH:
+            return self.smooth_idf
         else:
-            return prob_idf(self)
+            return self.prob_idf
+
+    @property
+    def smooth_idf(self):
+        return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
+
+    @property
+    def prob_idf(self):
+        return log((self.entry.vocabulary.document_count - self.df) / self.df)
 
     @property
     def id(self):
@@ -83,6 +129,13 @@ class Token:
         return self.id == -1
 
     @property
+    def is_stopword(self):
+        if Token.STOPWORDS is None:
+            Token.STOPWORDS = set(load_stopwords())
+
+        return self.lower_ in Token.STOPWORDS
+
+    @property
     def df(self):
         return self.entry.df
 
@@ -91,10 +144,8 @@ class Token:
         """case sensitive document frequency"""
         return self.entry.df_cs
 
+    def __str__(self):
+        return self.word
 
-def smooth_idf(self: Token):
-    return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
-
-
-def prob_idf(self: Token):
-    return log((self.entry.vocabulary.document_count - self.df) / self.df)
+    def __repr__(self):
+        return self.word

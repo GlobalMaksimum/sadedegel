@@ -12,4 +12,4 @@ import pytest
 def test_tfidf(tf_type, result):
     with tf_context(tf_type):
         d = Doc("Onu hiç sevmedim. Bu iş çok zor.")
-        assert TFIDFSummarizer().predict(d.sents) == pytest.approx(result)
+        assert TFIDFSummarizer().predict(d) == pytest.approx(result)

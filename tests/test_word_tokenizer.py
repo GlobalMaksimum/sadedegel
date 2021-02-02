@@ -23,8 +23,8 @@ def test_simple_tokenization_sentences():
     with tokenizer_context(SimpleTokenizer.__name__):
         doc = Doc(text)
 
-        assert doc.sents[0].tokens == ['Merhaba', 'dünya', '.']
-        assert doc.sents[1].tokens == ['Barış', 'için', 'geldik', '.']
+        assert doc[0].tokens == ['Merhaba', 'dünya', '.']
+        assert doc[1].tokens == ['Barış', 'için', 'geldik', '.']
 
 
 def test_bert_tokenization_sents():
@@ -33,8 +33,8 @@ def test_bert_tokenization_sents():
     with tokenizer_context(BertTokenizer.__name__):
         doc = Doc(text)
 
-        assert doc.sents[0].tokens == ['Merhaba', 'dünya', '.']
-        assert doc.sents[1].tokens == ['Barış', 'için', 'geldik', '.']
+        assert doc[0].tokens == ['Merhaba', 'dünya', '.']
+        assert doc[1].tokens == ['Barış', 'için', 'geldik', '.']
 
 
 def test_singleton_tokenizer():

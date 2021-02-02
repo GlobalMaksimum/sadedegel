@@ -5,11 +5,12 @@ transformers==3.0.0
 
 smart-open==2.1.0
 
-tqdm==4.48.2
-
 uvicorn==0.11.8
 fastapi==0.61.0
 scikit-learn==0.23.1
 nltk==3.5
 networkx==2.4
 tabulate==0.8.7
+
+rich
+lexrank

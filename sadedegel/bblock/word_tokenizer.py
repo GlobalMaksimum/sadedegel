@@ -3,6 +3,7 @@ from typing import List
 from .word_tokenizer_helper import word_tokenize
 from .util import normalize_tokenizer_name
 from .vocabulary import Vocabulary
+from ..about import __version__
 import warnings
 
 
@@ -52,10 +53,14 @@ class BertTokenizer(WordTokenizer):
     def __init__(self):
         super(BertTokenizer, self).__init__()
 
-        from transformers import AutoTokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+        self.tokenizer = None
 
     def _tokenize(self, text: str) -> List[str]:
+        if self.tokenizer is None:
+            import torch
+            from transformers import AutoTokenizer
+            self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
+
         return self.tokenizer.tokenize(text)
 
     @property
@@ -88,4 +93,14 @@ class SimpleTokenizer(WordTokenizer):
 
 
 def get_default_word_tokenizer() -> WordTokenizer:
+    if tuple(map(int, __version__.split('.'))) < (0, 17):
+        warnings.warn(
+            ("get_default_word_tokenizer is deprecated and will be removed by 0.17. "
+             "Use `sadedegel config` to get default configuration. "
+             "Use ~/.sadedegel/user.ini to update default tokenizer."),
+            DeprecationWarning,
+            stacklevel=2)
+    else:
+        raise Exception("Remove get_default_word_tokenizer before release.")
+
     return WordTokenizer.factory(BertTokenizer.__name__)
