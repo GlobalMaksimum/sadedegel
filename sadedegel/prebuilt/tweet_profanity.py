@@ -46,19 +46,19 @@ def build():
     df = pd.DataFrame.from_records(raw)
     df = shuffle(df)
 
-    BATCH_SIZE = 1000
+    # BATCH_SIZE = 1000
 
     console.log(f"Corpus Size: {CORPUS_SIZE}")
 
-    n_split = ceil(len(df) / BATCH_SIZE)
-    console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
+    # n_split = ceil(len(df) / BATCH_SIZE)
+    # console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
 
-    batches = np.array_split(df, n_split)
+    # batches = np.array_split(df, n_split)
 
     pipeline = empty_model()
 
-    #for batch in batches:
-    #    pipeline.partial_fit(batch.tweet, batch.profanity_class, classes=[i for i in range(len(CLASS_VALUES))])
+    # for batch in batches:
+    #     pipeline.partial_fit(batch.tweet, batch.profanity_class, classes=[i for i in range(len(CLASS_VALUES))])
 
     pipeline.fit(df.tweet, df.profanity_class)
 
