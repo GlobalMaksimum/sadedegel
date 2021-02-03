@@ -13,7 +13,7 @@ from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.utils import shuffle
 from sklearn.metrics import f1_score
 
-from sadedegel.extension.sklearn import TfidfVectorizer, OnlinePipeline
+from sadedegel.extension.sklearn import BM25Vectorizer, OnlinePipeline
 from sadedegel.dataset.profanity import load_offenseval_train, load_offenseval_test, \
     load_offenseval_test_label, CORPUS_SIZE, CLASS_VALUES
 
@@ -22,8 +22,13 @@ console = Console()
 
 def empty_model():
     return OnlinePipeline(
-        [('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth')),
-         ('pa', PassiveAggressiveClassifier(C=8.770192177653856, average=True))])
+        [('tfidf', BM25Vectorizer(tf_method='log_norm', idf_method='smooth',
+                                  drop_stopwords=False, drop_suffix=False,
+                                  drop_punct=False, lowercase=True,
+                                  k1=1.762598627864453, b=0.4063826957568762)),
+         ('pa', PassiveAggressiveClassifier(C=4.4122526140074876e-05, average=True,
+                                            class_weight='balanced'))]
+    )
 
 
 def build():
@@ -37,31 +42,22 @@ def build():
     df = pd.DataFrame.from_records(raw)
     df = shuffle(df)
 
-    BATCH_SIZE = 1000
-
     console.log(f"Corpus Size: {CORPUS_SIZE}")
-
-    n_split = ceil(len(df) / BATCH_SIZE)
-    console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
-
-    batches = np.array_split(df, n_split)
 
     pipeline = empty_model()
 
-    for batch in batches:
-        pipeline.partial_fit(batch.tweet, batch.profanity_class, classes=[i for i in range(len(CLASS_VALUES))])
-
+    pipeline.fit(df.tweet, df.profanity_class)
     console.log("Model build [green]DONE[/green]")
 
     model_dir = Path(dirname(__file__)) / 'model'
 
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    dump(pipeline, (model_dir / 'tweet_profanity_classification.joblib').absolute(), compress=('gzip', 9))
+    dump(pipeline, (model_dir / 'tweet_profanity_classification_v2.joblib').absolute(), compress=('gzip', 9))
 
 
 def load():
-    return jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification.joblib')
+    return jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification_v2.joblib')
 
 
 def evaluate():
