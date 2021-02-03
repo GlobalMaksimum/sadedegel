@@ -9,7 +9,7 @@ from os.path import dirname
 from rich.console import Console
 from rich.progress import Progress
 
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.linear_model import SGDClassifier
 from sklearn.utils import shuffle
 from sklearn.metrics import f1_score
 
@@ -22,12 +22,16 @@ console = Console()
 
 def empty_model():
     return OnlinePipeline(
-        [('tfidf', BM25Vectorizer(tf_method='log_norm', idf_method='smooth',
-                                  drop_stopwords=False, drop_suffix=False,
-                                  drop_punct=False, lowercase=True,
-                                  k1=1.762598627864453, b=0.4063826957568762)),
-         ('pa', PassiveAggressiveClassifier(C=4.4122526140074876e-05, average=True,
-                                            class_weight='balanced'))]
+        [('bm25', BM25Vectorizer(tf_method='log_norm', idf_method='probabilistic',
+                                 drop_stopwords=True, drop_suffix=False,
+                                 drop_punct=False, lowercase=True,
+                                 k1=1.7094943902452382, b=0.8044484402765772,
+                                 show_progress=True)),
+         ('sgd', SGDClassifier(alpha=0.0011130974542755533,
+                               penalty='elasticnet',
+                               eta0=0.5818024200892028,
+                               learning_rate='optimal',
+                               class_weight=None))]
     )
 
 
@@ -42,11 +46,22 @@ def build():
     df = pd.DataFrame.from_records(raw)
     df = shuffle(df)
 
+    BATCH_SIZE = 1000
+
     console.log(f"Corpus Size: {CORPUS_SIZE}")
+
+    n_split = ceil(len(df) / BATCH_SIZE)
+    console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
+
+    batches = np.array_split(df, n_split)
 
     pipeline = empty_model()
 
+    #for batch in batches:
+    #    pipeline.partial_fit(batch.tweet, batch.profanity_class, classes=[i for i in range(len(CLASS_VALUES))])
+
     pipeline.fit(df.tweet, df.profanity_class)
+
     console.log("Model build [green]DONE[/green]")
 
     model_dir = Path(dirname(__file__)) / 'model'
