@@ -18,7 +18,7 @@ from ..config import load_config
 from .word_tokenizer import WordTokenizer
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from ..about import __version__
-
+from . import spelling_corrector
 
 class Span:
     def __init__(self, i: int, span, doc):
@@ -379,6 +379,11 @@ class Document(TFImpl, IDFImpl):
     def tokenizer(self):
         return self.builder.tokenizer
 
+    @property
+    def spelling_corrector(self):
+        return self.builder.spelling_corrector
+
+
     def __getitem__(self, key):
         return self._sents[key]
 
@@ -505,6 +510,11 @@ class Document(TFImpl, IDFImpl):
         return self.builder.from_sentences(sentences)
 
 
+    def get_spell_corrected(self):
+        corrected_sents = self.spelling_corrector.correct_doc(self)
+        return self.builder.from_sentences(corrected_sents)
+
+
 class DocBuilder:
     bert_model = None
 
@@ -515,6 +525,8 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        self.spelling_corrector = spelling_corrector.SpellingCorrector()
 
         idf_method = self.config['idf']['method']
 

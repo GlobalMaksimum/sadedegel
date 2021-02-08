@@ -1,6 +1,5 @@
 import os
 from symspellpy import SymSpell, Verbosity
-from ..bblock import Doc
 
 class SpellingCorrector:
     DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "termfrequency_vocab.txt")
@@ -73,8 +72,9 @@ class SpellingCorrector:
 
 
     def correct_doc(self, doc):
-        """Given Sadedegel Doc, correct inside text and return a new Doc with the
+        """Given Sadedegel Doc, correct inside text and return List[str] with the
         corrected text.
+        (Not returning a new Doc directly as that causes circular import due to Doc import)
 
         Args:
             doc (:obj:`sadedegel.bblock.Doc`): Doc in which text will be corrected
@@ -84,6 +84,5 @@ class SpellingCorrector:
         for s in doc:
             res.append(self.correct_compound(str(s)))
 
-        res = " ".join(res)
 
-        return Doc(res)
+        return res
