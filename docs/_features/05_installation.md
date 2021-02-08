@@ -1,7 +1,7 @@
 ---
 short_name: installation
 name: Kolay Kurulum
-img: /sadedegel/assets/img/kurulum-icon.png
+img: /assets/img/kurulum-icon.png
 ---
 
 <pre
