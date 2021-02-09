@@ -1,7 +1,8 @@
-import os
+import os, enum, string
 from symspellpy import SymSpell, Verbosity
 
 class SpellingCorrector:
+    SPELLING_MODES = ["basic", "compound", "basic_compound"]
     DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "termfrequency_vocab.txt")
 
     def __init__(self, max_dictionary_edit_distance=2, prefix_length=7, dict_path=None):
@@ -53,7 +54,63 @@ class SpellingCorrector:
         self._dict_loaded = True
 
 
-    def correct_compound(self, s):
+    def _basic_with_punct(self, w):
+        if not self._dict_loaded:
+            self._load_dictionary()
+
+        o = self.sym_spell.lookup(w,
+            Verbosity.CLOSEST,
+            max_edit_distance=self._max_edit_dist,
+            transfer_casing=True,
+            include_unknown=True)
+
+        if not o: return w
+
+        word = o[0]._term
+        if w[0].isupper():
+            word = word[0].upper() + ''.join(word[1:])
+        # find start punctuation
+        start_idx = 0
+        start_punct = ''
+        while w[start_idx] in string.punctuation:
+            start_punct += w[start_idx]
+            if start_idx + 1 < len(w):
+                start_idx += 1
+            else:
+                break
+        # find end punctuation
+        end_idx = 1
+        end_punct = ''
+        while w[-end_idx] in string.punctuation:
+            end_punct += w[-end_idx]
+            if end_idx - 1 > 0:
+                end_idx -= 1
+            else:
+                break
+
+        return start_punct + word + end_punct
+
+    # TODO: After a proper tokenizer implementation use List[Token] from the tokenizer instead
+    def basic(self, s):
+        """Given a string splits into words based on space and corrects the words
+        by lookup.
+
+        Args:
+            s (str): String to correct
+
+        Returns:
+            str: Corrected string.
+        """
+
+
+        words = s.split(" ")
+        words_fixed = [self._basic_with_punct(w) for w in words]
+
+        return " ".join(words_fixed)
+
+
+
+    def compound(self, s):
         """Given a phrase/sentence correct it and return another corrected string.
         Uses SymSpellPy's lookup_compound()
 
@@ -71,7 +128,7 @@ class SpellingCorrector:
         return suggestions[0]._term
 
 
-    def correct_doc(self, doc):
+    def correct_doc(self, doc, spelling_mode="basic"):
         """Given Sadedegel Doc, correct inside text and return List[str] with the
         corrected text.
         (Not returning a new Doc directly as that causes circular import due to Doc import)
@@ -80,9 +137,14 @@ class SpellingCorrector:
             doc (:obj:`sadedegel.bblock.Doc`): Doc in which text will be corrected
         """
 
+        assert spelling_mode in self.SPELLING_MODES
+        
         res = []
         for s in doc:
-            res.append(self.correct_compound(str(s)))
+            if spelling_mode == "basic":
+                res.append(self.basic(str(s)))
+            elif spelling_mode == "compound":
+                res.append(self.compound(str(s)))
 
 
         return res
