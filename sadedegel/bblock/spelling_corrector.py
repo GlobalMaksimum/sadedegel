@@ -1,9 +1,11 @@
 import os, enum, string
 from symspellpy import SymSpell, Verbosity
+from loguru import logger
 
 class SpellingCorrector:
     SPELLING_MODES = ["basic", "compound", "basic_compound"]
     DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "termfrequency_vocab.txt")
+    PICKLED_DATA_PATH = os.path.join(os.path.expanduser("~"), ".sadedegel_data", "termfrequency_vocab.pickle")
 
     def __init__(self, max_dictionary_edit_distance=2, prefix_length=7, dict_path=None):
         """Wrapper class for SymSpell which acts as a bridge between
@@ -34,7 +36,10 @@ class SpellingCorrector:
 
         self.dict_path = dict_path
         if dict_path is None:
-            self.dict_path = self.DEFAULT_DATA_PATH
+            if os.path.exists(self.PICKLED_DATA_PATH):
+                self.dict_path = self.PICKLED_DATA_PATH
+            else:
+                self.dict_path = self.DEFAULT_DATA_PATH
 
     def _load_dictionary(self):
         """Loads the dictionary specified by self.dict_path.
@@ -43,15 +48,26 @@ class SpellingCorrector:
         """
 
 
+        logger.info(f"Loading term frequency dictionary from {self.dict_path}")
+
         if ".txt" in self.dict_path:
             is_ok = self.sym_spell.load_dictionary(self.dict_path, 0,1)
         else:
             is_ok = self.sym_spell.load_pickle(self.dict_path)
 
+
         if not is_ok:
             raise Exception(f"Could not load spelling dictionary! Dict path: {self.dict_path}")
 
         self._dict_loaded = True
+        self._pickle_default_vocab()
+
+    def _pickle_default_vocab(self):
+        if self.dict_path == self.DEFAULT_DATA_PATH:
+            logger.info("Pickling default loaded vocabulary for faster loading on next usage.")
+            os.makedirs(os.path.split(self.PICKLED_DATA_PATH)[0], exist_ok=True)
+            self.sym_spell.save_pickle(self.PICKLED_DATA_PATH)
+
 
 
     def _basic_with_punct(self, w):
