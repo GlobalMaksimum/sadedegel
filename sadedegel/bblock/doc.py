@@ -510,8 +510,8 @@ class Document(TFImpl, IDFImpl):
         return self.builder.from_sentences(sentences)
 
 
-    def get_spell_corrected(self):
-        corrected_sents = self.spelling_corrector.correct_doc(self)
+    def get_spell_corrected(self, spelling_mode="basic"):
+        corrected_sents = self.spelling_corrector.correct_doc(self, spelling_mode)
         return self.builder.from_sentences(corrected_sents)
 
 

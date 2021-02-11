@@ -109,7 +109,6 @@ class SpellingCorrector:
         return " ".join(words_fixed)
 
 
-
     def compound(self, s):
         """Given a phrase/sentence correct it and return another corrected string.
         Uses SymSpellPy's lookup_compound()
@@ -137,14 +136,17 @@ class SpellingCorrector:
             doc (:obj:`sadedegel.bblock.Doc`): Doc in which text will be corrected
         """
 
-        assert spelling_mode in self.SPELLING_MODES
-        
+        assert spelling_mode in self.SPELLING_MODES, f"Spelling mode  {spelling_mode} not found!"
+
         res = []
         for s in doc:
             if spelling_mode == "basic":
                 res.append(self.basic(str(s)))
             elif spelling_mode == "compound":
                 res.append(self.compound(str(s)))
+            elif spelling_mode == "basic_compound":
+                res.append(self.compound(self.basic(str(s))))
+
 
 
         return res
