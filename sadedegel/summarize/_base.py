@@ -27,6 +27,7 @@ class ExtractiveSummarizer(ABC):
 
     def __init__(self, normalize=True):
         self.normalize = normalize
+        self.document = None
 
     @abstractmethod
     def _predict(self, sents: List[Sentences]) -> np.ndarray:
@@ -47,6 +48,9 @@ class ExtractiveSummarizer(ABC):
         Relevance score per sentence
         np.array
         """
+        if isinstance(sents, Document):
+            self.document = sents
+
         sents = get_sentences_list(sents)
 
         scores = self._predict(sents)
@@ -57,6 +61,8 @@ class ExtractiveSummarizer(ABC):
             return scores
 
     def __call__(self, sents: Union[Document, List[Sentences], List[str]], k: int) -> List[Sentences]:
+        if isinstance(sents, Document):
+            self.document = sents
 
         sents = get_sentences_list(sents)
 

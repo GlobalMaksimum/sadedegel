@@ -20,7 +20,8 @@ console = Console()
 def empty_model(batch_size, sample_size):
     return OnlinePipeline([('tfidf', TfidfVectorizer(tf_method="raw",
                                                      idf_method="smooth")),
-                           ('lda', LatentDirichletAllocation(batch_size=batch_size,
+                           ('lda', LatentDirichletAllocation(n_components=15,
+                                                             batch_size=batch_size,
                                                              total_samples=sample_size,
                                                              n_jobs=-1,
                                                              evaluate_every=10,
@@ -28,7 +29,7 @@ def empty_model(batch_size, sample_size):
                                                              learning_method='online'))])
 
 
-def build(train_size=100000):
+def build(train_size=200_000):
     raw = load_tscorpus_raw()
 
     try:
@@ -86,8 +87,9 @@ def display_topic_words():
         console.log(f"Topic{t}: {vocab_df.loc[vocab_df.id.isin(topic), 'word'].values}")
 
 
-def get_topic_vector():
-    pass
+def get_topic_vector(ix: int):
+    lda_model = load()['lda']
+    return lda_model.components_[ix]
 
 
 if __name__ == "__main__":
