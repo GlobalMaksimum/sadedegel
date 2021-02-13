@@ -13,7 +13,7 @@ class SpellingCorrector:
         Sadedegel and SymSpellPy.
 
         Args:
-            max_dictionary_edit_distance (str):
+            max_dictionary_edit_distance (int, optional):
             Maximum edit distance for doing lookups.
 
             prefix_length (int, optional):
