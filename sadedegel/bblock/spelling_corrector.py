@@ -7,6 +7,13 @@ class SpellingCorrector:
     DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "termfrequency_vocab.txt")
     PICKLED_DATA_PATH = os.path.join(os.path.expanduser("~"), ".sadedegel_data", "termfrequency_vocab.pickle")
 
+    TURKISH_FLIPPED = str.maketrans({"i":"ı", "ı":"i", "I":"İ", "İ":"I",
+                       "o":"ö", "ö":"o", "O":"Ö", "Ö":"O",
+                       "c":"ç", "ç":"c", "C":"Ç", "Ç":"C",
+                       "s":"ş", "ş":"s", "S":"Ş", "Ş":"S",
+                       "g":"ğ", "ğ":"g", "G":"Ğ", "Ğ":"G",
+                       "u":"ü", "ü":"u", "U":"Ü", "Ü":"U"})
+
     def __init__(self, max_dictionary_edit_distance=2, prefix_length=7, dict_path=None,
                  dont_use_pickled=False):
         """Wrapper class for SymSpell which acts as a bridge between
@@ -60,7 +67,6 @@ class SpellingCorrector:
         else:
             is_ok = self.sym_spell.load_pickle(self.dict_path)
 
-
         if not is_ok:
             raise Exception(f"Could not load spelling dictionary! Dict path: {self.dict_path}")
 
@@ -74,18 +80,29 @@ class SpellingCorrector:
             self.sym_spell.save_pickle(self.PICKLED_DATA_PATH)
 
 
+    def _turkish_flip(self, w):
+        return w.translate(self.TURKISH_FLIPPED)
 
     def _basic_with_punct(self, w):
         if not self._dict_loaded:
             self._load_dictionary()
 
         o = self.sym_spell.lookup(w,
-            Verbosity.CLOSEST,
+            Verbosity.TOP,
             max_edit_distance=self._max_edit_dist,
             transfer_casing=True,
             include_unknown=True)
 
+        o_flipped = self.sym_spell.lookup(self._turkish_flip(w),
+                    Verbosity.TOP,
+                    max_edit_distance=self._max_edit_dist,
+                    transfer_casing=True,
+                    include_unknown=True)
+
         if not o: return w
+
+        if o[0]._distance > o_flipped[0]._distance:
+            o = o_flipped
 
         word = o[0]._term
         if w[0].isupper():
