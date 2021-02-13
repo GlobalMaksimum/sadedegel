@@ -7,7 +7,8 @@ class SpellingCorrector:
     DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "termfrequency_vocab.txt")
     PICKLED_DATA_PATH = os.path.join(os.path.expanduser("~"), ".sadedegel_data", "termfrequency_vocab.pickle")
 
-    def __init__(self, max_dictionary_edit_distance=2, prefix_length=7, dict_path=None):
+    def __init__(self, max_dictionary_edit_distance=2, prefix_length=7, dict_path=None,
+                 dont_use_pickled=False):
         """Wrapper class for SymSpell which acts as a bridge between
         Sadedegel and SymSpellPy.
 
@@ -28,6 +29,10 @@ class SpellingCorrector:
 
                 If not passed, loads default provided dictionary.
 
+            dont_use_pickled (bool, optional):
+                When dict_path == None, prevents loading the pre-generated
+                pickled dictionary.
+
         """
 
         self.sym_spell = SymSpell(max_dictionary_edit_distance, prefix_length)
@@ -36,7 +41,7 @@ class SpellingCorrector:
 
         self.dict_path = dict_path
         if dict_path is None:
-            if os.path.exists(self.PICKLED_DATA_PATH):
+            if os.path.exists(self.PICKLED_DATA_PATH) and not dont_use_pickled:
                 self.dict_path = self.PICKLED_DATA_PATH
             else:
                 self.dict_path = self.DEFAULT_DATA_PATH
