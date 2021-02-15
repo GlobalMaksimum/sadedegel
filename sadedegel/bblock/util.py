@@ -149,7 +149,7 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool, weighting
                         tfidf_of_tokens = tfidf_of_sents[s]
                         tokens = sents[s].tokens
                         len_tokens = len(tokens)
-                        print(len_tokens)
+
                         for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
                             if t > len_tokens - 1:
                                 continue
