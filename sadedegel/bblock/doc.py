@@ -442,7 +442,10 @@ class Document(TFImpl, IDFImpl):
 
             twelve_layers = outputs[2][1:]
 
-            self._bert = select_layer(twelve_layers, [11], return_cls=False, weighting=weighting)
+            if weighting is None:
+                self._bert = select_layer(twelve_layers, [11], return_cls=False)
+            else:
+                self._bert = select_layer(twelve_layers, [11], return_cls=False, weighting=weighting, sents=self)
 
         return self._bert
 
