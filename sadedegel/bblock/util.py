@@ -59,7 +59,7 @@ def is_eos(span, sentences: List[str]) -> int:
     return 0
 
 
-def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.ndarray:
+def select_layer(bert_out: tuple, layers: List[int], return_cls: bool, weighting: str) -> np.ndarray:
     """Selects and averages layers from BERT output.
 
     Parameters:
@@ -71,6 +71,9 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 
         return_cls: bool
             Whether to use CLS token embedding as sentence embedding instead of averaging token embeddings.
+
+        weighting: str
+            Weighting scheme for combining word embeddings to form sentence embeddings
 
     Returns:
         numpy.ndarray (n_sentences, embedding_size) Embedding size if default to 768.
@@ -100,19 +103,22 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 
     else:
         token_matrix = np.zeros((n_layers, n_sentences, n_tokens - 2, 768))
-        for l, layer in enumerate(bert_out):
-            l_ix = 0
-            if l not in layers:
-                continue
-            else:
-                l_ix = l_ix + 1
-            for s, sentence in enumerate(layer):
-                for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
-                    token_tensor = sentence[t].numpy()
-                    token_matrix[l_ix - 1, s, t, :] = token_tensor
+        if weighting is None:
+            for l, layer in enumerate(bert_out):
+                l_ix = 0
+                if l not in layers:
+                    continue
+                else:
+                    l_ix = l_ix + 1
+                for s, sentence in enumerate(layer):
+                    for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
+                        token_tensor = sentence[t].numpy()
+                        token_matrix[l_ix - 1, s, t, :] = token_tensor
 
-        tokenwise_mean = np.mean(token_matrix, axis=2)
-        layer_mean_token = np.mean(tokenwise_mean, axis=0)
+            tokenwise_mean = np.mean(token_matrix, axis=2)
+            layer_mean_token = np.mean(tokenwise_mean, axis=0)
+        elif weighting == 'tfidf':
+            pass
 
         return layer_mean_token
 

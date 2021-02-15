@@ -425,7 +425,7 @@ class Document(TFImpl, IDFImpl):
                 return mat
 
     @property
-    def bert_embeddings(self):
+    def bert_embeddings(self, weighting=None):
         if self._bert is None:
             inp, mask = self.padded_matrix()
 
@@ -442,7 +442,7 @@ class Document(TFImpl, IDFImpl):
 
             twelve_layers = outputs[2][1:]
 
-            self._bert = select_layer(twelve_layers, [11], return_cls=False)
+            self._bert = select_layer(twelve_layers, [11], return_cls=False, weighting=weighting)
 
         return self._bert
 
