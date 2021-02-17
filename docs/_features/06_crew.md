@@ -1,7 +1,7 @@
 ---
 short_name: crew
 name: Biz Kimiz?
-img: /sadedegel/assets/img/bizkimiz-icon.png
+img: /assets/img/bizkimiz-icon.png
 ---
 
 <div class="row" id="crew">
