@@ -24,10 +24,6 @@ def space_pad(token):
     return " " + token + " "
 
 
-def space_pad(token):
-    return " " + token + " "
-
-
 def pad(l, padded_length):
     return l + [0 for _ in range(padded_length - len(l))]
 
