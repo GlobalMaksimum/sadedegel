@@ -31,7 +31,7 @@ ground truth human annotation (Best possible total `relevance` score that can be
 #### Release 0.17.1
 
 We have significantly changed the way we calculate `raw_tf` (in return affecting the way we calculate all other `tf`s based on that), 
-completely messing up the summarizer scoreboard. (Check issue#201 for details)
+completely messing up the summarizer scoreboard. (Check [issue #201](https://github.com/GlobalMaksimum/sadedegel/issues/201) for details)
  
 This will be fixed once we refactor our `sadedegel-summarizer evaluate` flow, which is no longer simple enough with the increasing number of summarizers (high variation due to parametrization) 
 
