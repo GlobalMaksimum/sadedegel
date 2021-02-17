@@ -16,29 +16,31 @@ class SpellingCorrector:
 
     def __init__(self, max_dictionary_edit_distance=2, prefix_length=7, dict_path=None,
                  dont_use_pickled=False):
+       
         """Wrapper class for SymSpell which acts as a bridge between
         Sadedegel and SymSpellPy.
 
-        Args:
-            max_dictionary_edit_distance (int, optional):
+        Parameters
+        ----------
+        max_dictionary_edit_distance : int
             Maximum edit distance for doing lookups.
 
-            prefix_length (int, optional):
+        prefix_length : int
             The length of word prefixes used for spell checking.
 
-            dict_path (str, optional):
-                Path to a term frequency dictionary of words.
-                If .txt file is passed, then it's assumed every row is in the format
-                of:
-                    [word] [term frequency]
-                if not a .txt file it's assumed to be a pickle file as saved by
-                symspellpy (check symspellpy docs for more info)
+        dict_path : str, default=None
+            Path to a term frequency dictionary of words.
+            If .txt file is passed, then it's assumed every row is in the format
+            of:
+                [word] [term frequency]
+            if not a .txt file it's assumed to be a pickle file as saved by
+            symspellpy (check symspellpy docs for more info)
 
-                If not passed, loads default provided dictionary.
+            If not passed, loads default provided dictionary.
 
-            dont_use_pickled (bool, optional):
-                When dict_path == None, prevents loading the pre-generated
-                pickled dictionary.
+        dont_use_pickled : bool, default=False
+            When dict_path == None, prevents loading the pre-generated
+            pickled dictionary.
 
         """
 
@@ -133,10 +135,13 @@ class SpellingCorrector:
         """Given a string splits into words based on space and corrects the words
         by lookup.
 
-        Args:
-            s (str): String to correct
+        Parameters
+        ----------
+        s : str
+            String to correct
 
-        Returns:
+        Returns
+        -------
             str: Corrected string.
         """
 
@@ -151,11 +156,14 @@ class SpellingCorrector:
         """Given a phrase/sentence correct it and return another corrected string.
         Uses SymSpellPy's lookup_compound()
 
-        Args:
-            s (str): String to correct
+        Parameters
+        ----------
+        s : str
+            String to correct
 
-        Returns:
-            str: Corrected string.
+        Returns
+        -------
+        str: Corrected string.
         """
 
         if not self._dict_loaded:
@@ -170,7 +178,8 @@ class SpellingCorrector:
         corrected text.
         (Not returning a new Doc directly as that causes circular import due to Doc import)
 
-        Args:
+        Parameters
+        ----------
             doc (:obj:`sadedegel.bblock.Doc`): Doc in which text will be corrected
         """
 
