@@ -1,4 +1,4 @@
-<a href="http://sadedegel.ai"><img src="https://sadedegel.ai/dist/img/logo-2.png?s=280&v=4" width="125" height="125" align="right" /></a>
+<a href="http://sadedegel.ai"><img src="https://sadedegel.ai/assets/img/logo-2.png" width="125" height="125" align="right" /></a>
 
 # SadedeGel: An extraction based Turkish news summarizer
 
