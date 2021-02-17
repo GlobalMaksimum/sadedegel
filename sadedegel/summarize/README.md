@@ -28,6 +28,67 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
+#### Release 0.17.1
+
+We have significantly changed the way we calculate `raw_tf` (in return affecting the way we calculate all other `tf`s based on that), 
+completely messing up the summarizer scoreboard. (Check issue#201 for details)
+ 
+This will be fixed once we refactor our `sadedegel-summarizer evaluate` flow, which is no longer simple enough with the increasing number of summarizers (high variation due to parametrization) 
+
+| Method & Tokenizer                                                                       |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|------------------------------------------------------------------------------------------|---------------|---------------|---------------|
+| Random Summarizer - simple                                                               |        0.5566 |        0.6516 |        0.7695 |
+| FirstK Summarizer - simple                                                               |        0.5070 |        0.6162 |        0.7429 |
+| LastK Summarizer - simple                                                                |        0.5957 |        0.6908 |        0.7972 |
+| Rouge1 Summarizer (f1) - simple                                                          |        0.6697 |        0.7498 |        0.8433 |
+| Band(k=2) Summarizer - simple                                                            |        0.4752 |        0.6275 |        0.7445 |
+| Band(k=3) Summarizer - simple                                                            |        0.4911 |        0.6285 |        0.7526 |
+| Band(k=6) Summarizer - simple                                                            |        0.4944 |        0.6418 |        0.7601 |
+| Rouge1 Summarizer (precision) - simple                                                   |        0.4924 |        0.6298 |        0.7647 |
+| Rouge1 Summarizer (recall) - simple                                                      |        0.6726 |        0.7558 |        0.8482 |
+| Length Summarizer (char) - simple                                                        |        0.6753 |        0.7577 |        0.8502 |
+| Length Summarizer (token) - simple                                                       |        0.6805 |        0.7575 |        0.8510 |
+| Random Summarizer - bert                                                                 |        0.5497 |        0.6587 |        0.7744 |
+| FirstK Summarizer - bert                                                                 |        0.5070 |        0.6162 |        0.7429 |
+| LastK Summarizer - bert                                                                  |        0.5957 |        0.6908 |        0.7972 |
+| Rouge1 Summarizer (f1) - bert                                                            |        0.6833 |        0.7574 |        0.8488 |
+| Band(k=2) Summarizer - bert                                                              |        0.4752 |        0.6275 |        0.7445 |
+| Band(k=3) Summarizer - bert                                                              |        0.4911 |        0.6285 |        0.7526 |
+| Band(k=6) Summarizer - bert                                                              |        0.4944 |        0.6418 |        0.7601 |
+| Rouge1 Summarizer (precision) - bert                                                     |        0.5295 |        0.6500 |        0.7748 |
+| Rouge1 Summarizer (recall) - bert                                                        |        0.6851 |        0.7585 |        0.8488 |
+| Length Summarizer (char) - bert                                                          |        0.6843 |        0.7588 |        0.8483 |
+| Length Summarizer (token) - bert                                                         |    **0.6856** |        0.7584 |        **0.8520** |
+| KMeans Summarizer - bert                                                                 |        0.6599 |        0.7434 |        0.8344 |
+| AutoKMeans Summarizer - bert                                                             |        0.6608 |        0.7418 |        0.8333 |
+| DecomposedKMeans Summarizer - bert                                                       |        0.6579 |        0.7440 |        0.8341 |
+| TextRank(0.05) Summarizer (BERT) - bert                                                  |        0.6212 |        0.7010 |        0.8000 |
+| TextRank(0.15) Summarizer (BERT) - bert                                                  |        0.6226 |        0.7004 |        0.7999 |
+| TextRank(0.30) Summarizer (BERT) - bert                                                  |        0.6223 |        0.7001 |        0.7999 |
+| TextRank(0.5) Summarizer (BERT) - bert                                                   |        0.6232 |        0.7005 |        0.7998 |
+| TextRank(0.6) Summarizer (BERT) - bert                                                   |        0.6213 |        0.6993 |        0.7993 |
+| TextRank(0.7) Summarizer (BERT) - bert                                                   |        0.6212 |        0.6991 |        0.7991 |
+| TextRank(0.85) Summarizer (BERT) - bert                                                  |        0.6212 |        0.6991 |        0.7991 |
+| TextRank(0.9) Summarizer (BERT) - bert                                                   |        0.6212 |        0.6993 |        0.7990 |
+| TextRank(0.95) Summarizer (BERT) - bert                                                  |        0.6211 |        0.6993 |        0.7988 |
+| LexRank Summarizer - bert                                                                |        0.6291 |        0.6895 |        0.7948 |
+| LexRankPure Summarizer - bert                                                            |        0.6704 |        0.7148 |        0.8186 |
+| TFIDF Summarizer (tf=binary, idf=smooth, tokenizer=bert)                                 |        0.6782 |        0.7593 |        0.8507 |
+| TFIDF Summarizer (tf=binary, idf=probabilistic, tokenizer=bert)                          |        0.6707 |        0.7376 |        0.8344 |
+| TFIDF Summarizer (tf=raw, idf=smooth, tokenizer=bert)                                    |        0.6767 |        0.7588 |        0.8509 |
+| TFIDF Summarizer (tf=raw, idf=probabilistic, tokenizer=bert)                             |        0.6624 |        0.7241 |        0.8225 |
+| TFIDF Summarizer (tf=freq, idf=smooth, tokenizer=bert)                                   |        0.5340 |        0.6729 |        0.7885 |
+| TFIDF Summarizer (tf=freq, idf=probabilistic, tokenizer=bert)                            |        0.5265 |        0.6652 |        0.7834 |
+| TFIDF Summarizer (tf=log_norm, idf=smooth, tokenizer=bert)                               |        0.6755 |      **0.7595** |      0.8504 |
+| TFIDF Summarizer (tf=log_norm, idf=probabilistic, tokenizer=bert)                        |        0.6609 |        0.7270 |        0.8261 |
+| TFIDF Summarizer (tf=double_norm, double_norm_k=0.25, idf=smooth, tokenizer=bert)        |        0.6708 |        0.7483 |        0.8447 |
+| TFIDF Summarizer (tf=double_norm, double_norm_k=0.5, idf=smooth, tokenizer=bert)         |        0.6780 |        0.7539 |        0.8479 |
+| TFIDF Summarizer (tf=double_norm, double_norm_k=0.75, idf=smooth, tokenizer=bert)        |        0.6799 |        0.7589 |        0.8508 |
+| TFIDF Summarizer (tf=double_norm, double_norm_k=0.25, idf=probabilistic, tokenizer=bert) |        0.6410 |        0.7186 |        0.8204 |
+| TFIDF Summarizer (tf=double_norm, double_norm_k=0.5, idf=probabilistic, tokenizer=bert)  |        0.6559 |        0.7270 |        0.8265 |
+| TFIDF Summarizer (tf=double_norm, double_norm_k=0.75, idf=probabilistic, tokenizer=bert) |        0.6651 |        0.7342 |        0.8312 |
+
+
 #### Release 0.16
 | Method & Tokenizer                                                                       |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
 |------------------------------------------------------------------------------------------|---------------|---------------|---------------|
