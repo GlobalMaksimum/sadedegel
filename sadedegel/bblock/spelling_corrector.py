@@ -88,45 +88,52 @@ class SpellingCorrector:
     def _basic_with_punct(self, w):
         if not self._dict_loaded:
             self._load_dictionary()
+        
+        if len(w) == 0:
+            return w
+            
+        stripped_w = w.translate(str.maketrans("", "", string.punctuation))
+        if len(stripped_w) == 0:
+            return w
 
-        o = self.sym_spell.lookup(w,
+        o = self.sym_spell.lookup(stripped_w,
             Verbosity.TOP,
             max_edit_distance=self._max_edit_dist,
             transfer_casing=True,
-            include_unknown=True)
+            include_unknown=False)
 
-        o_flipped = self.sym_spell.lookup(self._turkish_flip(w),
+        o_flipped = self.sym_spell.lookup(self._turkish_flip(stripped_w),
                     Verbosity.TOP,
                     max_edit_distance=self._max_edit_dist,
                     transfer_casing=True,
-                    include_unknown=True)
+                    include_unknown=False)
 
-        if not o: return w
 
-        if o[0]._distance > o_flipped[0]._distance:
+        if not o and not o_flipped: # neither can be found
+            return w
+        elif not o and o_flipped: # if flipped version was found, switch to it
+            o = o_flipped
+        elif o and o_flipped and o[0]._distance > o_flipped[0]._distance: # if both found get the one with smallest edit dist
             o = o_flipped
 
         word = o[0]._term
         if w[0].isupper():
             word = word[0].upper() + ''.join(word[1:])
         # find start punctuation
+        # w is the original input word (along with any punctuation)
         start_idx = 0
-        start_punct = ''
-        while w[start_idx] in string.punctuation:
-            start_punct += w[start_idx]
-            if start_idx + 1 < len(w):
-                start_idx += 1
-            else:
-                break
+        while w[start_idx] in string.punctuation and start_idx < len(w)-1:
+            start_idx += 1
+        start_punct = w[:start_idx]
+        
         # find end punctuation
         end_idx = 1
-        end_punct = ''
-        while w[-end_idx] in string.punctuation:
-            end_punct += w[-end_idx]
-            if end_idx - 1 > 0:
-                end_idx -= 1
-            else:
-                break
+        while w[-end_idx] in string.punctuation and end_idx < len(w):
+            end_idx += 1
+        if end_idx == 1:
+            end_punct = ""
+        else:
+            end_punct = w[-end_idx+1:]
 
         return start_punct + word + end_punct
 
@@ -147,7 +154,7 @@ class SpellingCorrector:
 
 
         words = s.split(" ")
-        words_fixed = [self._basic_with_punct(w) for w in words]
+        words_fixed = [self._basic_with_punct(w.strip()) for w in words]
 
         return " ".join(words_fixed)
 
