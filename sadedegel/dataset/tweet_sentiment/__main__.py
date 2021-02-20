@@ -4,6 +4,8 @@ import sys
 from itertools import tee
 
 from smart_open import open
+from shutil import copyfileobj
+import gzip
 
 import click
 
@@ -48,11 +50,11 @@ def download(access_key, secret_key, data_home):
         }
     }
 
-    url = f"s3://sadedegel/dataset/tweet_sentiment_v1.zip"
+    url = f"s3://sadedegel/dataset/tweet_sentiment_train.csv.gz"
 
-    with open(url, 'rb', transport_params=transport_params) as fp:
-        with ZipFile(fp) as zp:
-            zp.extractall(data_home)
+    with open(url, 'rb', transport_params=transport_params) as fp, gzip.open(data_home / os.path.basename(url),
+                                                                             "wb") as wp:
+        copyfileobj(fp, wp)
 
 
 @cli.command()
@@ -65,20 +67,20 @@ def validate():
         train_clone, train = tee(train, 2)
 
         n_train = sum(1 for _ in train_clone)
-        categories = set([row['sentiment'] for row in train])
+        categories = set([row['sentiment_class'] for row in train])
 
         if n_train == CORPUS_SIZE:
             console.log("Cardinality check [yellow]DONE[/yellow]")
         else:
-            console.log("Cardinality check [red]FAILED[/red]")
-            console.log(f"|Tweet sentiment (train)| : {n_train}")
+            console.log(f"Cardinality check [red]FAILED[/red]")
+            console.log(f"|Tweet sentiment (train)| : {n_train} ({CORPUS_SIZE} expected)")
             sys.exit(1)
 
-        if categories == set(['POSITIVE', 'NEGATIVE']):
+        if categories == {0, 1}:
             console.log("Label check [yellow]DONE[/yellow]")
         else:
-            console.log("Cardinality check [red]FAILED[/red]")
-            console.log(f"|Tweet sentiment labels (train)| : {categories}")
+            console.log("Class check [red]FAILED[/red]")
+            console.log(f"\tTweet sentiment classes : {categories} ({set(['POSITIVE', 'NEGATIVE'])} expected)")
             sys.exit(1)
 
 

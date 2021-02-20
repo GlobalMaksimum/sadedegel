@@ -41,11 +41,11 @@ def load_tweet_sentiment_train(data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Tweet Sentiment Corpus validation error")
 
-    train_csv = Path(data_home).expanduser() / "tweet_sentiment" / "tweet_sentiment_v1"
+    train_csv = Path(data_home).expanduser() / "tweet_sentiment"
     train_csv = train_csv / "tweet_sentiment_train.csv.gz"
 
     with gzip.open(train_csv, "rt") as csvfile:
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(text_uuid=rec['text_uuid'], text=rec['text'], sentiment=CLASS_VALUES.index(rec['sentiment']))
+            yield dict(id=rec['text_uuid'], tweet=rec['text'], sentiment_class=CLASS_VALUES.index(rec['sentiment']))
