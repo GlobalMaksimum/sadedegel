@@ -1,6 +1,10 @@
-SadedeGel prebuilt models are built to extend capabilities to address common NLP tasks we encounter every day.
+SadedeGel prebuilt models are built to extend capabilities of sadedegel library 
+on common NLP tasks we encounter every day. Such as sentiment analysis, profanity detection.
 
-They are currently experimental stage but will grow in size and accuracy in time
+Open source prebuilt models are not designed to achieve state of the art accuracies. They rather provide a good starting 
+point by training sklearn based limited memory (`partial_fit` using micro batches) models with a single pass over training data.
+
+If you need access for our state of the art models, please reach us at info@sadedegel.ai
 
 ### Turkish News Text Classification
 
@@ -58,15 +62,19 @@ Current prebuilt tweet profanity model has an **macro-F1** score of `0.6619` on 
 > Best model in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) has `0.8258` accuracy
 
 ### Turkish Tweet Sentiment Classification
-Classifier assigns each Turkish tweet texts into two categories ('POSITIVE', 'NEGATIVE') by using sadedegel built-in pipeline.
+Classifier assigns each Turkish tweet texts into two classes ('POSITIVE', 'NEGATIVE') by using sadedegel built-in pipeline.
+
 #### Loading and Predicting with the Model:
 ```python
-from sadedegel.prebuilt import tweet.sentiment
+from sadedegel.prebuilt import tweet_sentiment
 # We load our prebuilt model:
 model = tweet_sentiment.load()
+
 # Here we enter our text to get sentiment predictions.
 y_pred = model.predict([])
 ```
-### Accuracy
+#### Accuracy
 
-Current prebuilt model has 3-fold cross validation F1 macro score of 0.783.
+Current prebuilt model has 
+* 3-fold cross validation F1 macro score of `mean 0.7946, std 0.0043)`.
+* 5-fold cross validation F1 macro score of `mean 0.7989, std 0.0055)` 
