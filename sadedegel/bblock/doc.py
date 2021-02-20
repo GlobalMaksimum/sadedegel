@@ -402,7 +402,6 @@ class Document(TFImpl, IDFImpl):
         """Returns a 0 padded numpy.array or torch.tensor
               One row for each sentence
               One column for each token (pad 0 if length of sentence is shorter than the max length)
-
         :param return_numpy: Whether to return numpy.array or torch.tensor
         :param return_mask: Whether to return padding mask
         :return:
