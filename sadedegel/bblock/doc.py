@@ -233,42 +233,49 @@ class TFImpl:
 
 class BM25Impl:
     def __init__(self):
-        self.k1 = None
-        self.b = None
+        pass
 
-    def _sentence_len_term(self):
-        if isinstance(self, Sentences):
-            return len(self.tokens)/len(self.document.tokens)
-        elif isinstance(self, Document):
-            return 1
+    def get_bm25(self, tf_method: str, idf_method: str, k1: float, b: float, delta: float = 0, drop_stopwords=False,
+                 lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        """Return bm25 embedding
 
-    def _document_len_term(self):
-        avg_doc_len = {'bert': 750, 'simple': 525}
+        Refer to https://en.wikipedia.org/wiki/Okapi_BM25 for details
 
-        if isinstance(self, Sentences):
-            active_tokenizer = self.document.builder.config['default']['tokenizer']
-            return len(self.document.tokens) / avg_doc_len[active_tokenizer]
-        elif isinstance(self, Document):
-            active_tokenizer = self.builder.config['default']['tokenizer']
-            return len(self.tokens) / avg_doc_len[active_tokenizer]
-
-    def _add_smooth_term(self):
-        return self.k1 * (1 - self.b + self.b * self._document_len_term())
-
-    def _multiplying_factor(self):
-        return 1 + self.k1
-
-    def get_bm_calc(self, tf_method, idf_method, k1, b, drop_stopwords=False, lowercase=False, drop_suffix=False,
-                    drop_punct=False, **kwargs):
-        self.k1 = k1
-        self.b = b
+        :param tf_method:
+        :param idf_method:
+        :param k1:
+        :param b:
+        :param delta:
+        :param drop_stopwords:
+        :param lowercase:
+        :param drop_suffix:
+        :param drop_punct:
+        :param kwargs:
+        :return:
+        """
 
         tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
         idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
-        bm25 = idf * tf * self._multiplying_factor() * self._sentence_len_term() / (tf + self._add_smooth_term())
+        bm25 = idf * ((tf + (k1 + 1)) / (tf + k1 * (1 - b + b * (len(self) / self.avgdl))) + delta)
 
         return bm25
+
+    def get_bm11(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        return self.get_bm25(tf_method, idf_method, k1, 1, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
+                             drop_punct,
+                             kwargs)
+
+    def get_bm15(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        return self.get_bm25(tf_method, idf_method, k1, 0, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
+                             drop_punct,
+                             kwargs)
 
 
 class Sentences(TFImpl, IDFImpl, BM25Impl):
@@ -306,6 +313,11 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         else:
             raise ValueError(
                 f"Unknown term frequency method {self.tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
+
+    @property
+    def avgdl(self) -> int:
+        """Average number of tokens per sentence"""
+        return self.document.builder.config['default'].getint('avg_sentence_length')
 
     @property
     def tokenizer(self):
@@ -350,15 +362,9 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
     def tfidf(self):
         return self.tf * self.idf
 
-    def bm25(self, k1=1.25, b=0.75) -> np.float32:
-        """
-        Calculate BM25 Weighting for a given sentence w.r.t. to the document and corpus it resides.
-        More information on BM25 http://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
+    @property
+    def bm25(self) -> np.float32:
 
-        :param k1: Free parameter. Empirical practice range (1.2, 2), default=1.2
-        :param b: Free parameter. Empirical practice range (0.5, 0.8), default=0.75
-        :return: BM25 Weighting Score for the Sentences instance.
-        """
         active_tokenizer = self.document.builder.config['default']['tokenizer']
         if active_tokenizer == 'bert':
             avg_doc_len = 750
@@ -369,38 +375,24 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
             raise UserWarning("Out of empirical bounds and involves risk of losing smoothing for a TF vector "
                               "with zero elements.")
 
-        m_factor = k1 + 1
-        add_smooth = k1 * (1 - b + b * len(self.document.tokens)/avg_doc_len)
-        len_factor = len(self.tokens) / 18.14  # Normalized with mean sentence length in sadedegel.dataset.raw
-        score = np.sum(self.idf * (self.tf * m_factor * len_factor) / (self.tf + add_smooth), dtype=np.float32)
+        tf = self.document.builder['tf']['method']
+        idf = self.document.builder['idf']['method']
+        drop_stopwords = self.document.builder['default'].getboolean('drop_stopwords')
+        lowercase = self.document.builder['default'].getboolean('lowercase')
+        drop_suffix = self.document.builder['default'].getboolean('drop_suffix')
+        drop_punct = self.document.builder['default'].getboolean('drop_punct')
 
-        return score
+        k1 = self.document.builder['bm25'].getfloat('k1')
+        b = self.document.builder['bm25'].getfloat('b')
+
+        delta = self.document.builder['bm25'].getfloat('delta')
+
+        return np.sum(self.get_bm25(tf, idf, k1, b, delta, drop_stopwords, lowercase, drop_suffix, drop_punct))
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs):
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
             idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
-
-    def get_bm25(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
-                 drop_punct=False, k1=1.25, b=0.75, **kwargs):
-        """
-        Obtain bm25 weighted document-word representation of a Sentence instance. BM25 is calculated in terms of TF,
-        IDF, normalized sentence length, normalized document length and free parameters that control the combination.
-
-        :param tf_method: Method for Term Frequency calculation.
-        :param idf_method: Method for Inverse Document Frequency calculation
-        :param drop_stopwords: Drop stopwords flag. default=False
-        :param lowercase: Convert to lowercase flag. default=False
-        :param drop_suffix: Drop suffix flag. default=False
-        :param drop_punct: Drop punctuations from sentence when calculating tf, idf scores. default=False
-        :param k1: Free parameter. Empirical practice range (1.2, 2), default=1.2
-        :param b: Free parameter. Empirical practice range (0.5, 0.8), default=0.75
-        :param kwargs:
-        :return: np.ndarray of size (, size_vocabulary)
-        """
-
-        return self.get_bm_calc(tf_method, idf_method, drop_stopwords=drop_stopwords, lowercase=lowercase,
-                                drop_suffix=drop_suffix, drop_punct=drop_punct, k1=k1, b=b, **kwargs)
 
     @property
     def tf(self):
@@ -449,6 +441,11 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self._tokens = None
         self._bert = None
         self.builder = builder
+
+    @property
+    def avgdl(self) -> int:
+        """Average number of tokens per document"""
+        return self.builder.config['default'].getint('avg_document_length')
 
     @property
     def tokens(self):
@@ -571,9 +568,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
-    def get_bm25(self, tf_method, idf_method, k1=1.25, b=0.75, **kwargs):
-        return self.get_bm_calc(tf_method=tf_method, idf_method=idf_method, k1=k1, b=b, **kwargs)
-
     @property
     def idf(self):
         if tuple(map(int, __version__.split('.'))) < (0, 18):
@@ -607,6 +601,13 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        if self.tokenizer == "bert":
+            self.config['default']['avg_sentence_length'] = self.config['bert']['avg_sentence_length']
+            self.config['default']['avg_document_length'] = self.config['bert']['avg_document_length']
+        else:
+            self.config['default']['avg_sentence_length'] = self.config['simple']['avg_sentence_length']
+            self.config['default']['avg_document_length'] = self.config['simple']['avg_document_length']
 
         idf_method = self.config['idf']['method']
 
