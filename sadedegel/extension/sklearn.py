@@ -1,11 +1,8 @@
 from itertools import tee
 
 from rich.progress import track
-from sklearn.base import BaseEstimator, TransformerMixin
-
 from scipy.sparse import csr_matrix
-
-import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 
 from ..config import config_context
 
@@ -29,6 +26,16 @@ class OnlinePipeline(Pipeline):
         return self
 
 
+class SadedegelVectorizer(BaseEstimator, TransformerMixin):
+    """Sadedegel feature extraction TransformerMixin s don't require fit calls."""
+
+    def fit(self, X, y=None):
+        return self
+
+    def partial_fit(self, X, y=None, **kwargs):
+        return self
+
+
 class TfidfVectorizer(BaseEstimator, TransformerMixin):
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True, lowercase=True,
                  drop_suffix=True, drop_punct=True, show_progress=True):
@@ -41,12 +48,6 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
         self.show_progress = show_progress
 
         self.Doc = None
-
-    def fit(self, X, y=None):
-        return self
-
-    def partial_fit(self, X, y=None, **kwargs):
-        return self
 
     def transform(self, X, y=None):
         if isinstance(X, list):
@@ -87,7 +88,7 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
 
 
 class BM25Vectorizer(BaseEstimator, TransformerMixin):
-    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, drop_stopwords=True,
+    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0, drop_stopwords=True,
                  lowercase=True, drop_suffix=True, drop_punct=True, show_progress=True):
         self.tf_method = tf_method
         self.idf_method = idf_method
@@ -98,14 +99,9 @@ class BM25Vectorizer(BaseEstimator, TransformerMixin):
         self.show_progress = show_progress
         self.k1 = k1
         self.b = b
+        self.delta = delta
 
         self.Doc = None
-
-    def fit(self, X, y=None):
-        return self
-
-    def partial_fit(self, X, y=None, **kwargs):
-        return self
 
     def transform(self, X, y=None):
         if isinstance(X, list):
@@ -135,7 +131,7 @@ class BM25Vectorizer(BaseEstimator, TransformerMixin):
                               lowercase=self.lowercase,
                               drop_suffix=self.drop_suffix,
                               drop_punct=self.drop_punct,
-                              k1=self.k1, b=self.b)
+                              k1=self.k1, b=self.b, delta=self.delta)
 
             for idx in bm25.nonzero()[0]:
                 indices.append(idx)
