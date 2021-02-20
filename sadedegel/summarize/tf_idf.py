@@ -8,7 +8,7 @@ from ..config import load_config
 
 
 class TFIDFSummarizer(ExtractiveSummarizer):
-    tags = ExtractiveSummarizer.tags + ['ml', 'tfidf']
+    tags = ExtractiveSummarizer.tags + ['ml', 'tfidf', 'ir']
 
     def __init__(self, tf_method=None, idf_method=None, drop_stopwords=False, drop_suffix=False, drop_punct=False,
                  lowercase=False, normalize=True, kwargs={}):

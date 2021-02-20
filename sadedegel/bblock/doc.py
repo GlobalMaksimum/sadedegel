@@ -231,11 +231,59 @@ class TFImpl:
             raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
 
 
-class Sentences(TFImpl, IDFImpl):
+class BM25Impl:
+    def __init__(self):
+        pass
+
+    def get_bm25(self, tf_method: str, idf_method: str, k1: float, b: float, delta: float = 0, drop_stopwords=False,
+                 lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        """Return bm25 embedding
+
+        Refer to https://en.wikipedia.org/wiki/Okapi_BM25 for details
+
+        :param tf_method:
+        :param idf_method:
+        :param k1:
+        :param b:
+        :param delta:
+        :param drop_stopwords:
+        :param lowercase:
+        :param drop_suffix:
+        :param drop_punct:
+        :param kwargs:
+        :return:
+        """
+
+        tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+        idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+
+        bm25 = idf * ((tf + (k1 + 1)) / (tf + k1 * (1 - b + b * (len(self) / self.avgdl))) + delta)
+
+        return bm25
+
+    def get_bm11(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        return self.get_bm25(tf_method, idf_method, k1, 1, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
+                             drop_punct,
+                             kwargs)
+
+    def get_bm15(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        return self.get_bm25(tf_method, idf_method, k1, 0, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
+                             drop_punct,
+                             kwargs)
+
+
+class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     def __init__(self, id_: int, text: str, doc, config: dict = {}):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
+        BM25Impl.__init__(self)
 
         self.id = id_
         self.text = text
@@ -265,6 +313,11 @@ class Sentences(TFImpl, IDFImpl):
         else:
             raise ValueError(
                 f"Unknown term frequency method {self.tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
+
+    @property
+    def avgdl(self) -> int:
+        """Average number of tokens per sentence"""
+        return self.document.builder.config['default'].getint('avg_sentence_length')
 
     @property
     def tokenizer(self):
@@ -309,6 +362,33 @@ class Sentences(TFImpl, IDFImpl):
     def tfidf(self):
         return self.tf * self.idf
 
+    @property
+    def bm25(self) -> np.float32:
+
+        active_tokenizer = self.document.builder.config['default']['tokenizer']
+        if active_tokenizer == 'bert':
+            avg_doc_len = 750
+        elif active_tokenizer == 'simple':
+            avg_doc_len = 525
+
+        if k1 == 0:
+            raise UserWarning("Out of empirical bounds and involves risk of losing smoothing for a TF vector "
+                              "with zero elements.")
+
+        tf = self.document.builder['tf']['method']
+        idf = self.document.builder['idf']['method']
+        drop_stopwords = self.document.builder['default'].getboolean('drop_stopwords')
+        lowercase = self.document.builder['default'].getboolean('lowercase')
+        drop_suffix = self.document.builder['default'].getboolean('drop_suffix')
+        drop_punct = self.document.builder['default'].getboolean('drop_punct')
+
+        k1 = self.document.builder['bm25'].getfloat('k1')
+        b = self.document.builder['bm25'].getfloat('b')
+
+        delta = self.document.builder['bm25'].getfloat('delta')
+
+        return np.sum(self.get_bm25(tf, idf, k1, b, delta, drop_stopwords, lowercase, drop_suffix, drop_punct))
+
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs):
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
@@ -349,10 +429,11 @@ class Sentences(TFImpl, IDFImpl):
             yield self.vocabulary[t]
 
 
-class Document(TFImpl, IDFImpl):
+class Document(TFImpl, IDFImpl, BM25Impl):
     def __init__(self, raw, builder):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
+        BM25Impl.__init__(self)
 
         self.raw = raw
         self.spans = []
@@ -360,6 +441,11 @@ class Document(TFImpl, IDFImpl):
         self._tokens = None
         self._bert = None
         self.builder = builder
+
+    @property
+    def avgdl(self) -> int:
+        """Average number of tokens per document"""
+        return self.builder.config['default'].getint('avg_document_length')
 
     @property
     def tokens(self):
@@ -527,6 +613,13 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        if self.tokenizer == "bert":
+            self.config['default']['avg_sentence_length'] = self.config['bert']['avg_sentence_length']
+            self.config['default']['avg_document_length'] = self.config['bert']['avg_document_length']
+        else:
+            self.config['default']['avg_sentence_length'] = self.config['simple']['avg_sentence_length']
+            self.config['default']['avg_document_length'] = self.config['simple']['avg_document_length']
 
         idf_method = self.config['idf']['method']
 
