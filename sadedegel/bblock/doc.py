@@ -448,11 +448,15 @@ class Document(TFImpl, IDFImpl):
 
     @property
     def tfidf_embeddings(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                "Doc.tfidf_embeddings is deprecated and will be removed by 0.18. "
-                , DeprecationWarning,
-                stacklevel=2)
+
+        warnings.warn(
+            "Doc.tfidf_embeddings is deprecated and will be removed by 0.18. "
+            , DeprecationWarning,
+            stacklevel=2)
+
+        if tuple(map(int, __version__.split('.'))) >= (0, 18):
+            import sys
+            sys.exit(1)
 
         indptr = [0]
         indices = []
@@ -471,11 +475,14 @@ class Document(TFImpl, IDFImpl):
 
     @property
     def tf(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("Doc.tf is deprecated and will be removed by 0.18. "
-                 "Use get_tf function instead."), DeprecationWarning,
-                stacklevel=2)
+        warnings.warn(
+            ("Doc.tf is deprecated and will be removed by 0.18. "
+             "Use get_tf function instead."), DeprecationWarning,
+            stacklevel=2)
+
+        if tuple(map(int, __version__.split('.'))) >= (0, 18):
+            import sys
+            sys.exit(1)
 
         return self.get_tf(self.builder.config['tf']['method'])
 
@@ -484,20 +491,26 @@ class Document(TFImpl, IDFImpl):
 
     @property
     def idf(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("Doc.idf is deprecated and will be removed by 0.18. "
-                 "Use get_idf function instead."), DeprecationWarning,
-                stacklevel=2)
+        warnings.warn(
+            ("Doc.idf is deprecated and will be removed by 0.18. "
+             "Use get_idf function instead."), DeprecationWarning,
+            stacklevel=2)
+
+        if tuple(map(int, __version__.split('.'))) >= (0, 18):
+            import sys
+            sys.exit(1)
 
         return self.get_idf(self.builder.config['idf']['method'])
 
     def tfidf(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("Doc.tfidf is deprecated and will be removed by 0.18. "
-                 "Use get_tfidf function instead."), DeprecationWarning,
-                stacklevel=2)
+        warnings.warn(
+            ("Doc.tfidf is deprecated and will be removed by 0.18. "
+             "Use get_tfidf function instead."), DeprecationWarning,
+            stacklevel=2)
+
+        if tuple(map(int, __version__.split('.'))) >= (0, 18):
+            import sys
+            sys.exit(1)
 
         return csr_matrix((self.tf * self.idf).reshape(1, -1))
 

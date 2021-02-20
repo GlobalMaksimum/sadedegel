@@ -77,6 +77,15 @@ class LexRankSummarizer(ExtractiveSummarizer):
     tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph']
 
     def __init__(self, normalize=True):
+        warnings.warn(
+            "Doc.tfidf_embeddings is deprecated and will be removed by 0.19. "
+            , DeprecationWarning,
+            stacklevel=2)
+
+        if tuple(map(int, __version__.split('.'))) >= (0, 19):
+            import sys
+            sys.exit(1)
+
         super().__init__(normalize)
 
         stopwords = set(load_stopwords())
@@ -106,13 +115,16 @@ class LexRankPureSummarizer(ExtractiveSummarizer):
                  **kwargs):
         super().__init__(normalize)
 
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("LexRankPureSummarizer is a pure sadedegel based implementation of lexrank."
-                 "It is deprecated as LexRankPureSummarizer has a better performance than original LexRankSummarizer,"
-                 "so we will rename this summarizer as LexRankSummarizer and drop lexrank dependency by 0.18.")
-                , DeprecationWarning,
-                stacklevel=2)
+        warnings.warn(
+            ("LexRankPureSummarizer is a pure sadedegel based implementation of lexrank."
+             "It is deprecated as LexRankPureSummarizer has a better performance than original LexRankSummarizer,"
+             "so we will rename this summarizer as LexRankSummarizer and drop lexrank dependency by 0.18.")
+            , DeprecationWarning,
+            stacklevel=2)
+
+        if tuple(map(int, __version__.split('.'))) >= (0, 18):
+            import sys
+            sys.exit(1)
 
         self.tf_method = tf_method
         self.idf_method = idf_method
