@@ -259,7 +259,7 @@ class BM25Impl:
         tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
         idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
-        bm25 = idf * ((tf + (k1 + 1)) / (tf + k1 * (1 - b + b * (len(self) / self.avgdl))) + delta)
+        bm25 = idf * ((tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (len(self) / self.avgdl))) + delta)
 
         return bm25
 
@@ -290,6 +290,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
         self._tokens = None
         self.document = doc
+        self.config = doc.builder.config
         self._bert = None
 
         # No failback to config read in here because this will slow down sentence instantiation extremely.
@@ -317,7 +318,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
     @property
     def avgdl(self) -> int:
         """Average number of tokens per sentence"""
-        return self.document.builder.config['default'].getint('avg_sentence_length')
+        return self.config['default'].getfloat('avg_sentence_length')
 
     @property
     def tokenizer(self):
@@ -365,29 +366,20 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
     @property
     def bm25(self) -> np.float32:
 
-        active_tokenizer = self.document.builder.config['default']['tokenizer']
-        if active_tokenizer == 'bert':
-            avg_doc_len = 750
-        elif active_tokenizer == 'simple':
-            avg_doc_len = 525
+        tf = self.config['tf']['method']
+        idf = self.config['idf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['default'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
 
-        if k1 == 0:
-            raise UserWarning("Out of empirical bounds and involves risk of losing smoothing for a TF vector "
-                              "with zero elements.")
+        k1 = self.config['bm25'].getfloat('k1')
+        b = self.config['bm25'].getfloat('b')
 
-        tf = self.document.builder['tf']['method']
-        idf = self.document.builder['idf']['method']
-        drop_stopwords = self.document.builder['default'].getboolean('drop_stopwords')
-        lowercase = self.document.builder['default'].getboolean('lowercase')
-        drop_suffix = self.document.builder['default'].getboolean('drop_suffix')
-        drop_punct = self.document.builder['default'].getboolean('drop_punct')
+        delta = self.config['bm25'].getfloat('delta')
 
-        k1 = self.document.builder['bm25'].getfloat('k1')
-        b = self.document.builder['bm25'].getfloat('b')
-
-        delta = self.document.builder['bm25'].getfloat('delta')
-
-        return np.sum(self.get_bm25(tf, idf, k1, b, delta, drop_stopwords, lowercase, drop_suffix, drop_punct))
+        return np.sum(self.get_bm25(tf, idf, k1, b, delta, drop_stopwords, lowercase, drop_suffix, drop_punct),
+                      dtype=np.float32)
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs):
@@ -445,7 +437,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     @property
     def avgdl(self) -> int:
         """Average number of tokens per document"""
-        return self.builder.config['default'].getint('avg_document_length')
+        return self.builder.config['default'].getfloat('avg_document_length')
 
     @property
     def tokens(self):
