@@ -19,4 +19,4 @@ def test_bm25_corpus():
     raw = load_raw_corpus()
     for text in raw:
         d = Doc(text)
-        assert np.sum(BM25Summarizer().predict(d)) == pytest.approx(1)
+        assert np.sum(BM25Summarizer("log_norm", "smooth").predict(d)) == pytest.approx(1)

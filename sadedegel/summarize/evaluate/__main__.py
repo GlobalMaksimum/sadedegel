@@ -47,7 +47,7 @@ def evaluate(table_format, tag, debug):
 
     table = []
 
-    for Summarizer, parameter_space, n_trial in summarizer_list:
+    for Summarizer, parameter_space, n_trial in filter(lambda x: any((t in x[0].tags) for t in tag), summarizer_list):
         scores = grid_search(relevance, docs, Summarizer, parameter_space(n_trial))
 
         table += [[method[0], method[1], scores[0], scores[1], scores[2]] for
