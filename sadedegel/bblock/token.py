@@ -38,6 +38,16 @@ class IDFImpl:
 
         return v
 
+    @property
+    def idf(self):
+        idf = self.config['idf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
+
+        return self.get_idf(idf, drop_stopwords, lowercase, drop_suffix, drop_punct)
+
 
 def word_shape(text):
     if len(text) >= 100:

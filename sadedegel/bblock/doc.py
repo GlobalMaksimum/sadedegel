@@ -231,6 +231,16 @@ class TFImpl:
         else:
             raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
 
+    @property
+    def tf(self):
+        tf = self.config['tf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
+
+        return self.get_tf(tf, drop_stopwords, lowercase, drop_suffix, drop_punct)
+
 
 class BM25Impl:
     def __init__(self):
@@ -361,9 +371,6 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
-    def tfidf(self):
-        return self.tf * self.idf
-
     @property
     def bm25(self) -> np.float32:
 
@@ -381,6 +388,20 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
         return np.sum(self.get_bm25(tf, idf, k1, b, delta, drop_stopwords, lowercase, drop_suffix, drop_punct),
                       dtype=np.float32)
+
+    @property
+    def tfidf(self):
+        tf = self.config['tf']['method']
+        idf = self.config['idf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
+
+        return self.get_tf(tf, drop_stopwords, lowercase, drop_suffix, drop_punct) * self.get_idf(idf, drop_stopwords,
+                                                                                                  lowercase,
+                                                                                                  drop_suffix,
+                                                                                                  drop_punct)
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs) -> np.ndarray:
@@ -434,11 +455,12 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self._tokens = None
         self._bert = None
         self.builder = builder
+        self.config = self.builder.config
 
     @property
     def avgdl(self) -> int:
         """Average number of tokens per document"""
-        return self.builder.config['default'].getfloat('avg_document_length')
+        return self.config['default'].getfloat('avg_document_length')
 
     @property
     def tokens(self):
@@ -524,23 +546,22 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
         return self._bert
 
+    def get_tfidf(self, tf_method, idf_method, **kwargs):
+        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
+
     @property
-    def tfidf_embeddings(self):
+    def tfidf(self):
+        return self.tf * self.idf
 
-        warnings.warn(
-            "Doc.tfidf_embeddings is deprecated and will be removed by 0.18. "
-            , DeprecationWarning,
-            stacklevel=2)
-
-        if tuple(map(int, __version__.split('.'))) >= (0, 18):
-            import sys
-            sys.exit(1)
-
+    @property
+    def tfidf_matrix(self):
         indptr = [0]
         indices = []
         data = []
+
         for i in range(len(self)):
-            sent_embedding = self[i].tfidf()
+            sent_embedding = self[i].tfidf
+
             for idx in sent_embedding.nonzero()[0]:
                 indices.append(idx)
                 data.append(sent_embedding[idx])
@@ -550,47 +571,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
 
         return m
-
-    @property
-    def tf(self):
-        warnings.warn(
-            ("Doc.tf is deprecated and will be removed by 0.18. "
-             "Use get_tf function instead."), DeprecationWarning,
-            stacklevel=2)
-
-        if tuple(map(int, __version__.split('.'))) >= (0, 18):
-            import sys
-            sys.exit(1)
-
-        return self.get_tf(self.builder.config['tf']['method'])
-
-    def get_tfidf(self, tf_method, idf_method, **kwargs):
-        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
-
-    @property
-    def idf(self):
-        warnings.warn(
-            ("Doc.idf is deprecated and will be removed by 0.18. "
-             "Use get_idf function instead."), DeprecationWarning,
-            stacklevel=2)
-
-        if tuple(map(int, __version__.split('.'))) >= (0, 18):
-            import sys
-            sys.exit(1)
-
-        return self.get_idf(self.builder.config['idf']['method'])
-
-    def tfidf(self):
-        warnings.warn(
-            ("Doc.tfidf is deprecated and will be removed by 0.18. "
-             "Use get_tfidf function instead."), DeprecationWarning,
-            stacklevel=2)
-
-        if tuple(map(int, __version__.split('.'))) >= (0, 18):
-            import sys
-            sys.exit(1)
-
-        return csr_matrix((self.tf * self.idf).reshape(1, -1))
 
     def from_sentences(self, sentences: List[str]):
         return self.builder.from_sentences(sentences)

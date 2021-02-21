@@ -43,7 +43,7 @@ def test_bert_embedding_generation(tokenizer):
 def test_tfidf_embedding_generation(tf_type):
     with tf_context(tf_type):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
-        assert d.tfidf_embeddings.shape == (2, d.vocabulary.size)
+        assert d.tfidf_matrix.shape == (2, d.vocabulary.size)
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
@@ -52,7 +52,8 @@ def test_tfidf_compare_doc_and_sent(tf_type):
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
         for i, sent in enumerate(d):
-            assert np.all(np.isclose(d.tfidf_embeddings.toarray()[i, :], sent.tfidf()))
+            assert np.all(
+                np.isclose(d.tfidf_matrix.toarray()[i, :], sent.tfidf))
 
 
 testdata = [(True, True),
@@ -132,16 +133,16 @@ def test_doc_iter_eq():
 
 def test_doc_level_tfidf():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf().shape == (1, d.vocabulary.size)
+    assert d.tfidf.shape == (d.vocabulary.size,)
 
 
 @pytest.mark.parametrize("method,tfidf", [("binary", 31.938), ("raw", 32.938034)])
 def test_doc_level_tf_idf_value(method, tfidf):
-    with config_context(tf__method=method) as Doc_c:
+    with config_context(tf__method=method, idf__method="smooth") as Doc_c:
         d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
-        assert np.sum(d.tfidf().toarray()) == pytest.approx(tfidf)
+        assert np.sum(d.tfidf) == pytest.approx(tfidf)
 
 
 def test_doc_level_tf_idf_type():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert isspmatrix_csr(d.tfidf())
+    assert isspmatrix_csr(d.tfidf_matrix)
