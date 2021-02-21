@@ -28,6 +28,42 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 ### Performance Table
 
+#### Release 0.18
+
+By 0.18 we have significantly changed the way we evaluate our summarizers. 
+
+That's because including the parameter combinations we have more than 10.000 models to be evaluated with grid search
+Instead  we now use a RandomSampler (which might further be improved by using libraries like [optuna](https://optuna.org/)) and 
+store only Top-5 for 10%, 50% and 80% document length summaries.
+
+##### Top-5 by ndcg(k=0.1)
+| Method           | Parameter                                                                                                                                |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------|---------------|---------------|
+| LengthSummarizer | `{"mode": "char"}`                                                                                                                         |        0.6856 |        0.7584 |        0.8520 |
+| TFIDFSummarizer  | `{"tf_method": "binary", "lowercase": false, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": false, "drop_punct": true}`    |        0.6853 |        0.7611 |        0.8529 |
+| Rouge1Summarizer | `{"metric": "recall"}`                                                                                                                     |        0.6851 |        0.7585 |        0.8488 |
+| TFIDFSummarizer  | `{"tf_method": "log_norm", "lowercase": false, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": false, "drop_punct": false}` |        0.6850 |        0.7626 |        0.8541 |
+| TFIDFSummarizer  | `{"tf_method": "log_norm", "lowercase": true, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": false, "drop_punct": false}`  |        0.6850 |        0.7626 |        0.8541 |
+
+##### Top-5 by ndcg(k=0.5)
+| Method          | Parameter                                                                                                                                                                                                          |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|---------------|---------------|
+| TFIDFSummarizer | `{"tf_method": "raw", "lowercase": true, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": true, "drop_punct": false}`                                                                                  |        0.6816 |        0.7638 |        0.8550 |
+| BM25Summarizer  | `{"b": 0.8059695930137303, "delta": 1.9664617716135764, "drop_punct": true, "drop_stopwords": true, "drop_suffix": true, "idf_method": "smooth", "k1": 2.5606150771755596, "lowercase": true, "tf_method": "raw"}`   |        0.6799 |        0.7637 |        0.8529 |
+| TFIDFSummarizer | `{"tf_method": "log_norm", "lowercase": false, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": false, "drop_punct": false}`                                                                           |        0.6850 |        0.7626 |        0.8541 |
+| TFIDFSummarizer | `{"tf_method": "log_norm", "lowercase": true, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": false, "drop_punct": false}`                                                                            |        0.6850 |        0.7626 |        0.8541 |
+| BM25Summarizer  | `{"b": 0.7247476077499047, "delta": 1.085392166316497, "drop_punct": true, "drop_stopwords": true, "drop_suffix": true, "idf_method": "smooth", "k1": 1.3491012873595416, "lowercase": true, "tf_method": "binary"}` |        0.6802 |        0.7622 |        0.8525 |
+
+##### Top-5 by ndcg(k=0.8)
+| Method          | Parameter                                                                                                                                   |   ndcg(k=0.1) |   ndcg(k=0.5) |   ndcg(k=0.8) |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------|---------------|---------------|---------------|
+| TFIDFSummarizer | `{"tf_method": "raw", "lowercase": true, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": true, "drop_punct": false}`           |        0.6816 |        0.7638 |        0.8550 |
+| TFIDFSummarizer | `{"tf_method": "raw", "lowercase": false, "idf_method": "probabilistic", "drop_suffix": true, "drop_stopwords": true, "drop_punct": true}`    |        0.6778 |        0.7615 |        0.8544 |
+| TFIDFSummarizer | `{"tf_method": "binary", "lowercase": false, "idf_method": "probabilistic", "drop_suffix": true, "drop_stopwords": true, "drop_punct": true}` |        0.6776 |        0.7618 |        0.8542 |
+| TFIDFSummarizer | `{"tf_method": "double_norm", "lowercase": true, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": true, "drop_punct": false}`   |        0.6823 |        0.7608 |        0.8542 |
+| TFIDFSummarizer | `{"tf_method": "log_norm", "lowercase": false, "idf_method": "smooth", "drop_suffix": true, "drop_stopwords": false, "drop_punct": false}`    |        0.6850 |        0.7626 |        0.8541 |
+
+
 #### Release 0.17.1
 
 We have significantly changed the way we calculate `raw_tf` (in return affecting the way we calculate all other `tf`s based on that), 
