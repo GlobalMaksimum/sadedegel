@@ -3,7 +3,7 @@ import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config_context
+from .context import Doc, DocBuilder, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config_context
 
 
 @pytest.mark.parametrize("string", ["", " ", "\n", "\t", "\n\t"])
@@ -145,3 +145,8 @@ def test_doc_level_tf_idf_value(method, tfidf):
 def test_doc_level_tf_idf_type():
     d = Doc("Ali topu tut. Ömer ılık süt iç.")
     assert isspmatrix_csr(d.tfidf())
+
+
+def test_bert_wrong_device():
+    with pytest.raises(RuntimeError):
+        DocBuilder.bert.set_device("spanish inquisition")

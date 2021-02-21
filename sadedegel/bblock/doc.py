@@ -13,12 +13,12 @@ from scipy.sparse import csr_matrix
 
 from ..ml.sbd import load_model
 from ..metrics import rouge1_score
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from .util import tr_lower, __tr_lower_abbrv__, flatten, pad
 from ..config import load_config
 from .word_tokenizer import WordTokenizer
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from ..about import __version__
-
+from ._bert_wrapper import BertWrapper
 
 class Span:
     def __init__(self, i: int, span, doc):
@@ -242,7 +242,7 @@ class Sentences(TFImpl, IDFImpl):
 
         self._tokens = None
         self.document = doc
-        self._bert = None
+        self._bert_emb = None
 
         # No failback to config read in here because this will slow down sentence instantiation extremely.
         self.tf_method = config['tf']['method']
@@ -280,11 +280,14 @@ class Sentences(TFImpl, IDFImpl):
 
     @property
     def bert(self):
-        return self._bert
+        if self._bert_emb is None:
+            self._bert_emb = self.document.bert_embeddings[self.id]
+
+        return self._bert_emb
 
     @bert.setter
-    def bert(self, bert):
-        self._bert = bert
+    def bert(self, bert_emb):
+        self._bert_emb = bert_emb
 
     @property
     def input_ids(self):
@@ -423,25 +426,12 @@ class Document(TFImpl, IDFImpl):
             else:
                 return mat
 
+
     @property
     def bert_embeddings(self):
         if self._bert is None:
             inp, mask = self.padded_matrix()
-
-            if DocBuilder.bert_model is None:
-                logger.info("Loading BertModel")
-                from transformers import BertModel
-
-                DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
-                                                                  output_hidden_states=True)
-                DocBuilder.bert_model.eval()
-
-            with torch.no_grad():
-                outputs = DocBuilder.bert_model(inp, mask)
-
-            twelve_layers = outputs[2][1:]
-
-            self._bert = select_layer(twelve_layers, [11], return_cls=False)
+            self._bert = DocBuilder.bert(inp, mask)
 
         return self._bert
 
@@ -517,8 +507,22 @@ class Document(TFImpl, IDFImpl):
         return self.builder.from_sentences(sentences)
 
 
-class DocBuilder:
-    bert_model = None
+class DocBuilderMeta(type):
+    """
+        Metaclass for DocBuilder to handle BertWrapper loading (in the form of DocBuilder.bert class property)
+        property
+    """
+
+    @property
+    def bert(self):
+        if self._bert_wrapper is None:
+             logger.info("Loading BertModel")
+             self._bert_wrapper = BertWrapper()
+
+        return self._bert_wrapper
+
+class DocBuilder(metaclass=DocBuilderMeta):
+    _bert_wrapper = None # loaded on access to .bert class property
 
     def __init__(self, **kwargs):
 
