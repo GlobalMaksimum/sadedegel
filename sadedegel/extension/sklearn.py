@@ -1,8 +1,10 @@
 from itertools import tee
 
+import numpy as np
 from rich.progress import track
 from scipy.sparse import csr_matrix
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
 
 from ..config import config_context
 
@@ -10,10 +12,6 @@ from ..config import config_context
 def check_type(X):
     if not all(isinstance(x, str) for x in X):
         raise ValueError(f"X should be an iterable string (documents)")
-
-
-import numpy as np
-from sklearn.pipeline import Pipeline
 
 
 class OnlinePipeline(Pipeline):
@@ -36,9 +34,11 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
         return self
 
 
-class TfidfVectorizer(BaseEstimator, TransformerMixin):
+class TfidfVectorizer(SadedegelVectorizer):
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True, lowercase=True,
                  drop_suffix=True, drop_punct=True, show_progress=True):
+        super().__init__()
+
         self.tf_method = tf_method
         self.idf_method = idf_method
         self.lowercase = lowercase
@@ -87,9 +87,12 @@ class TfidfVectorizer(BaseEstimator, TransformerMixin):
         return csr_matrix((data, indices, indptr), dtype=np.float32, shape=(n_total, n_vocabulary))
 
 
-class BM25Vectorizer(BaseEstimator, TransformerMixin):
+class BM25Vectorizer(SadedegelVectorizer):
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0, drop_stopwords=True,
                  lowercase=True, drop_suffix=True, drop_punct=True, show_progress=True):
+
+        super().__init__()
+
         self.tf_method = tf_method
         self.idf_method = idf_method
         self.lowercase = lowercase
