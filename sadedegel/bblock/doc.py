@@ -167,7 +167,7 @@ class TFImpl:
     def __init__(self):
         pass
 
-    def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False):
+    def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False) -> np.ndarray:
         v = np.zeros(len(self.vocabulary))
 
         if lowercase:
@@ -187,10 +187,10 @@ class TFImpl:
 
         return v
 
-    def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+    def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
-    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
         tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
         normalization = tf.sum()
@@ -200,10 +200,11 @@ class TFImpl:
         else:
             return tf
 
-    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
-    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
+    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False,
+                       k=0.5) -> np.ndarray:
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
@@ -216,7 +217,7 @@ class TFImpl:
             return tf
 
     def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
-               **kwargs):
+               **kwargs) -> np.ndarray:
         if method == TF_BINARY:
             return self.binary_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
         elif method == TF_RAW:
@@ -382,7 +383,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
                       dtype=np.float32)
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
-                  drop_punct=False, **kwargs):
+                  drop_punct=False, **kwargs) -> np.ndarray:
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
             idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
