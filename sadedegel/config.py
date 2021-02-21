@@ -102,9 +102,24 @@ def load_config(kwargs: dict = None):
 
 def show_config(config, section=None):
     descriptions = {"default__tokenizer": "Word tokenizer to use",
+                    "default__drop_stopwords": ("Whether to drop stopwords in various calculations. "
+                                                "Such as, tfidf, bm25, etc."),
+                    "default__lowercase": "Whether to use lowercased form rather than form itself.",
+                    "default__drop_punct": ("Whether to drop punctuations in various calculations. "
+                                            "Such as, tfidf, bm25, etc."),
                     "tf__method": "Method used in term frequency calculation",
                     "tf__double_norm_k": "Smooth parameter used by double norm term frequency method.",
-                    "idf__method": "Method used in Inverse Document Frequency calculation"}
+                    "idf__method": "Method used in Inverse Document Frequency calculation",
+                    "bert__avg_document_length": "Average number of tokens in a bert tokenized document.",
+                    "bert__avg_sentence_length": "Average number of tokens in a bert tokenized sentences.",
+                    "bert__drop_suffix": ("Whether to drop BERT generated suffixes in various calculations. "
+                                          "Such as, tfidf, bm25, etc."),
+                    "simple__avg_document_length": "Average number of tokens in a simple tokenizer tokenized document.",
+                    "simple__avg_sentence_length": "Average number of tokens in a simple tokenizer tokenized sentences.",
+                    "bm25__k1": "BM25 k1 parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
+                    "bm25__b": "BM25 b parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
+                    "bm25__delta": "BM25+ delta parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
+                    }
 
     default_config = ConfigParser()
     default_config.read([Path(dirname(__file__)) / 'default.ini'])

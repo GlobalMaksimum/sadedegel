@@ -370,7 +370,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         idf = self.config['idf']['method']
         drop_stopwords = self.config['default'].getboolean('drop_stopwords')
         lowercase = self.config['default'].getboolean('lowercase')
-        drop_suffix = self.config['default'].getboolean('drop_suffix')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
         drop_punct = self.config['default'].getboolean('drop_punct')
 
         k1 = self.config['bm25'].getfloat('k1')
