@@ -1,6 +1,6 @@
 from collections import Counter
 import re
-from typing import List, Union
+from typing import List
 import warnings
 from functools import partial
 
@@ -167,7 +167,7 @@ class TFImpl:
     def __init__(self):
         pass
 
-    def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False):
+    def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False) -> np.ndarray:
         v = np.zeros(len(self.vocabulary))
 
         if lowercase:
@@ -187,10 +187,10 @@ class TFImpl:
 
         return v
 
-    def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+    def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
-    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+    def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
         tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
         normalization = tf.sum()
@@ -200,10 +200,11 @@ class TFImpl:
         else:
             return tf
 
-    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False):
+    def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
-    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False, k=0.5):
+    def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False,
+                       k=0.5) -> np.ndarray:
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
@@ -216,7 +217,7 @@ class TFImpl:
             return tf
 
     def get_tf(self, method=TF_BINARY, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False,
-               **kwargs):
+               **kwargs) -> np.ndarray:
         if method == TF_BINARY:
             return self.binary_tf(drop_stopwords, lowercase, drop_suffix, drop_punct)
         elif method == TF_RAW:
@@ -230,18 +231,77 @@ class TFImpl:
         else:
             raise ValueError(f"Unknown tf method ({method}). Choose one of {TF_METHOD_VALUES}")
 
+    @property
+    def tf(self):
+        tf = self.config['tf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
 
-class Sentences(TFImpl, IDFImpl):
+        return self.get_tf(tf, drop_stopwords, lowercase, drop_suffix, drop_punct)
+
+
+class BM25Impl:
+    def __init__(self):
+        pass
+
+    def get_bm25(self, tf_method: str, idf_method: str, k1: float, b: float, delta: float = 0, drop_stopwords=False,
+                 lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        """Return bm25 embedding
+
+        Refer to https://en.wikipedia.org/wiki/Okapi_BM25 for details
+
+        :param tf_method:
+        :param idf_method:
+        :param k1:
+        :param b:
+        :param delta:
+        :param drop_stopwords:
+        :param lowercase:
+        :param drop_suffix:
+        :param drop_punct:
+        :param kwargs:
+        :return:
+        """
+
+        tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+        idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
+
+        bm25 = idf * ((tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (len(self) / self.avgdl))) + delta)
+
+        return bm25
+
+    def get_bm11(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        return self.get_bm25(tf_method, idf_method, k1, 1, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
+                             drop_punct,
+                             kwargs)
+
+    def get_bm15(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
+                 drop_suffix=False,
+                 drop_punct=False, **kwargs):
+        return self.get_bm25(tf_method, idf_method, k1, 0, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
+                             drop_punct,
+                             kwargs)
+
+
+class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     def __init__(self, id_: int, text: str, doc, config: dict = {}):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
+        BM25Impl.__init__(self)
 
         self.id = id_
         self.text = text
 
         self._tokens = None
         self.document = doc
+        self.config = doc.builder.config
         self._bert = None
 
         # No failback to config read in here because this will slow down sentence instantiation extremely.
@@ -265,6 +325,11 @@ class Sentences(TFImpl, IDFImpl):
         else:
             raise ValueError(
                 f"Unknown term frequency method {self.tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
+
+    @property
+    def avgdl(self) -> int:
+        """Average number of tokens per sentence"""
+        return self.config['default'].getfloat('avg_sentence_length')
 
     @property
     def tokenizer(self):
@@ -306,11 +371,40 @@ class Sentences(TFImpl, IDFImpl):
             flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
             [tr_lower(t) for t in self.tokens], metric)
 
+    @property
+    def bm25(self) -> np.float32:
+
+        tf = self.config['tf']['method']
+        idf = self.config['idf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
+
+        k1 = self.config['bm25'].getfloat('k1')
+        b = self.config['bm25'].getfloat('b')
+
+        delta = self.config['bm25'].getfloat('delta')
+
+        return np.sum(self.get_bm25(tf, idf, k1, b, delta, drop_stopwords, lowercase, drop_suffix, drop_punct),
+                      dtype=np.float32)
+
+    @property
     def tfidf(self):
-        return self.tf * self.idf
+        tf = self.config['tf']['method']
+        idf = self.config['idf']['method']
+        drop_stopwords = self.config['default'].getboolean('drop_stopwords')
+        lowercase = self.config['default'].getboolean('lowercase')
+        drop_suffix = self.config['bert'].getboolean('drop_suffix')
+        drop_punct = self.config['default'].getboolean('drop_punct')
+
+        return self.get_tf(tf, drop_stopwords, lowercase, drop_suffix, drop_punct) * self.get_idf(idf, drop_stopwords,
+                                                                                                  lowercase,
+                                                                                                  drop_suffix,
+                                                                                                  drop_punct)
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
-                  drop_punct=False, **kwargs):
+                  drop_punct=False, **kwargs) -> np.ndarray:
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
             idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
@@ -349,10 +443,11 @@ class Sentences(TFImpl, IDFImpl):
             yield self.vocabulary[t]
 
 
-class Document(TFImpl, IDFImpl):
+class Document(TFImpl, IDFImpl, BM25Impl):
     def __init__(self, raw, builder):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
+        BM25Impl.__init__(self)
 
         self.raw = raw
         self.spans = []
@@ -360,6 +455,12 @@ class Document(TFImpl, IDFImpl):
         self._tokens = None
         self._bert = None
         self.builder = builder
+        self.config = self.builder.config
+
+    @property
+    def avgdl(self) -> int:
+        """Average number of tokens per document"""
+        return self.config['default'].getfloat('avg_document_length')
 
     @property
     def tokens(self):
@@ -402,7 +503,6 @@ class Document(TFImpl, IDFImpl):
         """Returns a 0 padded numpy.array or torch.tensor
               One row for each sentence
               One column for each token (pad 0 if length of sentence is shorter than the max length)
-
         :param return_numpy: Whether to return numpy.array or torch.tensor
         :param return_mask: Whether to return padding mask
         :return:
@@ -446,19 +546,22 @@ class Document(TFImpl, IDFImpl):
 
         return self._bert
 
-    @property
-    def tfidf_embeddings(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                "Doc.tfidf_embeddings is deprecated and will be removed by 0.18. "
-                , DeprecationWarning,
-                stacklevel=2)
+    def get_tfidf(self, tf_method, idf_method, **kwargs):
+        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
+    @property
+    def tfidf(self):
+        return self.tf * self.idf
+
+    @property
+    def tfidf_matrix(self):
         indptr = [0]
         indices = []
         data = []
+
         for i in range(len(self)):
-            sent_embedding = self[i].tfidf()
+            sent_embedding = self[i].tfidf
+
             for idx in sent_embedding.nonzero()[0]:
                 indices.append(idx)
                 data.append(sent_embedding[idx])
@@ -468,38 +571,6 @@ class Document(TFImpl, IDFImpl):
         m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
 
         return m
-
-    @property
-    def tf(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("Doc.tf is deprecated and will be removed by 0.18. "
-                 "Use get_tf function instead."), DeprecationWarning,
-                stacklevel=2)
-
-        return self.get_tf(self.builder.config['tf']['method'])
-
-    def get_tfidf(self, tf_method, idf_method, **kwargs):
-        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
-
-    @property
-    def idf(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("Doc.idf is deprecated and will be removed by 0.18. "
-                 "Use get_idf function instead."), DeprecationWarning,
-                stacklevel=2)
-
-        return self.get_idf(self.builder.config['idf']['method'])
-
-    def tfidf(self):
-        if tuple(map(int, __version__.split('.'))) < (0, 18):
-            warnings.warn(
-                ("Doc.tfidf is deprecated and will be removed by 0.18. "
-                 "Use get_tfidf function instead."), DeprecationWarning,
-                stacklevel=2)
-
-        return csr_matrix((self.tf * self.idf).reshape(1, -1))
 
     def from_sentences(self, sentences: List[str]):
         return self.builder.from_sentences(sentences)
@@ -515,6 +586,13 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        if self.tokenizer == "bert":
+            self.config['default']['avg_sentence_length'] = self.config['bert']['avg_sentence_length']
+            self.config['default']['avg_document_length'] = self.config['bert']['avg_document_length']
+        else:
+            self.config['default']['avg_sentence_length'] = self.config['simple']['avg_sentence_length']
+            self.config['default']['avg_document_length'] = self.config['simple']['avg_document_length']
 
         idf_method = self.config['idf']['method']
 

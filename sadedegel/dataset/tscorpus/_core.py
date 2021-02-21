@@ -1,19 +1,11 @@
+import gzip
+import json
+import sys
 from os.path import expanduser, getsize
 from pathlib import Path
 from typing import Iterator
 
-import glob
-import sys
-from collections import defaultdict
-import gzip
-import json
-from itertools import islice
-
-import numpy as np
-from sadedegel.config import tokenizer_context
-
 from rich.console import Console
-from rich.progress import track
 
 console = Console()
 

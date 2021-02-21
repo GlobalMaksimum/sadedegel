@@ -19,12 +19,10 @@ def test_tfidf_vectorizer_smoothing(tf_type, text):
     pipeline = OnlinePipeline([('tfidf', TfidfVectorizer(tf_method=tf_type, idf_method='smooth')),
                                ('model', SGDClassifier())])
 
-    X1, X2 = tee(islice(load_extended_raw_corpus(), 101), 2)
-
-    total = sum(1 for _ in X1)
+    X1 = islice(load_extended_raw_corpus(), 101)
 
     batch = []
-    for doc in track(X2, total=total):
+    for doc in X1:
         batch.append(doc)
 
         if len(batch) == BATCH_SIZE:

@@ -1,53 +1,59 @@
-<a href="http://sadedegel.ai"><img src="https://sadedegel.ai/dist/img/logo-2.png?s=280&v=4" width="125" height="125" align="right" /></a>
+<a href="http://sadedegel.ai"><img src="https://sadedegel.ai/assets/img/logo-2.png?s=280&v=4" width="125" height="125" align="right" /></a>
 
 # SadedeGel Datasets
 
-SadedeGel provides 2 major datasets
+SadedeGel provides various datasets to consolidate various NLP data sources for Turkish Language,
+train prebuilt models, and benchmark models.
 
-## Basic Dataset
-Basic dataset consists of ~100 documents and it is **installed** with the package and ready to be used.
+## `raw` Sadedegel News Corpus
+
+[raw](raw/) sadedegel news corpus is a relatively small news corpus (roughly 100 documents) gathered using  [scraper]
+and **installed** with with sadedegel installation. No extra download required.
+
+
+### Using Corpus
 
 ```python
-from sadedegel.dataset import load_raw_corpus, load_sentence_corpus
+from sadedegel.dataset import load_raw_corpus
 
 raw = load_raw_corpus()
+```
+
+## `sents` Sadedegel News Corpus
+
+[sents](sents/) sadedegel news corpus is the sentences boundary detected (human annotation) version of [raw](raw/) corpus
+and also **installed** with with sadedegel installation. No extra download required.
+
+### Using Corpus
+
+```python
+from sadedegel.dataset import load_sentence_corpus
+
 sents = load_sentence_corpus()
 ```
 
-There are 3 corpora in basic dataset
-1. **Raw Corpus** contains `txt` files each having raw news documents scraped by [Sadedegel Scraper](https://github.com/GlobalMaksimum/sadedegel-scraper)
-2. **Sentences Corpus** contains `json` files each having sentence boundary detected members of raw corpus. 
+## `annotated` Sadedegel News Corpus
 
-Boundary detection is initialized by an automatic (ML/rule based) sentence tokenizer but corrected by human annotators  
+[annotated](annotated/) sadedegel news corpus is the sentences importance (aka `relevance`) annotated (human annotation) version of [sentences](sentences/) corpus
+and also **installed** with with sadedegel installation. No extra download required.
 
-    * Refer to [Sentences Corpus Tokenize](#sentence-corpus-tokenize)
-    * Refer to [Sentences Corpus Validate](#sentence-corpus-validate)
+### Using Corpus
 
-3. **Annotated Corpus** also contains `json` files. Members are not only have sentence boundaries detected but also each sentence
-is human annotated for `relevance` in summarization. 
+```python
+from sadedegel.dataset import load_annotated_corpus
 
-### Sentence Corpus Tokenize
-
-Preprocessing stage of sentence tokenization before human annotator.
-
-```bash
-python -m sadedegel.dataset tokenize
+sents = load_annotated_corpus()
 ```
 
-### Sentence Corpus Validate
+## `extended` Sadedegel News Corpus
 
-Validation process ensures that hand annotated sentence tokenization does not violate any of the following span rule
+[extended](extended/) is a collection of corpus (corpura) that can be defined as the extended version of [raw](raw/) and [sents](sents/):
 
-1. All sentences should cover a span in corresponding raw document.
-2. All sentences spans should be stored in order at `sentences` (of list type) field of `json` document.
-
-```bash
-python -m sadedegel.dataset validate
-```
-    
+* [extended](extended/) **raw** is simply a larger collection of news documents collected by [scraper]
+* [extended](extended/) **sents** is generated using [extended](extended/) **raw** and ML based sentence boundary detector trained over [sents](sents/) corpus
+ 
 
 
-## Extended Dataset  
 ### Download Dataset 
 
 You can download extended dataset using 
@@ -96,3 +102,115 @@ Ensure that you have properly downloaded extended corpus using
 
 
 
+
+* Refer to [Sentences Corpus Tokenize](#sentence-corpus-tokenize)
+
+
+
+### Sentence Corpus Tokenize
+
+Preprocessing stage of sentence tokenization before human annotator.
+
+```bash
+python -m sadedegel.dataset tokenize
+```
+
+### Sentence Corpus Validate
+
+Validation process ensures that hand annotated sentence tokenization does not violate any of the following span rule
+
+1. All sentences should cover a span in corresponding raw document.
+2. All sentences spans should be stored in order at `sentences` (of list type) field of `json` document.
+
+```bash
+python -m sadedegel.dataset validate
+```
+
+## `tscorpus`
+
+[tscorpus] is an invaluable contribution by [Taner Sezer].
+
+Corpora consist of two corpus
+* [tscorpus] raw
+* [tscorpus] tokenized, word tokenized version of [tscorpus] raw corpus
+
+ Each corpus is splited into subsections per news category:
+* art_culture
+* education
+* horoscope
+* life_food
+* politics
+* technology
+* economics
+* health
+* life
+* magazine
+* sports
+* travel
+
+[tscorpus] allows us to 
+1. Verify/Calibrate word tokenizers (bert, simple, etc.) available in sadedegel
+2. Ship a prebuilt news classifier.
+
+### Using Corpora
+
+To load [tscorpus] for word tokenization tasks
+
+```python
+from sadedegel.dataset.tscorpus import load_tokenization_tokenized, load_tokenization_raw
+
+raw = load_tokenization_raw()
+tok = load_tokenization_tokenized()
+```
+
+Refer [tokenizer](../bblock/TOKENIZER.md) for details.
+
+To load [tscorpus] for classification tasks
+
+```python
+from sadedegel.dataset.tscorpus import load_classification_raw
+
+data = load_classification_raw()
+```
+
+Refer  [news classification](../prebuilt/README.md) for details
+
+
+## `profanity`
+Corpus used in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) to implement profanity classifier over Turkish tweeter dataset.
+
+Training dataset contains 31277 documents, whereas test dataset consists of 3515 documents.
+
+### Using Corpus
+
+```python
+from sadedegel.dataset.profanity import load_offenseval_train ,load_offenseval_test_label,load_offenseval_test
+
+tr = load_offenseval_train()
+tst = load_offenseval_test()
+tst_label = load_offenseval_test_label()
+
+next(tr)
+
+#{'id': 20948,
+# 'tweet': "@USER en güzel uyuyan insan ödülü jeon jungkook'a gidiyor...",
+# 'profanity_class': 0}
+
+next(tst)
+#{'id': 41993, 'tweet': '@USER Sayın başkanım bu şekilde devam inşallah👏'}
+
+next(tst_label)
+#{'id': 41993, 'profanity_class': 0}
+```
+
+For more details please refer [tweet profanity](../prebuilt/README.md)
+
+## `tweet_sentiment`
+[Twitter Dataset](https://www.kaggle.com/mrtbeyz/trke-sosyal-medya-paylam-veri-seti) is another corpus used to build prebuilt 
+tweeter sentiment classifier.
+
+For more details please refer [tweet sentiment](../prebuilt/README.md)
+
+[scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
+[Taner Sezer]: https://github.com/tanerim
+[tscorpus]: tscorpus/

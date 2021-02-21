@@ -1,24 +1,14 @@
-__all__ = ['set_config', 'get_config', 'describe_config', 'get_all_configs', 'tokenizer_context']
+__all__ = ['tokenizer_context', 'config_context', 'idf_context', 'tf_context', 'load_config']
 
-from typing import Any
-from collections import defaultdict
-from contextlib import contextmanager
-from configparser import ConfigParser
-from pathlib import Path
-from os.path import dirname
 import warnings
+from collections import defaultdict
+from configparser import ConfigParser
+from contextlib import contextmanager
+from os.path import dirname
+from pathlib import Path
+
 from rich.console import Console
 from rich.table import Table
-
-from .about import __version__
-
-
-def set_config(config: str, value: Any):  # pylint: disable=unused-argument
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "set_config is deprecated with 0.16. Use *_context functions for runtime configuration changes.")
-    else:
-        raise Exception("set_config should be removed.")
 
 
 @contextmanager
@@ -52,30 +42,6 @@ def tf_context(tf_type, warning=False):  # pylint: disable=unused-argument
     yield DocBuilder(tf__method=tf_type)
 
 
-def get_config(config: str):  # pylint: disable=unused-argument
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
-    else:
-        raise Exception("get_config function should be removed.")
-
-
-def describe_config(config: str, print_desc=False):  # pylint: disable=unused-argument
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
-    else:
-        raise Exception("describe_config should be removed.")
-
-
-def get_all_configs():
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
-    else:
-        raise Exception("describe_config should be removed.")
-
-
 def to_config_dict(kw: dict):
     d = defaultdict(dict)
     for k, v in kw.items():
@@ -102,9 +68,24 @@ def load_config(kwargs: dict = None):
 
 def show_config(config, section=None):
     descriptions = {"default__tokenizer": "Word tokenizer to use",
+                    "default__drop_stopwords": ("Whether to drop stopwords in various calculations. "
+                                                "Such as, tfidf, bm25, etc."),
+                    "default__lowercase": "Whether to use lowercased form rather than form itself.",
+                    "default__drop_punct": ("Whether to drop punctuations in various calculations. "
+                                            "Such as, tfidf, bm25, etc."),
                     "tf__method": "Method used in term frequency calculation",
                     "tf__double_norm_k": "Smooth parameter used by double norm term frequency method.",
-                    "idf__method": "Method used in Inverse Document Frequency calculation"}
+                    "idf__method": "Method used in Inverse Document Frequency calculation",
+                    "bert__avg_document_length": "Average number of tokens in a bert tokenized document.",
+                    "bert__avg_sentence_length": "Average number of tokens in a bert tokenized sentences.",
+                    "bert__drop_suffix": ("Whether to drop BERT generated suffixes in various calculations. "
+                                          "Such as, tfidf, bm25, etc."),
+                    "simple__avg_document_length": "Average token count in a simple tokenizer tokenized document.",
+                    "simple__avg_sentence_length": "Average token count in a simple tokenizer tokenized sentences.",
+                    "bm25__k1": "BM25 k1 parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
+                    "bm25__b": "BM25 b parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
+                    "bm25__delta": "BM25+ delta parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
+                    }
 
     default_config = ConfigParser()
     default_config.read([Path(dirname(__file__)) / 'default.ini'])

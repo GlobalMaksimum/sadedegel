@@ -1,5 +1,9 @@
+import numpy as np
 import pytest
+
 from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context, WordTokenizer
+from .context import config_context
+from .context import load_raw_corpus
 
 
 def test_bert_tokenizer():
@@ -49,3 +53,16 @@ def test_singleton_tokenizer():
     bt3 = WordTokenizer.factory('BERTTokenizer')
 
     assert bt1 == bt2 == bt3
+
+
+@pytest.mark.parametrize("toker", ["bert", "simple"])
+def test_word_counting(toker):
+    with config_context(tokenizer=toker) as D:
+        docs = [D(text) for text in load_raw_corpus()]
+
+        if toker == "bert":
+            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
+            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(18.14191)
+        else:
+            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
+            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.66134)
