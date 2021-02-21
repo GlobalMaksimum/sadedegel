@@ -1,24 +1,14 @@
-__all__ = ['set_config', 'get_config', 'describe_config', 'get_all_configs', 'tokenizer_context']
+__all__ = ['tokenizer_context', 'config_context', 'idf_context', 'tf_context', 'load_config']
 
-from typing import Any
-from collections import defaultdict
-from contextlib import contextmanager
-from configparser import ConfigParser
-from pathlib import Path
-from os.path import dirname
 import warnings
+from collections import defaultdict
+from configparser import ConfigParser
+from contextlib import contextmanager
+from os.path import dirname
+from pathlib import Path
+
 from rich.console import Console
 from rich.table import Table
-
-from .about import __version__
-
-
-def set_config(config: str, value: Any):  # pylint: disable=unused-argument
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "set_config is deprecated with 0.16. Use *_context functions for runtime configuration changes.")
-    else:
-        raise Exception("set_config should be removed.")
 
 
 @contextmanager
@@ -50,30 +40,6 @@ def tf_context(tf_type, warning=False):  # pylint: disable=unused-argument
     from .bblock import DocBuilder  # pylint: disable=import-outside-toplevel
 
     yield DocBuilder(tf__method=tf_type)
-
-
-def get_config(config: str):  # pylint: disable=unused-argument
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
-    else:
-        raise Exception("get_config function should be removed.")
-
-
-def describe_config(config: str, print_desc=False):  # pylint: disable=unused-argument
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
-    else:
-        raise Exception("describe_config should be removed.")
-
-
-def get_all_configs():
-    if tuple(map(int, __version__.split('.'))) < (0, 18):  # pylint: disable=no-else-raise
-        raise DeprecationWarning(
-            "get_config is deprecated with 0.16. Use `sadedegel config` command to retrieve configuration")
-    else:
-        raise Exception("describe_config should be removed.")
 
 
 def to_config_dict(kw: dict):

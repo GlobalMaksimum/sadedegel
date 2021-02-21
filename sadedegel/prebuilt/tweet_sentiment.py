@@ -1,22 +1,16 @@
 from math import ceil
-from pathlib import Path
 from os.path import dirname
-from sklearn.utils import shuffle
-
-from sklearn.linear_model import PassiveAggressiveClassifier
-
-from rich.console import Console
-from rich.progress import Progress
-
-from sklearn.model_selection import KFold
-from sklearn.metrics import f1_score
-
-from joblib import dump, load as jl_load
+from pathlib import Path
 
 import numpy as np
+from joblib import dump, load as jl_load
+from rich.console import Console
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.metrics import f1_score
+from sklearn.model_selection import KFold
+from sklearn.utils import shuffle
 
 from ..dataset.tweet_sentiment import load_tweet_sentiment_train, CORPUS_SIZE, CLASS_VALUES
-
 from ..extension.sklearn import TfidfVectorizer, OnlinePipeline
 
 console = Console()

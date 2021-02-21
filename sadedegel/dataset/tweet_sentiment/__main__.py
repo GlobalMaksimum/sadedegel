@@ -1,23 +1,17 @@
+import gzip
 import os.path
-from pathlib import Path
 import sys
 from itertools import tee
-
-from smart_open import open
+from pathlib import Path
 from shutil import copyfileobj
-import gzip
-
-import click
 
 import boto3
-
+import click
 from loguru import logger
-
-from ._core import load_tweet_sentiment_train, CORPUS_SIZE, CLASS_VALUES
-
-from zipfile import ZipFile
-
 from rich.console import Console
+from smart_open import open
+
+from ._core import load_tweet_sentiment_train, CORPUS_SIZE
 
 console = Console()
 

@@ -1,19 +1,13 @@
 from typing import List
-import warnings
+
+import networkx as nx
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-import networkx as nx
+
 from ._base import ExtractiveSummarizer
+from .util.power_method import degree_centrality_scores
 from ..bblock import Sentences
 from ..config import tokenizer_context
-from lexrank import LexRank
-from ..dataset import load_raw_corpus
-from ..bblock.util import load_stopwords
-from ..about import __version__
-
-from .util.power_method import degree_centrality_scores
-from ..bblock.doc import TF_RAW, TF_FREQ, TF_BINARY, TF_LOG_NORM, TF_DOUBLE_NORM
-from ..bblock.token import IDF_PROBABILISTIC, IDF_SMOOTH
 
 
 class TextRank(ExtractiveSummarizer):
@@ -71,60 +65,13 @@ class LexRankSummarizer(ExtractiveSummarizer):
     """
         Unsupervised summarizer which just like Rouge1 summarizer
         uses sentence's similarity to other sentences.
-        Github: https://github.com/crabcamp/lexrank/
     """
 
     tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph']
 
-    def __init__(self, normalize=True):
-        warnings.warn(
-            "Doc.tfidf_embeddings is deprecated and will be removed by 0.19. "
-            , DeprecationWarning,
-            stacklevel=2)
-
-        if tuple(map(int, __version__.split('.'))) >= (0, 19):
-            import sys
-            sys.exit(1)
-
-        super().__init__(normalize)
-
-        stopwords = set(load_stopwords())
-        corpus = load_raw_corpus(return_iter=False)
-        self.lxr = LexRank(corpus, stopwords=stopwords)
-
-    def _predict(self, sentences: List[Sentences]) -> np.ndarray:
-        sentences = [str(s) for s in sentences]
-        scores = self.lxr.rank_sentences(
-            sentences,
-            threshold=None,
-            fast_power_method=False,
-        )
-
-        return np.array(scores)
-
-
-class LexRankPureSummarizer(ExtractiveSummarizer):
-    """
-        Unsupervised summarizer which just like Rouge1 summarizer
-        uses sentence's similarity to other sentences.
-    """
-
-    tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph9']
-
-    def __init__(self, normalize=True, tf_method=None, idf_method=None, threshold=.03, fast_power_method=True,
+    def __init__(self, tf_method, idf_method, threshold=.03, fast_power_method=True, normalize=True,
                  **kwargs):
         super().__init__(normalize)
-
-        warnings.warn(
-            ("LexRankPureSummarizer is a pure sadedegel based implementation of lexrank."
-             "It is deprecated as LexRankPureSummarizer has a better performance than original LexRankSummarizer,"
-             "so we will rename this summarizer as LexRankSummarizer and drop lexrank dependency by 0.18.")
-            , DeprecationWarning,
-            stacklevel=2)
-
-        if tuple(map(int, __version__.split('.'))) >= (0, 18):
-            import sys
-            sys.exit(1)
 
         self.tf_method = tf_method
         self.idf_method = idf_method

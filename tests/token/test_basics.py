@@ -6,4 +6,4 @@ def test_oov():
              "buna benzer bir pozisyon da wesley uzaktan attigi golun birinde de ayni pozisyon vardi ozaman bunu "
              "size en iyi volkan aciklar kudurun fesat ibneler."))
 
-    embedding = d.tfidf_embeddings
+    _ = d.tfidf_matrix

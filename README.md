@@ -6,7 +6,7 @@ SadedeGel is a library for unsupervised extraction-based news summarization usin
 
 Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.17 out now!**
+💫 **Version 0.18 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -82,6 +82,8 @@ Other community maintainers
     * TextRank Summarizer
     * Cluster Summarizer
     * Lexrank Summarizer
+    * BM25 Summarizer
+    * TfIdf Summarizer
  
 * Various Word Tokenizers
   * BERT Tokenizer - Trained tokenizer

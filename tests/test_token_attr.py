@@ -1,7 +1,7 @@
 from math import ceil
 import pytest
 from pytest import raises
-from .context import Token, config_context, set_config, idf_context
+from .context import Token, config_context, idf_context
 
 famous_quote = "Merhaba dünya. 36 ışıkyılı uzaktan geldik."
 
@@ -31,11 +31,6 @@ def test_idf(idf_type, idf):
         word = Doc('merhaba')
         t = word[0][0]  # first token of first sentence.
         assert ceil(t.idf) == idf
-
-
-def test_idf_setting():
-    with raises(Exception, match=r"set_config is deprecated with.*"):
-        set_config('idf', 'plain')
 
 
 def test_invalid_idf_method():

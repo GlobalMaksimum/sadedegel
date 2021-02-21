@@ -1,21 +1,17 @@
 from math import ceil
+from os.path import dirname
+from pathlib import Path
 
 import numpy as np
 from joblib import dump, load as jl_load
-
-from pathlib import Path
-from os.path import dirname
-
 from rich.console import Console
-from rich.progress import Progress
-
 from sklearn.linear_model import PassiveAggressiveClassifier
-from sklearn.utils import shuffle
 from sklearn.metrics import f1_score
+from sklearn.utils import shuffle
 
-from sadedegel.extension.sklearn import TfidfVectorizer, OnlinePipeline
 from sadedegel.dataset.profanity import load_offenseval_train, load_offenseval_test, \
     load_offenseval_test_label, CORPUS_SIZE, CLASS_VALUES
+from sadedegel.extension.sklearn import TfidfVectorizer, OnlinePipeline
 
 console = Console()
 
