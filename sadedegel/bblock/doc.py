@@ -1,6 +1,6 @@
 from collections import Counter
 import re
-from typing import List, Union
+from typing import List
 import warnings
 from functools import partial
 

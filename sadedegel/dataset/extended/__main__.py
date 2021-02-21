@@ -9,7 +9,6 @@ import glob
 from rich.progress import track
 from sadedegel import Doc
 import json
-import sys
 
 from ..util import safe_read
 from ._core import load_extended_metadata

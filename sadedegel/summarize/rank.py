@@ -1,19 +1,18 @@
-from typing import List
 import warnings
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-import networkx as nx
-from ._base import ExtractiveSummarizer
-from ..bblock import Sentences
-from ..config import tokenizer_context
-from lexrank import LexRank
-from ..dataset import load_raw_corpus
-from ..bblock.util import load_stopwords
-from ..about import __version__
+from typing import List
 
+import networkx as nx
+import numpy as np
+from lexrank import LexRank
+from sklearn.metrics.pairwise import cosine_similarity
+
+from ._base import ExtractiveSummarizer
 from .util.power_method import degree_centrality_scores
-from ..bblock.doc import TF_RAW, TF_FREQ, TF_BINARY, TF_LOG_NORM, TF_DOUBLE_NORM
-from ..bblock.token import IDF_PROBABILISTIC, IDF_SMOOTH
+from ..about import __version__
+from ..bblock import Sentences
+from ..bblock.util import load_stopwords
+from ..config import tokenizer_context
+from ..dataset import load_raw_corpus
 
 
 class TextRank(ExtractiveSummarizer):
