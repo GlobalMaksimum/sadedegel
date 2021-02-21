@@ -9,7 +9,7 @@ from ..bm25 import BM25Summarizer
 from ..tf_idf import TFIDFSummarizer
 from ..baseline import BandSummarizer, RandomSummarizer, PositionSummarizer, LengthSummarizer
 from ..rouge import Rouge1Summarizer
-from ..rank import TextRank, LexRankPureSummarizer, LexRankSummarizer
+from ..rank import TextRank, LexRankSummarizer
 
 import click
 

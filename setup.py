@@ -18,10 +18,13 @@ setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='sadedegel',
     # Needed to actually package something
-    packages=['sadedegel', 'sadedegel.bblock', 'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.summarize',
+    packages=['sadedegel', 'sadedegel.bblock',
+              'sadedegel.dataset', 'sadedegel.dataset.extended', 'sadedegel.dataset.profanity',
+              'sadedegel.dataset.tweet_sentiment', 'sadedegel.dataset.tscorpus',
+              'sadedegel.summarize',
               'sadedegel.summarize.evaluate',
               'sadedegel.summarize.util', 'sadedegel.extension',
-              'sadedegel.dataset.tscorpus', 'sadedegel.bblock.cli',
+              'sadedegel.bblock.cli',
               'sadedegel.tokenize', 'sadedegel.ml',
               'sadedegel.server', 'sadedegel.metrics', 'sadedegel.prebuilt'],
     package_data={
