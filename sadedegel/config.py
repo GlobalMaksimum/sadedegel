@@ -114,8 +114,8 @@ def show_config(config, section=None):
                     "bert__avg_sentence_length": "Average number of tokens in a bert tokenized sentences.",
                     "bert__drop_suffix": ("Whether to drop BERT generated suffixes in various calculations. "
                                           "Such as, tfidf, bm25, etc."),
-                    "simple__avg_document_length": "Average number of tokens in a simple tokenizer tokenized document.",
-                    "simple__avg_sentence_length": "Average number of tokens in a simple tokenizer tokenized sentences.",
+                    "simple__avg_document_length": "Average token count in a simple tokenizer tokenized document.",
+                    "simple__avg_sentence_length": "Average token count in a simple tokenizer tokenized sentences.",
                     "bm25__k1": "BM25 k1 parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
                     "bm25__b": "BM25 b parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
                     "bm25__delta": "BM25+ delta parameter as defined in https://en.wikipedia.org/wiki/Okapi_BM25",
