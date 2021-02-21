@@ -104,7 +104,9 @@ def show_config(config, section=None):
     descriptions = {"default__tokenizer": "Word tokenizer to use",
                     "tf__method": "Method used in term frequency calculation",
                     "tf__double_norm_k": "Smooth parameter used by double norm term frequency method.",
-                    "idf__method": "Method used in Inverse Document Frequency calculation"}
+                    "idf__method": "Method used in Inverse Document Frequency calculation",
+                    "exceeding_sentence__method": "Method to divide sentence that exceeds 512 token length during BERT "
+                                                  "embedding generation"}
 
     default_config = ConfigParser()
     default_config.read([Path(dirname(__file__)) / 'default.ini'])
