@@ -55,5 +55,5 @@ y_pred_value = [CLASS_VALUES[_y_pred] for _y_pred in y_pred]
 
 #### Accuracy
 
-Current prebuilt tweet profanity model has an **macro-F1** score of `0.731` on test set.
+Current prebuilt tweet profanity model has an **macro-F1** score of `0.7205` on test set.
 > Best model in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) has `0.8258` accuracy

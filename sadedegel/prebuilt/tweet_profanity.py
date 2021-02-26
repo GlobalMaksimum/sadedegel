@@ -28,6 +28,7 @@ def empty_model():
                                  k1=1.7094943902452382, b=0.8044484402765772,
                                  show_progress=True)),
          ('sgd', SGDClassifier(alpha=0.0011130974542755533,
+                               random_state=42,
                                penalty='elasticnet',
                                eta0=0.5818024200892028,
                                learning_rate='optimal',
@@ -35,7 +36,7 @@ def empty_model():
     )
 
 
-def build():
+def build(save=True):
     try:
         import pandas as pd
     except ImportError:
@@ -46,43 +47,39 @@ def build():
     df = pd.DataFrame.from_records(raw)
     df = shuffle(df)
 
-    # BATCH_SIZE = 1000
-
     console.log(f"Corpus Size: {CORPUS_SIZE}")
-
-    # n_split = ceil(len(df) / BATCH_SIZE)
-    # console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
-
-    # batches = np.array_split(df, n_split)
 
     pipeline = empty_model()
 
-    # for batch in batches:
-    #     pipeline.partial_fit(batch.tweet, batch.profanity_class, classes=[i for i in range(len(CLASS_VALUES))])
-
     pipeline.fit(df.tweet, df.profanity_class)
+
+    evaluate(pipeline)
 
     console.log("Model build [green]DONE[/green]")
 
-    model_dir = Path(dirname(__file__)) / 'model'
+    if save:
+        model_dir = Path(dirname(__file__)) / 'model'
 
-    model_dir.mkdir(parents=True, exist_ok=True)
+        model_dir.mkdir(parents=True, exist_ok=True)
 
-    dump(pipeline, (model_dir / 'tweet_profanity_classification_v2.joblib').absolute(), compress=('gzip', 9))
+        dump(pipeline, (model_dir / 'tweet_profanity_classification.joblib').absolute(), compress=('gzip', 9))
+
+        console.log("Model save [green]DONE[/green]")
 
 
 def load():
-    return jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification_v2.joblib')
+    return jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification.joblib')
 
 
-def evaluate():
+def evaluate(model=None):
     try:
         import pandas as pd
     except ImportError:
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
 
-    model = load()
+    if model is None:
+        model = load()
 
     test = pd.DataFrame.from_records(load_offenseval_test())
     testLabel = pd.DataFrame.from_records(load_offenseval_test_label())
@@ -95,4 +92,4 @@ def evaluate():
 
 
 if __name__ == "__main__":
-    build()
+    build(save=True)
