@@ -35,7 +35,7 @@ def lexrank_parameter_space(n_trials):
              , idf_method=["smooth", "probabilistic"],
              drop_stopwords=[True, False],
              drop_suffix=[True, False], drop_punct=[True, False],
-             lowercase=[True, False]), n_iter=n_trials, random_state=rng)
+             lowercase=[True, False], threshold=uniform(0, 1)), n_iter=n_trials, random_state=rng)
 
 
 def textrank_parameter_space(n_trials):

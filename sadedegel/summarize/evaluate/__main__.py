@@ -22,8 +22,7 @@ summarizer_list = [(BM25Summarizer, bm25_parameter_space, 50),
                        Rouge1Summarizer, lambda x: [dict(metric="precision"), dict(metric="recall"), dict(metric="f1")],
                        3),
                    (LengthSummarizer, lambda x: [dict(mode="token"), dict(mode="char")], 2),
-                   (LexRankSummarizer, lambda x: [{"normalize": True}], 5),
-                   (LexRankPureSummarizer, lexrank_parameter_space, 10),
+                   (LexRankSummarizer, lexrank_parameter_space, 10),
                    (TextRank, textrank_parameter_space, 10)]
 
 
@@ -36,18 +35,22 @@ def cli():
 @click.option("-f", "--table-format", default="github")
 @click.option("-t", "--tag", default=["extractive"], multiple=True)
 @click.option("-d", "--debug", default=False)
-def evaluate(table_format, tag, debug):
+@click.option("--tokenizer", default="bert")
+def evaluate(table_format, tag, debug, tokenizer):
     """Evaluate various extractive summarizer using random hyper parameter sampling"""
 
     anno = load_annotated_corpus(False)
     relevance = [[doc['relevance']] for doc in anno]
 
-    with config_context(tokenizer="bert") as DocBuilder:
+    with config_context(tokenizer=tokenizer) as DocBuilder:
         docs = [DocBuilder.from_sentences(doc['sentences']) for doc in anno]
 
     table = []
 
     for Summarizer, parameter_space, n_trial in filter(lambda x: any((t in x[0].tags) for t in tag), summarizer_list):
+        if 'bert' in Summarizer.tags and tokenizer != 'bert':
+            continue
+
         scores = grid_search(relevance, docs, Summarizer, parameter_space(n_trial))
 
         table += [[method[0], method[1], scores[0], scores[1], scores[2]] for
