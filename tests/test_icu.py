@@ -1,6 +1,6 @@
 import pytest
 
-from .context import ICUTokenizerHelper, tokenizer_context, WordTokenizer
+from .context import ICUTokenizerHelper, tokenizer_context
 
 
 @pytest.mark.parametrize("text, tokens_true", [("Havaalanında bekliyoruz.", ['Havaalanında', 'bekliyoruz', '.']),
