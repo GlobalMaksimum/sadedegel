@@ -31,7 +31,7 @@ setup(
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
         'sadedegel.prebuilt': ['model/*.joblib'],
-        'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
+        'sadedegel.bblock': ['data/bert/vocabulary.json', 'data/icu/vocabulary.json', 'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
     # Needed for dependencies
@@ -49,6 +49,6 @@ setup(
         sadedegel-summarize=sadedegel.summarize.evaluate.__main__:cli
         sadedegel-sbd=sadedegel.tokenize.__main__:cli
         sadedegel-server=sadedegel.server.__main__:server
-        sadedegel-build-vocabulary=sadedegel.bblock.__main__:build_vocabulary
+        sadedegel-build-vocabulary=sadedegel.bblock.cli.__main__:build_vocabulary
     '''
 )

@@ -116,7 +116,7 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
     normalized = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
 
-    if normalized not in ['bert', 'simple']:
+    if normalized not in ['bert', 'simple', 'icu']:
         msg = f"Invalid tokenizer {tokenizer_name} ({normalized}). Valid values are bert, simple"
         if raise_on_error:
             raise ValueError(msg)

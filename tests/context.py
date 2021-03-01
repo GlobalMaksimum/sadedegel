@@ -16,3 +16,4 @@ from sadedegel.server.__main__ import app # noqa # pylint: disable=unused-import
 from sadedegel import  tokenizer_context # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.config import  tf_context, idf_context # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.config import config_context # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.bblock.icu import ICUTokenizerHelper # noqa # pylint: disable=unused-import, wrong-import-position

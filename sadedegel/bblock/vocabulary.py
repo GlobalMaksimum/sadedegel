@@ -28,7 +28,7 @@ class Vocabulary:
         if normalized_name not in Vocabulary.vocabularies:
             Vocabulary.vocabularies[normalized_name] = Vocabulary(normalized_name)
 
-        return Vocabulary.vocabularies[normalize_tokenizer_name(tokenizer)]
+        return Vocabulary.vocabularies[normalized_name]
 
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
@@ -65,13 +65,16 @@ class Vocabulary:
         self.document_count = len(self.doc_set)
         self.initialized = True
 
-    def save(self):
+    def save(self, tokenizer: str):
         if not self.initialized:
             raise Exception("Call build to initialize vocabulary")
 
-        with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json', "w") as fp:
+        tokenizer_dir = Path(dirname(__file__)) / 'data' / tokenizer
+
+        tokenizer_dir.mkdir(parents=True, exist_ok=True)
+        with open(tokenizer_dir / 'vocabulary.json', "w") as fp:
             dump(dict(size=len(self), document_count=self.document_count, tokenizer=self.tokenizer,
-                      words=[asdict(e) for e in self.entries.values()]), fp,
+                      words=[dict(id=e.id, word=e.word, df=e.df, df_cs=e.df_cs) for e in self.entries.values()]), fp,
                  ensure_ascii=False)
 
     @staticmethod
@@ -81,12 +84,13 @@ class Vocabulary:
         vocab = Vocabulary.factory(normalized_name)
 
         if not vocab.initialized:
-            if normalized_name != 'bert':
-                warnings.warn("Currently only valid tokenizer is BERT Tokenizer for vocabulary generation.",
+            if normalized_name not in ['bert', 'icu']:
+                warnings.warn("Currently only valid tokenizers are BERT, ICU Tokenizer for vocabulary generation.",
                               UserWarning, stacklevel=2)
                 return vocab
 
-            with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json') as fp:
+            tokenizer_dir = Path(dirname(__file__)) / 'data' / tokenizer
+            with open(tokenizer_dir / 'vocabulary.json') as fp:
                 json = load(fp)
 
             for d in json['words']:

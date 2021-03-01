@@ -4,6 +4,7 @@ from .word_tokenizer_helper import word_tokenize
 from .util import normalize_tokenizer_name
 from .vocabulary import Vocabulary
 from ..about import __version__
+from .icu import ICUTokenizerHelper
 import warnings
 
 
@@ -36,6 +37,13 @@ class WordTokenizer(ABC):
                      "If you experience any problems, open up a issue "
                      "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
                 WordTokenizer.__instances[normalized_name] = SimpleTokenizer()
+            elif normalized_name == "icu":
+                warnings.warn(
+                    ("Note that ICUTokenizer is pretty new in sadedeGel. "
+                     "If you experience any problems, open up a issue "
+                     "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
+
+                WordTokenizer.__instances[normalized_name] = ICUTokenizer()
             else:
                 raise Exception(
                     (f"No word tokenizer type match with name {tokenizer_name}."
@@ -88,6 +96,27 @@ class SimpleTokenizer(WordTokenizer):
     def vocabulary(self):
         if self._vocabulary is None:
             self._vocabulary = Vocabulary.load("simple")
+
+        return self._vocabulary
+
+
+class ICUTokenizer(WordTokenizer):
+    __name__ = "ICUTokenizer"
+
+    def __init__(self):
+        super(ICUTokenizer, self).__init__()
+        self.tokenizer = ICUTokenizerHelper()
+
+    def _tokenize(self, text: str) -> List[str]:
+        return self.tokenizer(text)
+
+    def convert_tokens_to_ids(self, ids: List[str]) -> List[int]:
+        raise NotImplementedError("convert_tokens_to_ids is not implemented for SimpleTokenizer yet. Use BERTTokenizer")
+
+    @property
+    def vocabulary(self):
+        if self._vocabulary is None:
+            self._vocabulary = Vocabulary.load("icu")
 
         return self._vocabulary
 
