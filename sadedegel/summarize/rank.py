@@ -22,7 +22,7 @@ class TextRank(ExtractiveSummarizer):
         Otherwise, return a score vector that adds up to 1.
     """
 
-    tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph']
+    tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph', 'bert']
 
     def __init__(self, input_type="bert", alpha=0.5, normalize=True):
         super().__init__(normalize)
@@ -69,12 +69,17 @@ class LexRankSummarizer(ExtractiveSummarizer):
 
     tags = ExtractiveSummarizer.tags + ['ml', 'rank', 'graph']
 
-    def __init__(self, tf_method, idf_method, threshold=.03, fast_power_method=True, normalize=True,
+    def __init__(self, tf_method, idf_method, drop_stopwords=False, drop_suffix=False, drop_punct=False,
+                 lowercase=False, threshold=.03, fast_power_method=True, normalize=True,
                  **kwargs):
         super().__init__(normalize)
 
         self.tf_method = tf_method
         self.idf_method = idf_method
+        self.drop_stopwords = drop_stopwords
+        self.drop_suffix = drop_suffix
+        self.drop_punct = drop_punct
+        self.lowercase = lowercase
 
         if not (threshold is None or isinstance(threshold, float) and 0 <= threshold < 1):
             raise ValueError("'threshold' should be a floating-point number from the interval [0, 1) or None")
@@ -85,23 +90,21 @@ class LexRankSummarizer(ExtractiveSummarizer):
     def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         similarity_matrix = np.zeros((len(sentences), len(sentences)))
 
+        embeddings = []
         for i in range(len(sentences)):
-            for j in range(len(sentences)):
+            s1 = sentences[i]
+
+            embeddings.append(s1.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
+                                           lowercase=self.lowercase,
+                                           drop_suffix=self.drop_suffix,
+                                           drop_punct=self.drop_punct).reshape(1, -1))
+
+        for i in range(len(embeddings)):
+            for j in range(len(embeddings)):
                 if i == j:
                     continue
 
-                s1 = sentences[i]
-                s2 = sentences[j]
-
-                similarity_matrix[i][j] = \
-                    cosine_similarity(s1.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=True, lowercase=True,
-                                                   drop_suffix=True,
-                                                   drop_punct=True).reshape(1, -1),
-                                      s2.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=True, lowercase=True,
-                                                   drop_suffix=True,
-                                                   drop_punct=True).reshape(1,
-                                                                            -1))[
-                        0, 0]
+                similarity_matrix[i][j] = cosine_similarity(embeddings[i], embeddings[j])[0, 0]
 
         scores = degree_centrality_scores(
             similarity_matrix,
