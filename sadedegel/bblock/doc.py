@@ -604,9 +604,10 @@ class DocBuilder:
     def __call__(self, raw):
 
         if raw is not None:
-            _spans = [match.span() for match in re.finditer(r"\S+", raw)]
+            raw_stripped = raw.strip()
+            _spans = [match.span() for match in re.finditer(r"\S+", raw_stripped)]
 
-            d = Document(raw, self)
+            d = Document(raw_stripped, self)
             d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
 
             if len(d.spans) > 0:
@@ -622,8 +623,13 @@ class DocBuilder:
                         d._sents.append(Sentences(i, d.raw[:eos].strip(), d, self.config))
                     else:
                         d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d, self.config))
+
+                if eos_list[-1] != len(raw_stripped):
+                    d._sents.append(Sentences(len(d._sents), d.raw[eos_list[-1] + 1:len(raw_stripped)], d,
+                                              self.config))
             else:
                 d._sents.append(Sentences(0, d.raw.strip(), d, self.config))
+
         else:
             raise Exception(f"{raw} document text can't be None")
 
