@@ -49,6 +49,6 @@ setup(
         sadedegel-summarize=sadedegel.summarize.evaluate.__main__:cli
         sadedegel-sbd=sadedegel.tokenize.__main__:cli
         sadedegel-server=sadedegel.server.__main__:server
-        sadedegel-build-vocabulary=sadedegel.bblock.__main__:build_vocabulary
+        sadedegel-build-vocabulary=sadedegel.bblock.cli.__main__:build_vocabulary
     '''
 )

@@ -52,7 +52,7 @@ def test_ml_sent_tokenizer_edge_cases():
                                            "123. Türkiye E-Sports turnuvası İstanbul'da gerçekleşti."]
 
 
-def building_doc_using_sents():
+def test_building_doc_using_sents():
     sents = ["Hz. İsa M.Ö. 0. yılda doğdu.",
              'Doç. Dr. Mehmet Bey kanserin ilacını buldu!!!', 'Aşk…',
              "14 Şubat'ta olmasın…",
@@ -65,3 +65,9 @@ def building_doc_using_sents():
     doc = Doc.from_sentences(sents)
 
     assert [sent.text for sent in doc] == sents
+
+
+def test_handle_last_sentence():
+    doc = Doc("doğa ağzımıza sıçsa hakkı var. anne bir sanatçıdır güzel eseri yavrusudur")
+
+    assert list(doc) == ["doğa ağzımıza sıçsa hakkı var.", "anne bir sanatçıdır güzel eseri yavrusudur"]
