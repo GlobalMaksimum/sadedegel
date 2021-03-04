@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+import json
 import warnings
 from collections import defaultdict
 from os.path import dirname
@@ -55,7 +56,7 @@ def is_eos(span, sentences: List[str]) -> int:
     return 0
 
 
-def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.ndarray:
+def select_layer(bert_out: tuple, layers: List[int], return_cls: bool, weighting=None, sents=None) -> np.ndarray:
     """Selects and averages layers from BERT output.
 
     Parameters:
@@ -67,6 +68,13 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 
         return_cls: bool
             Whether to use CLS token embedding as sentence embedding instead of averaging token embeddings.
+
+        weighting: str
+            Weighting scheme defined for combining word embeddings to form higher level embeddings
+
+        sents: Document
+            If a weighting scheme is defined, this function
+            receives sentences to obtain tf, idf, bm25 or rouge1 weights.
 
     Returns:
         numpy.ndarray (n_sentences, embedding_size) Embedding size if default to 768.
@@ -96,19 +104,61 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 
     else:
         token_matrix = np.zeros((n_layers, n_sentences, n_tokens - 2, 768))
-        for l, layer in enumerate(bert_out):
-            l_ix = 0
-            if l not in layers:
-                continue
-            else:
-                l_ix = l_ix + 1
-            for s, sentence in enumerate(layer):
-                for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
-                    token_tensor = sentence[t].numpy()
-                    token_matrix[l_ix - 1, s, t, :] = token_tensor
+        if weighting is None:
+            for l, layer in enumerate(bert_out):
+                l_ix = 0
+                if l not in layers:
+                    continue
+                else:
+                    l_ix = l_ix + 1
+                for s, sentence in enumerate(layer):
+                    for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
+                        token_tensor = sentence[t].numpy()
+                        token_matrix[l_ix - 1, s, t, :] = token_tensor
 
-        tokenwise_mean = np.mean(token_matrix, axis=2)
-        layer_mean_token = np.mean(tokenwise_mean, axis=0)
+            tokenwise_mean = np.mean(token_matrix, axis=2)
+            layer_mean_token = np.mean(tokenwise_mean, axis=0)
+        else:
+            if weighting == 'tfidf':
+                assert n_sentences == len(sents)
+
+                try:
+                    import pandas as pd
+                except ImportError:
+                    console.log(("pandas package is not a general sadedegel dependency."
+                                 " But we do have a dependency on building our prebuilt models"))
+
+                vocab_path = Path(dirname(__file__)) / 'data' / 'vocabulary.json'
+                with open(vocab_path.absolute(), 'r') as j:
+                    vocab = json.load(j)
+                vocab_df = pd.DataFrame().from_records(vocab['words'])
+                word_to_id = dict(zip(vocab_df['word'].values, vocab_df['id'].values))
+
+                tfidf_of_sents = sents.tfidf_embeddings
+                for l, layer in enumerate(bert_out):
+                    l_ix = 0
+                    if l not in layers:
+                        continue
+                    else:
+                        l_ix = l_ix + 1
+                    for s, sentence in enumerate(layer):
+                        tfidf_of_tokens = tfidf_of_sents[s]
+                        tokens = sents[s].tokens
+                        len_tokens = len(tokens)
+
+                        for t, token in enumerate(sentence[1:-1]):  # Exclude [CLS] and [SEP] embeddings
+                            if t > len_tokens - 1:
+                                continue
+                            token_ix = word_to_id.get(tokens[t])
+                            tfidf_weight = 1.0
+                            if token_ix:
+                                tfidf_weight = tfidf_of_tokens.toarray()[0][token_ix]
+
+                            token_tensor = sentence[t].numpy()
+                            token_matrix[l_ix - 1, s, t, :] = token_tensor * tfidf_weight
+
+                tokenwise_mean = np.sum(token_matrix, axis=2)
+                layer_mean_token = np.mean(tokenwise_mean, axis=0)
 
         return layer_mean_token
 
