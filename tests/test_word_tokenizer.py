@@ -67,11 +67,8 @@ def test_word_counting(toker):
         docs = [D(text) for text in load_raw_corpus()]
 
         if toker == "bert":
-            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(18.14191)
-        elif toker == "simple":
-            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.66134)
+            assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
+            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(17.9340236)
         else:
-            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.71987)
+            assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
+            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.467613)
