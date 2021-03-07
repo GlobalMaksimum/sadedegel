@@ -72,8 +72,8 @@ def load_telco_sentiment_target(data_home="~/.sadedegel_data"):
     target_csv = Path(data_home).expanduser() / "telco_sentiment"
     target_csv = target_csv / "telco_sentiment_target.csv.gz"
 
-    with open(target_csv) as csvfile:
-        rd = csv.DictReader(csvfile, fieldnames=['text_uuid', 'sentiment'])
+    with gzip.open(target_csv, "rt") as csvfile:
+        rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(id=int(rec['text_uuid']), sentiment_class=CLASS_VALUES.index(rec['sentiment']))
+            yield dict(id=rec['text_uuid'], sentiment_class=CLASS_VALUES.index(rec['sentiment']))

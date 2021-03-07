@@ -37,7 +37,7 @@ def cli():
 def download(access_key, secret_key, data_home):
     """Download tokenization corpus from cloud with your key."""
 
-    data_home = Path(os.path.expanduser(data_home)) / 'telco_sentiment'
+    data_home = Path(os.path.expanduser(data_home))
     data_home.mkdir(parents=True, exist_ok=True)
     console.print(f"Data directory for telco sentiment data {data_home}")
 
