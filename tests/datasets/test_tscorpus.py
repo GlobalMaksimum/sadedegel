@@ -31,10 +31,13 @@ def test_metadata():
 
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
-def test_evaluator():
-    table = tok_eval(["simple", "bert"], limit=1000)
+@pytest.mark.parametrize("tokenizer", ["simple", "bert"])
+def test_evaluator(tokenizer):
+    table = tok_eval(tokenizer, 1000)
 
-    assert float(table[0][1]) > 0.83
-    assert float(table[0][2]) > 0.83
-    assert float(table[1][1]) > 0.86
-    assert float(table[1][2]) > 0.86
+    if table[0] == 'simple':
+        assert float(table[1]) > 0.83
+        assert float(table[2]) > 0.83
+    elif table[0] == 'bert':
+        assert float(table[1]) > 0.86
+        assert float(table[2]) > 0.86
