@@ -8,4 +8,5 @@ from sadedegel.prebuilt import news_classification, tweet_profanity  # noqa # py
 from sadedegel.dataset.tscorpus import CATEGORIES # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset.profanity import CLASS_VALUES # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.prebuilt import tweet_sentiment # for testing tweet_sentiment.py
+from sadedegel.prebuilt import product_sentiment # for testing product_sentiment.py
 
