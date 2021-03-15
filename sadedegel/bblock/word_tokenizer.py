@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List
-from .word_tokenizer_helper import word_tokenize
+from .word_tokenizer_helper import word_tokenize, ICUTokenizerHelper
 from .util import normalize_tokenizer_name
 from .vocabulary import Vocabulary
 from ..about import __version__
-from .icu import ICUTokenizerHelper
 import warnings
+from cached_property import cached_property
+from rich.console import Console
+
+console = Console()
 
 
 class WordTokenizer(ABC):
@@ -71,12 +74,14 @@ class BertTokenizer(WordTokenizer):
 
         return self.tokenizer.tokenize(text)
 
-    @property
+    @cached_property
     def vocabulary(self):
-        if self._vocabulary is None:
-            self._vocabulary = Vocabulary.load("bert")
+        try:
+            return Vocabulary("bert")
+        except FileNotFoundError:
+            console.print("[red]bert[/red] vocabulary file not found.")
 
-        return self._vocabulary
+            return None
 
 
 class SimpleTokenizer(WordTokenizer):
@@ -92,12 +97,14 @@ class SimpleTokenizer(WordTokenizer):
     def convert_tokens_to_ids(self, ids: List[str]) -> List[int]:
         raise NotImplementedError("convert_tokens_to_ids is not implemented for SimpleTokenizer yet. Use BERTTokenizer")
 
-    @property
+    @cached_property
     def vocabulary(self):
-        if self._vocabulary is None:
-            self._vocabulary = Vocabulary.load("simple")
+        try:
+            return Vocabulary("simple")
+        except FileNotFoundError:
+            console.print("[red]simple[/red] vocabulary file not found.")
 
-        return self._vocabulary
+            return None
 
 
 class ICUTokenizer(WordTokenizer):
@@ -113,12 +120,14 @@ class ICUTokenizer(WordTokenizer):
     def convert_tokens_to_ids(self, ids: List[str]) -> List[int]:
         raise NotImplementedError("convert_tokens_to_ids is not implemented for SimpleTokenizer yet. Use BERTTokenizer")
 
-    @property
+    @cached_property
     def vocabulary(self):
-        if self._vocabulary is None:
-            self._vocabulary = Vocabulary.load("icu")
+        try:
+            return Vocabulary("icu")
+        except FileNotFoundError:
+            console.print("[red]icu[/red] vocabulary file not found.")
 
-        return self._vocabulary
+            return None
 
 
 def get_default_word_tokenizer() -> WordTokenizer:
