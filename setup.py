@@ -31,7 +31,8 @@ setup(
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
         'sadedegel.prebuilt': ['model/*.joblib'],
-        'sadedegel.bblock': ['data/bert/vocabulary.json', 'data/icu/vocabulary.json', 'data/stop-words.txt'],
+        'sadedegel.bblock': ['data/bert/vocabulary.hdf5', 'data/simple/vocabulary.hdf5', 'data/icu/vocabulary.hdf5',
+                             'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
     # Needed for dependencies
