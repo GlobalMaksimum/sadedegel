@@ -24,7 +24,7 @@ def empty_model():
          ('pa', PassiveAggressiveClassifier(C=8.23704, average=False))])
 
 
-def build(max_rows=100_000):
+def build(max_rows=-1):
     try:
         import pandas as pd
     except ImportError:
@@ -47,20 +47,16 @@ def build(max_rows=100_000):
 
     pipeline = empty_model()
 
-    with Progress() as progress:
-        building_task = progress.add_task("[blue]Training a classifier for news categories...",
-                                          total=max_rows if max_rows > 0 else CORPUS_SIZE)
-
-        for batch in batches:
-            pipeline.partial_fit(batch.text, batch.category, classes=[i for i in range(len(CATEGORIES))])
-
-            progress.update(building_task, advance=len(batch))
+    for batch in batches:
+        pipeline.partial_fit(batch.text, batch.category, classes=[i for i in range(len(CATEGORIES))])
 
     console.log("Model build [green]DONE[/green]")
 
     model_dir = Path(dirname(__file__)) / 'model'
 
     model_dir.mkdir(parents=True, exist_ok=True)
+
+    pipeline.steps[0][1].Doc = None
 
     dump(pipeline, (model_dir / 'news_classification.joblib').absolute(), compress=('gzip', 9))
 

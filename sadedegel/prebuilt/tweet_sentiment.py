@@ -107,6 +107,8 @@ def build(max_instances=-1, save=True):
 
         model_dir.mkdir(parents=True, exist_ok=True)
 
+        pipeline.steps[0][1].Doc = None
+
         dump(pipeline, (model_dir / 'tweet_sentiment.joblib').absolute(), compress=('gzip', 9))
 
 

@@ -168,7 +168,10 @@ class TFImpl:
         pass
 
     def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False) -> np.ndarray:
-        v = np.zeros(len(self.vocabulary))
+        if lowercase:
+            v = np.zeros(self.vocabulary.size)
+        else:
+            v = np.zeros(self.vocabulary.size_cs)
 
         if lowercase:
             tokens = [tr_lower(t) for t in self.tokens]
@@ -178,12 +181,15 @@ class TFImpl:
         counter = Counter(tokens)
 
         for token in tokens:
-            t = self.vocabulary[token]
+            t = Token(token)
             if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
                     drop_punct and t.is_punct):
                 continue
 
-            v[t.id] = counter[token]
+            if lowercase:
+                v[t.id] = counter[token]
+            else:
+                v[t.id_cs] = counter[token]
 
         return v
 
@@ -436,11 +442,11 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return self.text == s  # no need for type checking, will return false for non-strings
 
     def __getitem__(self, token_ix):
-        return self.vocabulary[self.tokens[token_ix]]
+        return Token(self.tokens[token_ix])
 
     def __iter__(self):
         for t in self.tokens:
-            yield self.vocabulary[t]
+            yield Token(t)
 
 
 class Document(TFImpl, IDFImpl, BM25Impl):
@@ -568,7 +574,14 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
+        lowercase = self.config['default'].getboolean('lowercase')
+
+        if lowercase:
+            dim = self.vocabulary.size
+        else:
+            dim = self.vocabulary.size_cs
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), dim))
 
         return m
 
@@ -586,6 +599,8 @@ class DocBuilder:
         self.sbd = load_model()
 
         self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+
+        Token.set_vocabulary(self.tokenizer.vocabulary)
 
         if self.tokenizer == "bert":
             self.config['default']['avg_sentence_length'] = self.config['bert']['avg_sentence_length']

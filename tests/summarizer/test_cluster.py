@@ -8,7 +8,7 @@ from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSum
 @pytest.mark.parametrize("tokenizer", [SimpleTokenizer.__name__, BertTokenizer.__name__])
 @pytest.mark.parametrize("method", [KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer])
 def test_kmeans(normalized, tokenizer, method):
-    with tokenizer_context(tokenizer):
+    with tokenizer_context(tokenizer) as Doc:
         d = Doc('ali topu tut. oya ip atla. ahmet topu at.')
 
         if tokenizer == SimpleTokenizer.__name__:

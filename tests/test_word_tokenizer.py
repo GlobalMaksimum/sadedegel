@@ -63,12 +63,15 @@ def test_singleton_tokenizer():
 
 @pytest.mark.parametrize("toker", ["bert", "simple", "icu"])
 def test_word_counting(toker):
-    with config_context(tokenizer=toker) as D:
+    with tokenizer_context(toker) as D:
         docs = [D(text) for text in load_raw_corpus()]
 
         if toker == "bert":
             assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
             assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(17.9340236)
+        elif toker == 'simple':
+            assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
+            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.4676138)
         else:
             assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.467613)
+            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.5215507)

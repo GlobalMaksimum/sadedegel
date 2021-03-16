@@ -1,5 +1,6 @@
 from pathlib import Path  # pylint: disable=unused-import
 from os.path import expanduser  # pylint: disable=unused-import
+from pytest import approx
 from itertools import tee, product, islice
 from random import randint
 
@@ -35,7 +36,13 @@ def test_tfidf_vectorizer_smoothing(tf_type, text):
     assert pipeline.predict([text]) > -1  # Can perform inference without value error.
 
 
-@pytest.mark.parametrize('tf_type, text', product(['freq', 'double_norm'], ['ıyi', '*******', '😗😗😗😗😗😗😗😗😗😗']))
+@pytest.mark.parametrize('tf_type, text', product(['freq', 'double_norm'], ['ıyi', '*******']))
 def test_zero_vector_edge_cases(tf_type, text):
     vectorizer = TfidfVectorizer(tf_method=tf_type, idf_method='smooth')
     assert vectorizer.fit_transform([text]).sum() == 0
+
+
+@pytest.mark.parametrize('tf_type, text', product(['freq', 'double_norm'], ['😗😗😗😗😗😗😗😗😗😗']))
+def test_zero_vector_edge_cases(tf_type, text):
+    vectorizer = TfidfVectorizer(tf_method=tf_type, idf_method='smooth')
+    assert vectorizer.fit_transform([text]).sum() == approx(4.479194)

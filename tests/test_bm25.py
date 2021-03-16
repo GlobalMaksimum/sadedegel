@@ -1,7 +1,7 @@
 from itertools import product
 import numpy as np
 import pytest
-from .context import Doc, load_raw_corpus
+from .context import Doc, load_raw_corpus, tokenizer_context
 
 __famous_quote__ = "Merhaba dünya. Biz dostuz. Barış için geldik."
 
@@ -28,8 +28,9 @@ idfs = ["smooth", "probabilistic"]
 
 @pytest.mark.parametrize("tf_type, idf_type", product(tfs, idfs))
 def test_get_bm25(tf_type, idf_type):
-    raw = load_raw_corpus()
-    for text in raw:
-        d = Doc(text)
-        for sent in d:
-            assert len(sent.get_bm25(tf_type, idf_type, 1.25, 0.75)) == 27744
+    with tokenizer_context("bert") as cDoc:
+        raw = load_raw_corpus()
+        for text in raw:
+            d = cDoc(text)
+            for sent in d:
+                assert len(sent.get_bm25(tf_type, idf_type, 1.25, 0.75)) == 27403

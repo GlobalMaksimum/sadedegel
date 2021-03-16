@@ -59,6 +59,8 @@ def build(save=True):
 
         model_dir.mkdir(parents=True, exist_ok=True)
 
+        pipeline.steps[0][1].Doc = None
+
         dump(pipeline, (model_dir / 'tweet_profanity_classification.joblib').absolute(), compress=('gzip', 9))
 
         console.log("Model save [green]DONE[/green]")

@@ -41,9 +41,9 @@ def test_bert_embedding_generation(tokenizer):
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
 def test_tfidf_embedding_generation(tf_type):
-    with tf_context(tf_type):
+    with tf_context(tf_type) as Doc:
         d = Doc("Ali topu tut. Ömer ılık süt iç.")
-        assert d.tfidf_matrix.shape == (2, d.vocabulary.size)
+        assert d.tfidf_matrix.shape == (2, d.vocabulary.size_cs)
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
@@ -64,28 +64,29 @@ testdata = [(True, True),
 
 @pytest.mark.parametrize("return_numpy, return_mask", testdata)
 def test_padded_matrix(return_numpy, return_mask):
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with tokenizer_context("bert") as Doc:
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
 
-    inp = np.array([[2, 3744, 9290, 2535, 18, 3, 0],
-                    [2, 6565, 17626, 5244, 2032, 18, 3]])
+        inp = np.array([[2, 3744, 9290, 2535, 18, 3, 0],
+                        [2, 6565, 17626, 5244, 2032, 18, 3]])
 
-    mask = np.array([[1, 1, 1, 1, 1, 1, 0],
-                     [1, 1, 1, 1, 1, 1, 1]])
+        mask = np.array([[1, 1, 1, 1, 1, 1, 0],
+                         [1, 1, 1, 1, 1, 1, 1]])
 
-    res = d.padded_matrix(return_numpy, return_mask)
+        res = d.padded_matrix(return_numpy, return_mask)
 
-    if return_numpy:
-        if return_mask:
-            assert np.all(res[0] == inp)
-            assert np.all(res[1] == mask)
+        if return_numpy:
+            if return_mask:
+                assert np.all(res[0] == inp)
+                assert np.all(res[1] == mask)
+            else:
+                assert np.all(res == inp)
         else:
-            assert np.all(res == inp)
-    else:
-        if return_mask:
-            assert torch.all(res[0] == torch.tensor(inp))  # noqa # pylint: disable=not-callable
-            assert torch.all(res[1] == torch.tensor(mask))  # noqa # pylint: disable=not-callable
-        else:
-            assert torch.all(res == torch.tensor(inp))  # noqa # pylint: disable=not-callable
+            if return_mask:
+                assert torch.all(res[0] == torch.tensor(inp))  # noqa # pylint: disable=not-callable
+                assert torch.all(res[1] == torch.tensor(mask))  # noqa # pylint: disable=not-callable
+            else:
+                assert torch.all(res == torch.tensor(inp))  # noqa # pylint: disable=not-callable
 
 
 @pytest.mark.parametrize("test_for", ["text", "str", "strall"])
@@ -131,15 +132,24 @@ def test_doc_iter_eq():
         assert d._sents[i] == sentence == d[i]
 
 
-def test_doc_level_tfidf():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf.shape == (d.vocabulary.size,)
+@pytest.mark.parametrize("lowercase", [True, False])
+def test_doc_level_tfidf(lowercase):
+    with config_context(lowercase=lowercase) as Doc:
+        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+
+        if lowercase:
+            assert d.tfidf.shape == (d.vocabulary.size,)
+        else:
+            assert d.tfidf.shape == (d.vocabulary.size_cs,)
 
 
-@pytest.mark.parametrize("method,tfidf", [("binary", 31.938), ("raw", 32.938034)])
-def test_doc_level_tf_idf_value(method, tfidf):
-    with config_context(tf__method=method, idf__method="smooth") as Doc_c:
+@pytest.mark.parametrize("method, tf, tfidf", [("binary", 8, 33.06598), ("raw", 9, 34.06601)])
+def test_doc_level_tf_idf_value(method, tf, tfidf):
+    with config_context(tokenizer="bert", tf__method=method, idf__method="smooth") as Doc_c:
         d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
+
+        assert np.sum(d.tf) == pytest.approx(tf)
+
         assert np.sum(d.tfidf) == pytest.approx(tfidf)
 
 
