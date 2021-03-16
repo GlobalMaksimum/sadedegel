@@ -41,8 +41,8 @@ def test_bert_embedding_generation(tokenizer):
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
 def test_tfidf_embedding_generation(tf_type):
-    with tf_context(tf_type) as Doc:
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with tf_context(tf_type) as D:
+        d = D("Ali topu tut. Ömer ılık süt iç.")
         assert d.tfidf_matrix.shape == (2, d.vocabulary.size_cs)
 
 
@@ -64,8 +64,8 @@ testdata = [(True, True),
 
 @pytest.mark.parametrize("return_numpy, return_mask", testdata)
 def test_padded_matrix(return_numpy, return_mask):
-    with tokenizer_context("bert") as Doc:
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with tokenizer_context("bert") as D:
+        d = D("Ali topu tut. Ömer ılık süt iç.")
 
         inp = np.array([[2, 3744, 9290, 2535, 18, 3, 0],
                         [2, 6565, 17626, 5244, 2032, 18, 3]])
@@ -134,8 +134,8 @@ def test_doc_iter_eq():
 
 @pytest.mark.parametrize("lowercase", [True, False])
 def test_doc_level_tfidf(lowercase):
-    with config_context(lowercase=lowercase) as Doc:
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    with config_context(lowercase=lowercase) as D:
+        d = D("Ali topu tut. Ömer ılık süt iç.")
 
         if lowercase:
             assert d.tfidf.shape == (d.vocabulary.size,)

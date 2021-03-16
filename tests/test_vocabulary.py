@@ -1,6 +1,8 @@
-from pytest import approx
-from .context import tokenizer_context, Token, Vocabulary
 from math import log
+
+from pytest import approx
+
+from .context import tokenizer_context, Token, Vocabulary
 
 
 def test_icu_tf():

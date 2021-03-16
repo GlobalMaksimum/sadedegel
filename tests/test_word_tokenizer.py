@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 
 from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context, WordTokenizer
-from .context import config_context
 from .context import load_raw_corpus
 
 
