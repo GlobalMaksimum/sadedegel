@@ -1,9 +1,9 @@
 import numpy as np
-import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
 from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config_context
+import pkgutil  # pylint: disable=unused-import
 
 
 @pytest.mark.parametrize("string", ["", " ", "\n", "\t", "\n\t"])
@@ -62,8 +62,10 @@ testdata = [(True, True),
             (False, True)]
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is not None')
 @pytest.mark.parametrize("return_numpy, return_mask", testdata)
 def test_padded_matrix(return_numpy, return_mask):
+    import torch
     with tokenizer_context("bert") as D:
         d = D("Ali topu tut. Ömer ılık süt iç.")
 
