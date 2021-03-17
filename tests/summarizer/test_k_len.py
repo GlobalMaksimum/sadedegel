@@ -1,3 +1,5 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 from .context import Doc
 from .context import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Rouge1Summarizer
 from .context import KMeansSummarizer, AutoKMeansSummarizer, DecomposedKMeansSummarizer, TextRank, TFIDFSummarizer
@@ -14,6 +16,7 @@ summarizers = [RandomSummarizer(), PositionSummarizer(),
                TextRank(), TFIDFSummarizer()]
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("k, summarizer", itertools.product(ks, summarizers))
 def test_cardinality(k, summarizer):
     d = Doc(famous_quote)

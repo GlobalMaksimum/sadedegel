@@ -44,11 +44,6 @@ class WordTokenizer(ABC):
                      "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
                 WordTokenizer.__instances[normalized_name] = SimpleTokenizer()
             elif normalized_name == "icu":
-                warnings.warn(
-                    ("Note that ICUTokenizer is pretty new in sadedeGel. "
-                     "If you experience any problems, open up a issue "
-                     "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
-
                 WordTokenizer.__instances[normalized_name] = ICUTokenizer()
             else:
                 raise Exception(
@@ -77,8 +72,7 @@ class BertTokenizer(WordTokenizer):
             except ImportError:
                 console.print(
                     ("Error in importing transformers module. "
-                     "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."),
-                    file=sys.stderr)
+                     "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
                 sys.exit(1)
             self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
 

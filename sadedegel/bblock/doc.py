@@ -5,7 +5,6 @@ from functools import partial
 from typing import List
 
 import numpy as np  # type:ignore
-import torch
 from rich.console import Console
 from scipy.sparse import csr_matrix
 
@@ -537,12 +536,11 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             if DocBuilder.bert_model is None:
                 try:
                     import torch
-                    from transformers import AutoTokenizer
+                    from transformers import BertModel
                 except ImportError:
                     console.print(
                         ("Error in importing transformers module. "
-                         "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."),
-                        file=sys.stderr)
+                         "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
                     sys.exit(1)
 
                 DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
@@ -608,12 +606,8 @@ class DocBuilder:
 
         Token.set_vocabulary(self.tokenizer.vocabulary)
 
-        if self.tokenizer == "bert":
-            self.config['default']['avg_sentence_length'] = self.config['bert']['avg_sentence_length']
-            self.config['default']['avg_document_length'] = self.config['bert']['avg_document_length']
-        else:
-            self.config['default']['avg_sentence_length'] = self.config['simple']['avg_sentence_length']
-            self.config['default']['avg_document_length'] = self.config['simple']['avg_document_length']
+        self.config['default']['avg_sentence_length'] = self.config[self.tokenizer]['avg_sentence_length']
+        self.config['default']['avg_document_length'] = self.config[self.tokenizer]['avg_document_length']
 
         idf_method = self.config['idf']['method']
 

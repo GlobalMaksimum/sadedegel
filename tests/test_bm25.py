@@ -1,3 +1,5 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 from itertools import product
 import numpy as np
 import pytest
@@ -26,6 +28,7 @@ tfs = ["binary", "raw", "freq", "log_norm", "double_norm"]
 idfs = ["smooth", "probabilistic"]
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("tf_type, idf_type", product(tfs, idfs))
 def test_get_bm25(tf_type, idf_type):
     with tokenizer_context("bert") as cDoc:

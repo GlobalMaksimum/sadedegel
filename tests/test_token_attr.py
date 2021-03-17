@@ -1,3 +1,5 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 from math import ceil
 import pytest
 from pytest import raises
@@ -24,6 +26,7 @@ def test_shape(word, shape):
     assert t.shape == shape
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize('idf_type, idf', [('smooth', 6),
                                            ('probabilistic', 5)])
 def test_idf(idf_type, idf):

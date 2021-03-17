@@ -1,3 +1,5 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 from pathlib import Path  # pylint: disable=unused-import
 from os.path import expanduser  # pylint: disable=unused-import
 from pytest import approx
@@ -42,7 +44,14 @@ def test_zero_vector_edge_cases(tf_type, text):
     assert vectorizer.fit_transform([text]).sum() == 0
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize('tf_type, text', product(['freq', 'double_norm'], ['😗😗😗😗😗😗😗😗😗😗']))
-def test_zero_vector_edge_cases(tf_type, text):
-    vectorizer = TfidfVectorizer(tf_method=tf_type, idf_method='smooth')
+def test_zero_vector_edge_case_emoji(tf_type, text):
+    vectorizer = TfidfVectorizer(tokenizer="bert", tf_method=tf_type, idf_method='smooth')
     assert vectorizer.fit_transform([text]).sum() == approx(4.479194)
+
+
+@pytest.mark.parametrize('tf_type, text', product(['freq', 'double_norm'], ['😗😗😗😗😗😗😗😗😗😗']))
+def test_zero_vector_edge_case_emoji_icu(tf_type, text):
+    vectorizer = TfidfVectorizer(tf_method=tf_type, idf_method='smooth')
+    assert vectorizer.fit_transform([text]).sum() == 0

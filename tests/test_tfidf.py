@@ -1,6 +1,11 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
+import pytest
+
 from .context import Token, tokenizer_context
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_binary_tf():
     with tokenizer_context("bert") as Doc:
         d = Doc(
@@ -21,6 +26,7 @@ def test_binary_tf():
         assert binary[Token("bir").id_cs] == 1
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_raw_tf():
     with tokenizer_context("bert") as Doc:
         d = Doc(
@@ -41,6 +47,7 @@ def test_raw_tf():
     assert raw.sum() == 14
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_raw_tf_without_stopwords():
     with tokenizer_context("bert") as Doc:
         d = Doc(
@@ -59,6 +66,7 @@ def test_raw_tf_without_stopwords():
         assert raw.sum() == 10
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_raw_tf_without_stopwords_lowercase():
     with tokenizer_context("bert") as Doc:
         d = Doc(
@@ -77,6 +85,7 @@ def test_raw_tf_without_stopwords_lowercase():
         assert raw.sum() == 10
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_raw_tf_lowercase():
     with tokenizer_context("bert") as Doc:
         d = Doc(

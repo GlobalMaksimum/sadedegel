@@ -1,9 +1,11 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 import numpy as np
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config_context
-import pkgutil  # pylint: disable=unused-import
+
+from .context import Doc, BertTokenizer, SimpleTokenizer, ICUTokenizer, tokenizer_context, tf_context, config_context
 
 
 @pytest.mark.parametrize("string", ["", " ", "\n", "\t", "\n\t"])
@@ -14,7 +16,7 @@ def test_emptystring(string):
     assert len(empty[0].tokens) == 0
 
 
-@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
+@pytest.mark.parametrize("tokenizer", [ICUTokenizer.__name__, SimpleTokenizer.__name__])
 def test_tokens(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
@@ -26,13 +28,26 @@ def test_tokens(tokenizer):
         assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
 
 
-@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+def test_tokens_bert():
+    with tokenizer_context(BertTokenizer.__name__) as Doc2:
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
+
+        s0 = d[0]
+
+        assert s0.tokens == ['Ali', 'topu', 'tut', '.']
+
+        assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
+
+
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__, ICUTokenizer.__name__])
 def test_bert_embedding_generation(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
 
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
-        if tokenizer == SimpleTokenizer.__name__:
+        if tokenizer in [SimpleTokenizer.__name__, ICUTokenizer.__name__]:
             with raises(NotImplementedError):
                 assert d.bert_embeddings.shape == (2, 768)
         else:
@@ -62,10 +77,10 @@ testdata = [(True, True),
             (False, True)]
 
 
-@pytest.mark.skipif('pkgutil.find_loader("transformers") is not None')
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("return_numpy, return_mask", testdata)
 def test_padded_matrix(return_numpy, return_mask):
-    import torch
+    import torch  # pylint: disable=unrecognized-inline-option, import-outside-toplevel, import-error
     with tokenizer_context("bert") as D:
         d = D("Ali topu tut. Ömer ılık süt iç.")
 
@@ -145,9 +160,20 @@ def test_doc_level_tfidf(lowercase):
             assert d.tfidf.shape == (d.vocabulary.size_cs,)
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("method, tf, tfidf", [("binary", 8, 33.06598), ("raw", 9, 34.06601)])
-def test_doc_level_tf_idf_value(method, tf, tfidf):
+def test_doc_level_tf_idf_value_bert(method, tf, tfidf):
     with config_context(tokenizer="bert", tf__method=method, idf__method="smooth") as Doc_c:
+        d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
+
+        assert np.sum(d.tf) == pytest.approx(tf)
+
+        assert np.sum(d.tfidf) == pytest.approx(tfidf)
+
+
+@pytest.mark.parametrize("method, tf, tfidf", [("binary", 8, 35.65801), ("raw", 9, 36.65804)])
+def test_doc_level_tf_idf_value_icu(method, tf, tfidf):
+    with config_context(tokenizer="icu", tf__method=method, idf__method="smooth") as Doc_c:
         d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
 
         assert np.sum(d.tf) == pytest.approx(tf)

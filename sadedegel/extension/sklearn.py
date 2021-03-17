@@ -35,7 +35,8 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
 
 
 class TfidfVectorizer(SadedegelVectorizer):
-    def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True, lowercase=True,
+    def __init__(self, *, tokenizer="icu", tf_method='raw', idf_method='probabilistic', drop_stopwords=True,
+                 lowercase=True,
                  drop_suffix=True, drop_punct=True, show_progress=True):
         super().__init__()
 
@@ -46,6 +47,7 @@ class TfidfVectorizer(SadedegelVectorizer):
         self.drop_stopwords = drop_stopwords
         self.drop_punct = drop_punct
         self.show_progress = show_progress
+        self.tokenizer = tokenizer
 
         self.Doc = None
 
@@ -63,7 +65,7 @@ class TfidfVectorizer(SadedegelVectorizer):
             raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
 
         if self.Doc is None:
-            with config_context(tokenizer="bert") as Doc:
+            with config_context(tokenizer=self.tokenizer) as Doc:
                 self.Doc = Doc
 
         indptr = [0]
@@ -88,7 +90,8 @@ class TfidfVectorizer(SadedegelVectorizer):
 
 
 class BM25Vectorizer(SadedegelVectorizer):
-    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0, drop_stopwords=True,
+    def __init__(self, *, tokenizer="icu", tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0,
+                 drop_stopwords=True,
                  lowercase=True, drop_suffix=True, drop_punct=True, show_progress=True):
 
         super().__init__()
@@ -103,6 +106,7 @@ class BM25Vectorizer(SadedegelVectorizer):
         self.k1 = k1
         self.b = b
         self.delta = delta
+        self.tokenizer = tokenizer
 
         self.Doc = None
 
@@ -120,7 +124,7 @@ class BM25Vectorizer(SadedegelVectorizer):
             raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
 
         if self.Doc is None:
-            with config_context(tokenizer="bert") as Doc:
+            with config_context(tokenizer=self.tokenizer) as Doc:
                 self.Doc = Doc
 
         indptr = [0]
