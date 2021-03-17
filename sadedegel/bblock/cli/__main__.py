@@ -47,7 +47,16 @@ def tok_eval(tokenizer, limit=None) -> Tuple[str, float, float]:
     :return: IoU score between list of true tokens and list of tokenized tokens.
     """
     if tokenizer == "bert":
-        from transformers import AutoTokenizer
+        try:
+            import torch
+            from transformers import AutoTokenizer
+        except ImportError:
+            console.print(
+                ("Error in importing transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."),
+                file=sys.stderr)
+            sys.exit(1)
+
         toker = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased").tokenize
 
     elif tokenizer == "simple":

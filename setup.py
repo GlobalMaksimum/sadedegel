@@ -51,5 +51,9 @@ setup(
         sadedegel-sbd=sadedegel.tokenize.__main__:cli
         sadedegel-server=sadedegel.server.__main__:server
         sadedegel-build-vocabulary=sadedegel.bblock.cli.__main__:build_vocabulary
-    '''
+    ''',
+    extras_require={
+        'w2v': ['gensim'],
+        'bert': ['torch==1.5.1', 'transformers==3.0.0']
+    }
 )

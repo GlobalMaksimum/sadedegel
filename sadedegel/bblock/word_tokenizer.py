@@ -1,12 +1,15 @@
+import sys
+import warnings
 from abc import ABC, abstractmethod
 from typing import List
-from .word_tokenizer_helper import word_tokenize, ICUTokenizerHelper
-from .util import normalize_tokenizer_name
-from .vocabulary import Vocabulary
-from ..about import __version__
-import warnings
+
 from cached_property import cached_property
 from rich.console import Console
+
+from .util import normalize_tokenizer_name
+from .vocabulary import Vocabulary
+from .word_tokenizer_helper import word_tokenize, ICUTokenizerHelper
+from ..about import __version__
 
 console = Console()
 
@@ -68,8 +71,15 @@ class BertTokenizer(WordTokenizer):
 
     def _tokenize(self, text: str) -> List[str]:
         if self.tokenizer is None:
-            import torch
-            from transformers import AutoTokenizer
+            try:
+                import torch
+                from transformers import AutoTokenizer
+            except ImportError:
+                console.print(
+                    ("Error in importing transformers module. "
+                     "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."),
+                    file=sys.stderr)
+                sys.exit(1)
             self.tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
 
         return self.tokenizer.tokenize(text)

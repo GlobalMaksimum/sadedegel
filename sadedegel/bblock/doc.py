@@ -1,23 +1,22 @@
-from collections import Counter
 import re
-from typing import List
-import warnings
+import sys
+from collections import Counter
 from functools import partial
-
-import torch
+from typing import List
 
 import numpy as np  # type:ignore
-
-from loguru import logger
+import torch
+from rich.console import Console
 from scipy.sparse import csr_matrix
 
-from ..ml.sbd import load_model
-from ..metrics import rouge1_score
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
-from ..config import load_config
-from .word_tokenizer import WordTokenizer
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
-from ..about import __version__
+from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from .word_tokenizer import WordTokenizer
+from ..config import load_config
+from ..metrics import rouge1_score
+from ..ml.sbd import load_model
+
+console = Console()
 
 
 class Span:
@@ -536,8 +535,15 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             inp, mask = self.padded_matrix()
 
             if DocBuilder.bert_model is None:
-                logger.info("Loading BertModel")
-                from transformers import BertModel
+                try:
+                    import torch
+                    from transformers import AutoTokenizer
+                except ImportError:
+                    console.print(
+                        ("Error in importing transformers module. "
+                         "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."),
+                        file=sys.stderr)
+                    sys.exit(1)
 
                 DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
                                                                   output_hidden_states=True)
