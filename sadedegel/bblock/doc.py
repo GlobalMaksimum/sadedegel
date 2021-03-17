@@ -602,12 +602,14 @@ class DocBuilder:
 
         self.sbd = load_model()
 
-        self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+        tokenizer_str = self.config['default']['tokenizer']
+
+        self.tokenizer = WordTokenizer.factory(tokenizer_str)
 
         Token.set_vocabulary(self.tokenizer.vocabulary)
 
-        self.config['default']['avg_sentence_length'] = self.config[self.tokenizer]['avg_sentence_length']
-        self.config['default']['avg_document_length'] = self.config[self.tokenizer]['avg_document_length']
+        self.config['default']['avg_sentence_length'] = self.config[tokenizer_str]['avg_sentence_length']
+        self.config['default']['avg_document_length'] = self.config[tokenizer_str]['avg_document_length']
 
         idf_method = self.config['idf']['method']
 
