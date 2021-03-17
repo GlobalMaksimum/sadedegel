@@ -7,6 +7,7 @@ from typing import List
 import numpy as np  # type:ignore
 from rich.console import Console
 from scipy.sparse import csr_matrix
+from cached_property import cached_property
 
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name
@@ -308,7 +309,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         self.config = doc.builder.config
         self._bert = None
 
-        # No failback to config read in here because this will slow down sentence instantiation extremely.
+        # No fail back to config read in here because this will slow down sentence instantiation extremely.
         self.tf_method = config['tf']['method']
 
         if self.tf_method == TF_BINARY:
@@ -457,7 +458,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self.spans = []
         self._sents = []
         self._tokens = None
-        self._bert = None
         self.builder = builder
         self.config = self.builder.config
 
@@ -514,6 +514,14 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         max_len = self.max_length()
 
         if not return_numpy:
+            try:
+                import torch
+            except ImportError:
+                console.print(
+                    ("Error in importing transformers module. "
+                     "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
+                sys.exit(1)
+
             mat = torch.tensor([pad(s.input_ids, max_len) for s in self])
 
             if return_mask:
@@ -528,33 +536,30 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             else:
                 return mat
 
-    @property
+    @cached_property
     def bert_embeddings(self):
-        if self._bert is None:
-            inp, mask = self.padded_matrix()
+        try:
+            import torch
+            from transformers import BertModel
+        except ImportError:
+            console.print(
+                ("Error in importing transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
+            sys.exit(1)
 
-            if DocBuilder.bert_model is None:
-                try:
-                    import torch
-                    from transformers import BertModel
-                except ImportError:
-                    console.print(
-                        ("Error in importing transformers module. "
-                         "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
-                    sys.exit(1)
+        inp, mask = self.padded_matrix()
 
-                DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
-                                                                  output_hidden_states=True)
-                DocBuilder.bert_model.eval()
+        if DocBuilder.bert_model is None:
+            DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
+                                                              output_hidden_states=True)
+            DocBuilder.bert_model.eval()
 
-            with torch.no_grad():
-                outputs = DocBuilder.bert_model(inp, mask)
+        with torch.no_grad():
+            outputs = DocBuilder.bert_model(inp, mask)
 
-            twelve_layers = outputs[2][1:]
+        twelve_layers = outputs[2][1:]
 
-            self._bert = select_layer(twelve_layers, [11], return_cls=False)
-
-        return self._bert
+        return select_layer(twelve_layers, [11], return_cls=False)
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
