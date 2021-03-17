@@ -9,7 +9,7 @@ from rich.console import Console
 from scipy.sparse import csr_matrix
 
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
+from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name
 from .word_tokenizer import WordTokenizer
 from ..config import load_config
 from ..metrics import rouge1_score
@@ -602,7 +602,7 @@ class DocBuilder:
 
         self.sbd = load_model()
 
-        tokenizer_str = self.config['default']['tokenizer']
+        tokenizer_str = normalize_tokenizer_name(self.config['default']['tokenizer'])
 
         self.tokenizer = WordTokenizer.factory(tokenizer_str)
 
