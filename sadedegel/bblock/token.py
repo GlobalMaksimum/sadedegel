@@ -156,7 +156,7 @@ class Token:
         if Token.vocabulary is None:
             raise VocabularyIsNotSet("First run set_vocabulary")
         else:
-            df = self.df
+            df = self.df + 1
             return log((self.vocabulary.document_count - df) / df)
 
     @property
@@ -164,7 +164,7 @@ class Token:
         if Token.vocabulary is None:
             raise VocabularyIsNotSet("First run set_vocabulary")
         else:
-            df = self.df_cs
+            df = self.df_cs + 1
             return log((self.vocabulary.document_count - df) / df)
 
     @property
