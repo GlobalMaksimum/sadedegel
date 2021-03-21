@@ -6,12 +6,17 @@ from scipy.sparse import csr_matrix
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
-from ..config import config_context
+from ..bblock.doc import DocBuilder, Document
 
 
 def check_type(X):
     if not all(isinstance(x, str) for x in X):
-        raise ValueError(f"X should be an iterable string (documents)")
+        raise ValueError(f"X should be an iterable string. {type(X)} found")
+
+
+def check_doc_type(X):
+    if not all(isinstance(x, Document) for x in X):
+        raise ValueError(f"X should be an iterable sadedegel Document. {type(X)} found")
 
 
 class OnlinePipeline(Pipeline):
@@ -22,6 +27,43 @@ class OnlinePipeline(Pipeline):
             if i < len(self.steps) - 1:
                 X = est.transform(X)
         return self
+
+
+class Text2Doc(BaseEstimator, TransformerMixin):
+    Doc = None
+
+    def __init__(self, tokenizer="icu"):
+        self.tokenizer = tokenizer
+        # TODO: Add sadedegel version
+
+        if Text2Doc.Doc is None:
+            Text2Doc.Doc = DocBuilder(tokenizer=tokenizer)
+
+    def fit(self, X, y=None):
+        return self
+
+    def partial_fit(self, X, y=None, **kwargs):
+        return self
+
+    def transform(self, X, y=None):
+        if isinstance(X, list):
+            check_type(X)
+            n_total = len(X)
+        else:
+            X1, X2, X = tee(X, 3)
+
+            check_type(X1)
+            n_total = sum((1 for _ in X2))
+
+        if n_total == 0:
+            raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
+
+        docs = []
+
+        for text in X:
+            docs.append(Text2Doc.Doc(text))
+
+        return docs
 
 
 class SadedegelVectorizer(BaseEstimator, TransformerMixin):
@@ -49,36 +91,33 @@ class TfidfVectorizer(SadedegelVectorizer):
         self.show_progress = show_progress
         self.tokenizer = tokenizer
 
-        self.Doc = None
-
     def transform(self, X, y=None):
         if isinstance(X, list):
-            check_type(X)
+            check_doc_type(X)
             n_total = len(X)
         else:
             X1, X2, X = tee(X, 3)
 
-            check_type(X1)
+            check_doc_type(X1)
             n_total = sum((1 for _ in X2))
 
         if n_total == 0:
             raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
-
-        if self.Doc is None:
-            with config_context(tokenizer=self.tokenizer) as Doc:
-                self.Doc = Doc
 
         indptr = [0]
         indices = []
         data = []
         for doc in track(X, total=n_total, description="Transforming document(s)", update_period=1,
                          disable=not self.show_progress):
-            d = self.Doc(doc)
-            n_vocabulary = len(d.builder.tokenizer.vocabulary)
-            tfidf = d.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
-                                lowercase=self.lowercase,
-                                drop_suffix=self.drop_suffix,
-                                drop_punct=self.drop_punct)
+            if self.lowercase:
+                n_vocabulary = doc.builder.tokenizer.vocabulary.size
+            else:
+                n_vocabulary = doc.builder.tokenizer.vocabulary.size_cs
+
+            tfidf = doc.get_tfidf(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
+                                  lowercase=self.lowercase,
+                                  drop_suffix=self.drop_suffix,
+                                  drop_punct=self.drop_punct)
 
             for idx in tfidf.nonzero()[0]:
                 indices.append(idx)
@@ -108,37 +147,35 @@ class BM25Vectorizer(SadedegelVectorizer):
         self.delta = delta
         self.tokenizer = tokenizer
 
-        self.Doc = None
-
     def transform(self, X, y=None):
         if isinstance(X, list):
-            check_type(X)
+            check_doc_type(X)
             n_total = len(X)
         else:
             X1, X2, X = tee(X, 3)
 
-            check_type(X1)
+            check_doc_type(X1)
             n_total = sum((1 for _ in X2))
 
         if n_total == 0:
             raise ValueError(f"Ensure that X contains at least one valid document. Found {n_total}")
-
-        if self.Doc is None:
-            with config_context(tokenizer=self.tokenizer) as Doc:
-                self.Doc = Doc
 
         indptr = [0]
         indices = []
         data = []
         for doc in track(X, total=n_total, description="Transforming document(s)", update_period=1,
                          disable=not self.show_progress):
-            d = self.Doc(doc)
-            n_vocabulary = len(d.builder.tokenizer.vocabulary)
-            bm25 = d.get_bm25(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
-                              lowercase=self.lowercase,
-                              drop_suffix=self.drop_suffix,
-                              drop_punct=self.drop_punct,
-                              k1=self.k1, b=self.b, delta=self.delta)
+
+            if self.lowercase:
+                n_vocabulary = doc.builder.tokenizer.vocabulary.size
+            else:
+                n_vocabulary = doc.builder.tokenizer.vocabulary.size_cs
+
+            bm25 = doc.get_bm25(self.tf_method, self.idf_method, drop_stopwords=self.drop_stopwords,
+                                lowercase=self.lowercase,
+                                drop_suffix=self.drop_suffix,
+                                drop_punct=self.drop_punct,
+                                k1=self.k1, b=self.b, delta=self.delta)
 
             for idx in bm25.nonzero()[0]:
                 indices.append(idx)
