@@ -77,7 +77,7 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
 
 
 class TfidfVectorizer(SadedegelVectorizer):
-    def __init__(self, *, tokenizer="icu", tf_method='raw', idf_method='probabilistic', drop_stopwords=True,
+    def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True,
                  lowercase=True,
                  drop_suffix=True, drop_punct=True, show_progress=True):
         super().__init__()
@@ -89,7 +89,6 @@ class TfidfVectorizer(SadedegelVectorizer):
         self.drop_stopwords = drop_stopwords
         self.drop_punct = drop_punct
         self.show_progress = show_progress
-        self.tokenizer = tokenizer
 
     def transform(self, X, y=None):
         if isinstance(X, list):
@@ -129,7 +128,7 @@ class TfidfVectorizer(SadedegelVectorizer):
 
 
 class BM25Vectorizer(SadedegelVectorizer):
-    def __init__(self, *, tokenizer="icu", tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0,
+    def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0,
                  drop_stopwords=True,
                  lowercase=True, drop_suffix=True, drop_punct=True, show_progress=True):
 
@@ -145,7 +144,6 @@ class BM25Vectorizer(SadedegelVectorizer):
         self.k1 = k1
         self.b = b
         self.delta = delta
-        self.tokenizer = tokenizer
 
     def transform(self, X, y=None):
         if isinstance(X, list):

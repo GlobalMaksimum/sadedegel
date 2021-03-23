@@ -1,4 +1,4 @@
-from .context import load_extended_raw_corpus, TfidfVectorizer, OnlinePipeline, load_raw_corpus
+from .context import load_extended_raw_corpus, TfidfVectorizer, OnlinePipeline, load_raw_corpus, Text2Doc
 
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
@@ -13,7 +13,7 @@ BATCH_SIZE = 10
 
 
 def test_pipeline_training():
-    pipeline = Pipeline([('sg_tfidf', TfidfVectorizer()),
+    pipeline = Pipeline([('t2d', Text2Doc()), ('sg_tfidf', TfidfVectorizer()),
                          ('lr', SGDClassifier())])
 
     X = load_raw_corpus(False)
@@ -22,7 +22,8 @@ def test_pipeline_training():
 
 @pytest.mark.skip()
 def test_online_pipeline_training():
-    pipeline = OnlinePipeline([('sg_tfidf', TfidfVectorizer()),
+    pipeline = OnlinePipeline([('t2d', Text2Doc()),
+                               ('sg_tfidf', TfidfVectorizer()),
                                ('lr', SGDClassifier())])
 
     X1, X2 = tee(islice(load_extended_raw_corpus(), 101), 2)
@@ -40,9 +41,11 @@ def test_online_pipeline_training():
 
     pipeline.partial_fit(batch, [1 for _ in range(len(batch))])
 
+
 @pytest.mark.skip()
 def test_online_pipeline_training_divisable_batch():
-    pipeline = OnlinePipeline([('sg_tfidf', TfidfVectorizer()),
+    pipeline = OnlinePipeline([('t2d', Text2Doc()),
+                               ('sg_tfidf', TfidfVectorizer()),
                                ('lr', SGDClassifier())])
 
     X1, X2 = tee(islice(load_extended_raw_corpus(), 100), 2)
