@@ -6,7 +6,7 @@ import pytest
 from .context import load_tweet_sentiment_train, CLASS_VALUES
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/tweet_sentiment")).exists()')
 def test_data_load():
     data = load_tweet_sentiment_train()
     for i, row in enumerate(data):
