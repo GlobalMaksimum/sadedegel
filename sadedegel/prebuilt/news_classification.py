@@ -21,9 +21,10 @@ console = Console()
 def empty_model():
     return OnlinePipeline(
         [('text2doc', Text2Doc("icu")),
-         ('tfidf', TfidfVectorizer(tf_method='raw', idf_method='smooth', drop_punct=False, drop_stopwords=True,
+         ('tfidf', TfidfVectorizer(tf_method='log_norm', idf_method='smooth', drop_punct=True, drop_stopwords=False,
                                    lowercase=True)),
-         ('pa', SGDClassifier(penalty="l2", alpha=0.0635852191535952, loss="log", average=False, fit_intercept=True))])
+         ('sgd',
+          SGDClassifier(penalty="l2", alpha=0.005190632263776186, loss="log", average=False, fit_intercept=True))])
 
 
 def build(max_rows=-1, batch_size=10000):
@@ -58,6 +59,9 @@ def build(max_rows=-1, batch_size=10000):
     for batch in batches:
         pipeline.partial_fit(batch.text, batch.category, classes=[i for i in range(len(CATEGORIES))])
 
+        y_pred = pipeline.predict(df_test.text)
+        console.log(f"Accuracy on test: {accuracy_score(df_test.category, y_pred)}")
+
     console.log("Model build [green]DONE[/green]")
 
     model_dir = Path(dirname(__file__)) / 'model'
@@ -65,10 +69,6 @@ def build(max_rows=-1, batch_size=10000):
     model_dir.mkdir(parents=True, exist_ok=True)
 
     pipeline.steps[0][1].Doc = None
-
-    y_pred = pipeline.predict(df_test.text)
-
-    console.log(f"Accuracy on test: {accuracy_score(df_test.category, y_pred)}")
 
     dump(pipeline, (model_dir / 'news_classification.joblib').absolute(), compress=('gzip', 9))
 
