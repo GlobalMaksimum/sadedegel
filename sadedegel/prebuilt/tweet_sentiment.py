@@ -5,13 +5,14 @@ from pathlib import Path
 import numpy as np
 from joblib import dump, load as jl_load
 from rich.console import Console
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 
 from ..dataset.tweet_sentiment import load_tweet_sentiment_train, CORPUS_SIZE, CLASS_VALUES
-from ..extension.sklearn import TfidfVectorizer, OnlinePipeline
+from ..extension.sklearn import TfidfVectorizer, Text2Doc
+from sklearn.pipeline import Pipeline
 
 from itertools import islice
 
@@ -19,9 +20,11 @@ console = Console()
 
 
 def empty_model():
-    return OnlinePipeline(
-        [('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth', show_progress=True)),
-         ('pa', PassiveAggressiveClassifier(C=6.438004890835467e-10, average=True))
+    return Pipeline(
+        [('text2doc', Text2Doc("icu")),
+         ('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth', drop_punct=False, drop_stopwords=False,
+                                   lowercase=True, show_progress=True)),
+         ('svc', SVC(C=0.3392899481481453, kernel="linear", random_state=42))
          ]
     )
 
@@ -59,13 +62,11 @@ def cv(k=3, max_instances=-1):
 
         pipeline = empty_model()
 
-        for batch in batches:
-            pipeline.partial_fit(batch.tweet, batch.sentiment_class,
-                                 classes=[i for i in range(len(CLASS_VALUES))])
+        pipeline.fit(train.tweet, train.sentiment_class)
 
         y_pred = pipeline.predict(test.tweet)
 
-        scores.append(f1_score(test.sentiment_class, y_pred))
+        scores.append(f1_score(test.sentiment_class, y_pred, average="macro"))
 
         console.log(scores)
 
@@ -96,9 +97,7 @@ def build(max_instances=-1, save=True):
 
     pipeline = empty_model()
 
-    for batch in batches:
-        pipeline.partial_fit(batch.tweet, batch.sentiment_class,
-                             classes=[i for i in range(len(CLASS_VALUES))])
+    pipeline.fit(df.tweet, df.sentiment_class)
 
     console.log("Model build [green]DONE[/green]")
 
