@@ -1,3 +1,5 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 import pytest
 from pytest import warns, raises
 from .context import TextRank, Doc
@@ -28,6 +30,7 @@ def test_text_rank_sanity(input_type, normalize, text):
                 TextRank(input_type)(d, 1)
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("text", [famous_quote])
 def test_text_rank_descending(normalize, text):
@@ -38,6 +41,7 @@ def test_text_rank_descending(normalize, text):
     assert is_sorted(scores)
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("text", [famous_quote])
 def test_text_rank_correct_number_of_sentences(normalize, text):

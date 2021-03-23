@@ -1,8 +1,9 @@
 import unicodedata
 
+from .vocabulary import Vocabulary
 from math import log
 import numpy as np
-from .util import tr_lower, load_stopwords
+from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
 
 IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
 IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
@@ -18,7 +19,10 @@ class IDFImpl:
         if method not in IDF_METHOD_VALUES:
             raise ValueError(f"Unknown idf method ({method}). Choose one of {IDF_METHOD_VALUES}")
 
-        v = np.zeros(len(self.vocabulary))
+        if lowercase:
+            v = np.zeros(self.vocabulary.size)
+        else:
+            v = np.zeros(self.vocabulary.size_cs)
 
         if lowercase:
             tokens = [tr_lower(t) for t in self.tokens]
@@ -26,15 +30,21 @@ class IDFImpl:
             tokens = self.tokens
 
         for token in tokens:
-            t = self.vocabulary[token]
+            t = Token(token)
             if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
                     drop_punct and t.is_punct):
                 continue
 
-            if method == IDF_SMOOTH:
-                v[t.id] = t.smooth_idf
+            if lowercase:
+                if method == IDF_SMOOTH:
+                    v[t.id] = t.smooth_idf
+                else:
+                    v[t.id] = t.prob_idf
             else:
-                v[t.id] = t.prob_idf
+                if method == IDF_SMOOTH:
+                    v[t.id_cs] = t.smooth_idf_cs
+                else:
+                    v[t.id_cs] = t.prob_idf_cs
 
         return v
 
@@ -78,81 +88,132 @@ def word_shape(text):
 
 class Token:
     config = None
-    STOPWORDS = None
+    STOPWORDS = set(load_stopwords())
+    vocabulary = None
     cache = {}
 
-    def __init__(self, entry):
-        if self in self.cache:
-            return
+    @classmethod
+    def _create_token(cls, word: str):
+        token = object.__new__(cls)
 
-        if isinstance(entry, str):
-            self.cache[entry] = self
+        token.word = word
+        token.lower_ = tr_lower(token.word)
+        token.is_punct = all(unicodedata.category(c).startswith("P") for c in token.word)
+        token.is_digit = token.word.isdigit()
+        token.is_suffix = token.word.startswith('##')
+        token.shape = word_shape(token.word)
 
-            self.word = entry
-            self.lower_ = tr_lower(self.word)
-            self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
-            self.is_digit = self.word.isdigit()
-            self.is_suffix = self.word.startswith('##')
-            self.shape = word_shape(self.word)
+        return token
 
-            self._entry = None
-        else:
-            self.cache[entry.word] = self
+    def __new__(cls, word: str):
 
-            self.word = entry.word
-            self.lower_ = tr_lower(self.word)
-            self.is_punct = all(unicodedata.category(c).startswith("P") for c in self.word)
-            self.is_digit = self.word.isdigit()
-            self.is_suffix = self.word.startswith('##')
-            self.shape = word_shape(self.word)
+        if word not in cls.cache:
+            cls.cache[word] = cls._create_token(word)
 
-            self._entry = entry
+        return cls.cache[word]
+
+    @classmethod
+    def set_vocabulary(cls, vocab: Vocabulary):
+        Token.vocabulary = vocab
+        Token.cache.clear()
+
+    @classmethod
+    def set_config(cls, config):
+        Token.config = config
 
     @property
     def entry(self):
-        if self._entry is None:
-            raise ValueError(f"Token is initialized with a str object. Initialized with Vocabulary entry")
+        deprecate("entry property is deprecated", (0, 20))
 
-        return self._entry
+        return self
 
     @property
     def idf(self):
-        if Token.config['idf']['method'] == IDF_SMOOTH:
-            return self.smooth_idf
+        if Token.config is None:
+            raise ConfigNotSet("First run set_config.")
         else:
-            return self.prob_idf
+            if Token.config['idf']['method'] == IDF_SMOOTH:
+                return self.smooth_idf
+            else:
+                return self.prob_idf
 
     @property
     def smooth_idf(self):
-        return log(self.entry.vocabulary.document_count / (1 + self.df)) + 1
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return log(self.vocabulary.document_count / (1 + self.df)) + 1
 
     @property
-    def prob_idf(self):
-        return log((self.entry.vocabulary.document_count - self.df) / self.df)
+    def smooth_idf_cs(self):
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return log(self.vocabulary.document_count / (1 + self.df_cs)) + 1
 
     @property
-    def id(self):
-        return self.entry.id
+    def prob_idf(self) -> float:
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            df = self.df + 1
+            return log((self.vocabulary.document_count - df) / df)
 
     @property
-    def is_oov(self):
+    def prob_idf_cs(self) -> float:
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            df = self.df_cs + 1
+            return log((self.vocabulary.document_count - df) / df)
+
+    @property
+    def id_cs(self) -> int:
+        """Vocabulary identifier"""
+
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return self.vocabulary.id_cs(self.word, -1)
+
+    @property
+    def id(self) -> int:
+        """Vocabulary identifier (incase sensitive, aka lowercase all tokens)"""
+
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return self.vocabulary.id(self.word, -1)
+
+    @property
+    def is_oov(self) -> bool:
+        """Return False if token type is not a part of vocabulary"""
+
         return self.id == -1
 
     @property
-    def is_stopword(self):
-        if Token.STOPWORDS is None:
-            Token.STOPWORDS = set(load_stopwords())
-
+    def is_stopword(self) -> bool:
         return self.lower_ in Token.STOPWORDS
 
     @property
-    def df(self):
-        return self.entry.df
+    def df(self) -> int:
+        return self.vocabulary.df(self.word)
 
     @property
-    def df_cs(self):
+    def df_cs(self) -> int:
         """case sensitive document frequency"""
-        return self.entry.df_cs
+        return self.vocabulary.df_cs(self.word)
+
+    @property
+    def has_vector(self) -> bool:
+        return self.vocabulary.has_vector(self.word)
+
+    @property
+    def vector(self) -> np.ndarray:
+        if self.has_vector:
+            return self.vocabulary.vector(self.word)
+        else:
+            raise WordVectorNotFound(self.word)
 
     def __str__(self):
         return self.word

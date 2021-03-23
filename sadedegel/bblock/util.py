@@ -1,9 +1,16 @@
-from typing import List
-import numpy as np
+import sys
 import warnings
 from collections import defaultdict
 from os.path import dirname
 from pathlib import Path
+from typing import List
+
+import numpy as np
+from rich.console import Console
+
+from ..about import __version__
+
+console = Console()
 
 __tr_upper__ = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
 __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
@@ -116,7 +123,7 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
     normalized = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
 
-    if normalized not in ['bert', 'simple']:
+    if normalized not in ['bert', 'simple', 'icu']:
         msg = f"Invalid tokenizer {tokenizer_name} ({normalized}). Valid values are bert, simple"
         if raise_on_error:
             raise ValueError(msg)
@@ -152,3 +159,30 @@ def load_stopwords(base_path=None):
     stopwords = [s.rstrip() for s in stopwords]
 
     return stopwords
+
+
+def deprecate(message: str, eol_version: tuple):
+    current = tuple([int(v) for v in __version__.split('.')])
+
+    if current >= eol_version:
+        console.print(f"[red]{message}[/red]")
+        sys.exit(1)
+    else:
+        console.print(f"[magenta]{message}[/magenta], will be dropped by {'.'.join(map(str, eol_version))}")
+
+
+class ConfigNotSet(Exception):
+    """Used when configuration is not set although it is expected"""
+
+
+class VocabularyIsNotSet(Exception):
+    """Raised when vocabulary class variable is not set"""
+
+
+class WordVectorNotFound(Exception):
+    """Word Vector is not available for word"""
+
+    def __init__(self, w: str):
+        self.word = w
+
+        super().__init__(f"Word Vector not found for {self.word}")

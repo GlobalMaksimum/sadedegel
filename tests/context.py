@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from sadedegel.dataset import load_raw_corpus, load_sentence_corpus  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.summarize import RandomSummarizer, PositionSummarizer, LengthSummarizer, BandSummarizer, Rouge1Summarizer, LexRankSummarizer  # noqa # pylint: disable=unused-import, wrong-import-position, line-too-long
 from sadedegel.tokenize import NLTKPunctTokenizer, RegexpSentenceTokenizer  # noqa # pylint: disable=unused-import, wrong-import-position
-from sadedegel.bblock import Doc, Sentences, BertTokenizer, SimpleTokenizer, WordTokenizer # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.bblock import Doc, Sentences, BertTokenizer, SimpleTokenizer, WordTokenizer, ICUTokenizer # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel import Token # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock.util import tr_upper, tr_lower, __tr_lower__, __tr_upper__ # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock.util import flatten, is_eos  # noqa # pylint: disable=unused-import, wrong-import-position
@@ -16,5 +16,6 @@ from sadedegel.server.__main__ import app # noqa # pylint: disable=unused-import
 from sadedegel import  tokenizer_context # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.config import  tf_context, idf_context # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.config import config_context # noqa # pylint: disable=unused-import, wrong-import-position
-
+from sadedegel.bblock.word_tokenizer_helper import ICUTokenizerHelper # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.prebuilt import tweet_sentiment # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.bblock.vocabulary import Vocabulary # noqa # pylint: disable=unused-import, wrong-import-position

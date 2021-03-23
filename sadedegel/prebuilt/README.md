@@ -31,7 +31,7 @@ y_pred_label = [CATEGORIES.index(_y_pred) for _y_pred in y_pred]
 
 #### Accuracy
 
-Current prebuilt model has an average class prediction cv-3 accuracy of `0.746`
+Current prebuilt model has an average class prediction cv-3 accuracy of `0.812`
 
 ### Turkish Tweets Profanity Classification
 
@@ -58,7 +58,7 @@ y_pred_value = [CLASS_VALUES[_y_pred] for _y_pred in y_pred]
 
 #### Accuracy
 
-Current prebuilt tweet profanity model has an **macro-F1** score of `0.6619` on test set.
+Current prebuilt tweet profanity model has an **macro-F1** score of `0.6342` on test set.
 > Best model in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) has `0.8258` accuracy
 
 ### Turkish Tweet Sentiment Classification
@@ -76,5 +76,5 @@ y_pred = model.predict([])
 #### Accuracy
 
 Current prebuilt model has 
-* 3-fold cross validation F1 macro score of `mean 0.7946, std 0.0043)`.
-* 5-fold cross validation F1 macro score of `mean 0.7989, std 0.0055)` 
+* 3-fold cross validation F1 macro score of `mean 0.7254, std 0.0034)`.
+* 5-fold cross validation F1 macro score of `mean 0.7271, std 0.0094)` 

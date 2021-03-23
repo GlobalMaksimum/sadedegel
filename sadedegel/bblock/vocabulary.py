@@ -1,117 +1,240 @@
+import warnings
+from collections import defaultdict
 from os.path import dirname
 from pathlib import Path
-import warnings
-from dataclasses import dataclass, asdict
-from json import dump, load
-from collections import defaultdict
+
+import h5py
+import numpy as np
+from cached_property import cached_property
+from rich.console import Console
 
 from .util import tr_lower, normalize_tokenizer_name
-from .token import Token
+
+console = Console()
 
 
-@dataclass
-class Entry:
-    id: int
-    word: str
-    df: int
-    df_cs: int
-    vocabulary: object
+class InvalidTokenizer(Exception):
+    """Invalid tokenizer name"""
+
+
+def vocabulary_file(tokenizer: str, verify_exists=True):
+    normalized_name = normalize_tokenizer_name(tokenizer)
+
+    if normalized_name not in ['bert', 'icu', 'simple']:
+        raise InvalidTokenizer(
+            (f"Currently only valid tokenizers are BERT, ICU Tokenizer for vocabulary generation."
+             " {normalized_name} found"))
+
+    vocab_file = Path(dirname(__file__)) / 'data' / normalized_name / 'vocabulary.hdf5'
+
+    if not vocab_file.exists() and verify_exists:
+        raise FileNotFoundError(f"Vocabulary file for {tokenizer} ({normalized_name}) tokenizer not found.")
+
+    return vocab_file
+
+
+class VocabularyCounter:
+    def __init__(self, tokenizer, case_sensitive=True, min_tf=1, min_df=1):
+        self.tokenizer = tokenizer
+
+        self.doc_counter = defaultdict(set)
+        self.doc_set = set()
+
+        self.term_freq = defaultdict(int)
+
+        self.min_tf = min_tf
+        self.min_df = min_df
+        self.case_sensitive = case_sensitive
+
+    def inc(self, word: str, document_id: int, count: int = 1):
+        if self.case_sensitive:
+            w = word
+        else:
+            w = tr_lower(word)
+
+        self.doc_counter[w].add(document_id)
+        self.doc_set.add(document_id)
+        self.term_freq[w] += count
+
+    def add_word_to_doc(self, word: str, document_id: int):
+        """Implemented for backward compatibility"""
+
+        self.inc(word, document_id, 1)
+
+    @property
+    def vocabulary_size(self):
+        return len(self.term_freq)
+
+    @property
+    def document_count(self):
+        return len(self.doc_set)
+
+    def prune(self):
+
+        to_remove = []
+
+        for w in self.term_freq:
+            if self.term_freq[w] < self.min_tf or len(self.doc_counter[w]) < self.min_df:
+                to_remove.append(w)
+
+        for w in to_remove:
+            del self.doc_counter[w]
+            del self.term_freq[w]
+
+        console.log(
+            f"{len(to_remove)} terms (case sensitive={self.case_sensitive}) are pruned by tf (>= {self.min_tf}) or df filter(>= {self.min_df})")
+
+        return self
+
+    def df(self, w: str):
+        if self.case_sensitive:
+            return len(self.doc_counter[w])
+        else:
+            return len(self.doc_counter[tr_lower(w)])
+
+    def tf(self, w: str):
+        if self.case_sensitive:
+            return self.term_freq[w]
+        else:
+            return self.term_freq[tr_lower(w)]
+
+    def to_hdf5(self, w2v=None):
+        with h5py.File(vocabulary_file(self.tokenizer, verify_exists=False), "a") as fp:
+            if self.case_sensitive:
+                group = fp.create_group("form_")
+            else:
+                group = fp.create_group("lower_")
+
+            words = sorted(list(self.term_freq.keys()), key=lambda w: tr_lower(w))
+
+            group.attrs['size'] = len(words)
+            group.attrs['document_count'] = len(self.doc_set)
+            group.attrs['tokenizer'] = self.tokenizer
+            group.attrs['min_tf'] = self.min_tf
+            group.attrs['min_df'] = self.min_df
+
+            if w2v is not None:
+                group.attrs['vector_size'] = w2v.vector_size
+
+                group.create_dataset("vector", data=np.array(
+                    [w2v[w] if w in w2v else np.zeros(w2v.vector_size) for w in words]).astype(
+                    np.float32),
+                                     compression="gzip",
+                                     compression_opts=9)
+                group.create_dataset("has_vector", data=np.array([w in w2v in w2v for w in words]),
+                                     compression="gzip",
+                                     compression_opts=9)
+
+            group.create_dataset("word", data=words, compression="gzip", compression_opts=9)
+            group.create_dataset("df", data=np.array([self.df(w) for w in words]), compression="gzip",
+                                 compression_opts=9)
+            group.create_dataset("tf", data=np.array([self.tf(w) for w in words]), compression="gzip",
+                                 compression_opts=9)
+
+        console.print(f"|D|: {self.document_count}, |V|: {self.vocabulary_size} (case sensitive={self.case_sensitive})")
 
 
 class Vocabulary:
-    vocabularies = {}
-
-    @staticmethod
-    def factory(tokenizer):
-        normalized_name = normalize_tokenizer_name(tokenizer)
-
-        if normalized_name not in Vocabulary.vocabularies:
-            Vocabulary.vocabularies[normalized_name] = Vocabulary(normalized_name)
-
-        return Vocabulary.vocabularies[normalize_tokenizer_name(tokenizer)]
 
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
-        self.entries = {}
-        self.initialized = False
-        self.document_count = -1
 
-        self.doc_counter = defaultdict(set)
-        self.doc_counter_case_sensitive = defaultdict(set)
-        self.doc_set = set()
+        self.file_name = vocabulary_file(tokenizer)
+        self._df = None
+        self._df_cs = None
+        self._has_vector = None
+        self._vector = None
 
-        self.token_cache = {}
+        self.dword_cs = None
+        self.dword = None
 
-    @property
-    def size(self):
-        return len(self.entries)
+    @cached_property
+    def size_cs(self) -> int:
+        with h5py.File(self.file_name, "r") as fp:
+            return fp['form_'].attrs['size']
+
+    @cached_property
+    def size(self) -> int:
+        with h5py.File(self.file_name, "r") as fp:
+            return fp['lower_'].attrs['size']
 
     def __len__(self):
         return self.size
 
-    def add_word_to_doc(self, word, doc_identifier):
-        self.doc_counter[tr_lower(word)].add(doc_identifier)
-        self.doc_counter_case_sensitive[word].add(doc_identifier)
-        self.doc_set.add(doc_identifier)
+    def id_cs(self, word: str, default: int = -1):
+        if self.dword_cs is None:
+            with h5py.File(self.file_name, "r") as fp:
+                self.dword = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
+                self.dword_cs = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
 
-    def build(self, min_df=1):
-        i = 0
-        for word in self.doc_counter_case_sensitive:
-            if len(self.doc_counter[tr_lower(word)]) >= min_df:
-                self.entries[word] = Entry(i, word, len(self.doc_counter[tr_lower(word)]),
-                                           len(self.doc_counter_case_sensitive[word]), self)
-                i += 1
+        return self.dword_cs.get(word, default)
 
-        self.document_count = len(self.doc_set)
-        self.initialized = True
+    def id(self, word: str, default: int = -1):
+        if self.dword is None:
+            with h5py.File(self.file_name, "r") as fp:
+                self.dword = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
+                self.dword_cs = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
 
-    def save(self):
-        if not self.initialized:
-            raise Exception("Call build to initialize vocabulary")
+        return self.dword.get(tr_lower(word), default)
 
-        with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json', "w") as fp:
-            dump(dict(size=len(self), document_count=self.document_count, tokenizer=self.tokenizer,
-                      words=[asdict(e) for e in self.entries.values()]), fp,
-                 ensure_ascii=False)
+    def df(self, word: str):
 
-    @staticmethod
-    def load(tokenizer):
-        normalized_name = normalize_tokenizer_name(tokenizer)
+        i = self.id(word)
 
-        vocab = Vocabulary.factory(normalized_name)
-
-        if not vocab.initialized:
-            if normalized_name != 'bert':
-                warnings.warn("Currently only valid tokenizer is BERT Tokenizer for vocabulary generation.",
-                              UserWarning, stacklevel=2)
-                return vocab
-
-            with open(Path(dirname(__file__)) / 'data' / 'vocabulary.json') as fp:
-                json = load(fp)
-
-            for d in json['words']:
-                vocab.entries[d['word']] = Entry(d['id'], d['word'], d['df'], d['df_cs'], vocab)
-
-            vocab.document_count = json['document_count']
-            vocab.initialized = True
-
-        return vocab
-
-    def __getitem__(self, word):
-        if not self.initialized:
-            raise Exception(("Vocabulary instance is not initialize. "
-                             "Use load for built in vocabularies, use build for manual vocabulary build."))
+        if i == -1:
+            return 0
         else:
-            token = self.token_cache.get(word, None)
+            if self._df is None:
+                with h5py.File(self.file_name, "r") as fp:
+                    self._df = np.array(fp['lower_']['df'])
 
-            if token:
-                return token
+            return self._df[i]
+
+    def df_cs(self, word: str):
+
+        i = self.id_cs(word)
+
+        if i == -1:
+            return 0
+        else:
+            if self._df_cs is None:
+                with h5py.File(self.file_name, "r") as fp:
+                    self._df_cs = np.array(fp['form_']['df'])
+
+            return self._df_cs[i]
+
+    def has_vector(self, word: str):
+        with h5py.File(self.file_name, "r") as fp:
+            if "has_vector" in fp['lower_']:
+                i = self.id(word)
+
+                if i == -1:
+                    return False
+                else:
+                    if self._has_vector is None:
+                        self._has_vector = np.array(fp['lower_']['has_vector'])
+
+                    return self._has_vector[i]
             else:
-                entry = self.entries.get(word, None)
+                return False
 
-                if not entry:
-                    entry = Entry(-1, word, 0, 0, self)  # OOV has a document frequency of 0 by convention
+    def vector(self, word: str):
+        # TODO: Performance improvement required
+        with h5py.File(self.file_name, "r") as fp:
+            if "vector" in fp['lower_']:
+                i = self.id(word)
 
-                self.token_cache[word] = Token(entry)
+                if i == -1:
+                    return False
+                else:
+                    if self._vector is None:
+                        self._vector = np.array(fp['lower_']['vector'])
 
-                return self.token_cache[word]
+                    return self._vector[i, :]
+            else:
+                return False
+
+    @cached_property
+    def document_count(self):
+        with h5py.File(self.file_name, "r") as fp:
+            return fp['form_'].attrs['document_count']

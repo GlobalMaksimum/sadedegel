@@ -1,12 +1,15 @@
 <a href="http://sadedegel.ai"><img src="https://sadedegel.ai/assets/img/logo-2.png" width="125" height="125" align="right" /></a>
 
-# SadedeGel: An extraction based Turkish news summarizer
+# SadedeGel: A General Purpose NLP library for Turkish
 
-SadedeGel is a library for unsupervised extraction-based news summarization using several old and new NLP techniques.
+SadedeGel is initially designed to be a library for unsupervised extraction-based news summarization using several old and new NLP techniques.
 
-Development of the library takes place as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
+Development of the library started as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
 
-💫 **Version 0.18 out now!**
+We keep adding lots to become a general purpose open source NLP library for Turkish langauge.
+
+
+💫 **Version 0.19 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -56,7 +59,7 @@ Other community maintainers
 
 ## Features
 
-* Several news datasets
+* Several datasets
   * Basic corpus
       * Raw corpus (`sadedegel.dataset.load_raw_corpus`)
       * Sentences tokenized corpus (`sadedegel.dataset.load_sentences_corpus`)  
@@ -86,11 +89,12 @@ Other community maintainers
     * TfIdf Summarizer
  
 * Various Word Tokenizers
-  * BERT Tokenizer - Trained tokenizer
-  * [**Experimental**] Simple Tokenizer - Regex Based
+  * BERT Tokenizer - Trained tokenizer (`pip install sadedegel[bert]`)
+  * Simple Tokenizer - Regex Based
+  * IcU Tokenizer (default by `0.19`)
   
 * Various Embeddings Implementation
-  * BERT Embeddings
+  * BERT Embeddings (`pip install sadedegel[bert]`)
   * TfIdf Embeddings
   
 * [**Experimental**] Prebuilt models for several common NLP tasks ([`sadedegel.prebuilt`](sadedegel/prebuilt/README.md)).
@@ -139,6 +143,28 @@ environment to avoid modifying system state:
 python -m venv .env
 source .env/bin/activate
 pip install sadedegel
+```
+
+#### Optional
+
+To keep core sadedegel as light as possible we decomposed our initial monolitic design.
+
+To enable BERT embeddings and related capabilities use
+
+```bash
+pip install sadedegel[bert]
+```
+
+We ship 100-dimension word vectors with the library. If you need to retrain those embeddings you can use
+
+```bash
+python -m sadedegel.bblock.cli build-vocabulary
+```
+
+`--w2v` option requires `w2v` option to be installed. To install option use
+
+```bash
+pip install sadedegel[w2v]
 ```
 
 ### Quickstart with SadedeGel

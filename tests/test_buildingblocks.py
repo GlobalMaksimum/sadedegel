@@ -1,9 +1,11 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 import numpy as np
-import torch
 import pytest
 from pytest import raises
 from scipy.sparse import isspmatrix_csr
-from .context import Doc, BertTokenizer, SimpleTokenizer, tokenizer_context, tf_context, config_context
+
+from .context import Doc, BertTokenizer, SimpleTokenizer, ICUTokenizer, tokenizer_context, tf_context, config_context
 
 
 @pytest.mark.parametrize("string", ["", " ", "\n", "\t", "\n\t"])
@@ -14,7 +16,7 @@ def test_emptystring(string):
     assert len(empty[0].tokens) == 0
 
 
-@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
+@pytest.mark.parametrize("tokenizer", [ICUTokenizer.__name__, SimpleTokenizer.__name__])
 def test_tokens(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
@@ -26,13 +28,26 @@ def test_tokens(tokenizer):
         assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
 
 
-@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__])
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+def test_tokens_bert():
+    with tokenizer_context(BertTokenizer.__name__) as Doc2:
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
+
+        s0 = d[0]
+
+        assert s0.tokens == ['Ali', 'topu', 'tut', '.']
+
+        assert s0.tokens_with_special_symbols == ['[CLS]', 'Ali', 'topu', 'tut', '.', '[SEP]']
+
+
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__, ICUTokenizer.__name__])
 def test_bert_embedding_generation(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
 
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
 
-        if tokenizer == SimpleTokenizer.__name__:
+        if tokenizer in [SimpleTokenizer.__name__, ICUTokenizer.__name__]:
             with raises(NotImplementedError):
                 assert d.bert_embeddings.shape == (2, 768)
         else:
@@ -41,9 +56,9 @@ def test_bert_embedding_generation(tokenizer):
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
 def test_tfidf_embedding_generation(tf_type):
-    with tf_context(tf_type):
-        d = Doc("Ali topu tut. Ömer ılık süt iç.")
-        assert d.tfidf_matrix.shape == (2, d.vocabulary.size)
+    with tf_context(tf_type) as D:
+        d = D("Ali topu tut. Ömer ılık süt iç.")
+        assert d.tfidf_matrix.shape == (2, d.vocabulary.size_cs)
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
@@ -62,30 +77,33 @@ testdata = [(True, True),
             (False, True)]
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("return_numpy, return_mask", testdata)
 def test_padded_matrix(return_numpy, return_mask):
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
+    import torch  # pylint: disable=unrecognized-inline-option, import-outside-toplevel, import-error
+    with tokenizer_context("bert") as D:
+        d = D("Ali topu tut. Ömer ılık süt iç.")
 
-    inp = np.array([[2, 3744, 9290, 2535, 18, 3, 0],
-                    [2, 6565, 17626, 5244, 2032, 18, 3]])
+        inp = np.array([[2, 3744, 9290, 2535, 18, 3, 0],
+                        [2, 6565, 17626, 5244, 2032, 18, 3]])
 
-    mask = np.array([[1, 1, 1, 1, 1, 1, 0],
-                     [1, 1, 1, 1, 1, 1, 1]])
+        mask = np.array([[1, 1, 1, 1, 1, 1, 0],
+                         [1, 1, 1, 1, 1, 1, 1]])
 
-    res = d.padded_matrix(return_numpy, return_mask)
+        res = d.padded_matrix(return_numpy, return_mask)
 
-    if return_numpy:
-        if return_mask:
-            assert np.all(res[0] == inp)
-            assert np.all(res[1] == mask)
+        if return_numpy:
+            if return_mask:
+                assert np.all(res[0] == inp)
+                assert np.all(res[1] == mask)
+            else:
+                assert np.all(res == inp)
         else:
-            assert np.all(res == inp)
-    else:
-        if return_mask:
-            assert torch.all(res[0] == torch.tensor(inp))  # noqa # pylint: disable=not-callable
-            assert torch.all(res[1] == torch.tensor(mask))  # noqa # pylint: disable=not-callable
-        else:
-            assert torch.all(res == torch.tensor(inp))  # noqa # pylint: disable=not-callable
+            if return_mask:
+                assert torch.all(res[0] == torch.tensor(inp))  # noqa # pylint: disable=not-callable
+                assert torch.all(res[1] == torch.tensor(mask))  # noqa # pylint: disable=not-callable
+            else:
+                assert torch.all(res == torch.tensor(inp))  # noqa # pylint: disable=not-callable
 
 
 @pytest.mark.parametrize("test_for", ["text", "str", "strall"])
@@ -131,15 +149,35 @@ def test_doc_iter_eq():
         assert d._sents[i] == sentence == d[i]
 
 
-def test_doc_level_tfidf():
-    d = Doc("Ali topu tut. Ömer ılık süt iç.")
-    assert d.tfidf.shape == (d.vocabulary.size,)
+@pytest.mark.parametrize("lowercase", [True, False])
+def test_doc_level_tfidf(lowercase):
+    with config_context(lowercase=lowercase) as D:
+        d = D("Ali topu tut. Ömer ılık süt iç.")
+
+        if lowercase:
+            assert d.tfidf.shape == (d.vocabulary.size,)
+        else:
+            assert d.tfidf.shape == (d.vocabulary.size_cs,)
 
 
-@pytest.mark.parametrize("method,tfidf", [("binary", 31.938), ("raw", 32.938034)])
-def test_doc_level_tf_idf_value(method, tfidf):
-    with config_context(tf__method=method, idf__method="smooth") as Doc_c:
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+@pytest.mark.parametrize("method, tf, tfidf", [("binary", 8, 33.06598), ("raw", 9, 34.06601)])
+def test_doc_level_tf_idf_value_bert(method, tf, tfidf):
+    with config_context(tokenizer="bert", tf__method=method, idf__method="smooth") as Doc_c:
         d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
+
+        assert np.sum(d.tf) == pytest.approx(tf)
+
+        assert np.sum(d.tfidf) == pytest.approx(tfidf)
+
+
+@pytest.mark.parametrize("method, tf, tfidf", [("binary", 8, 35.65801), ("raw", 9, 36.65804)])
+def test_doc_level_tf_idf_value_icu(method, tf, tfidf):
+    with config_context(tokenizer="icu", tf__method=method, idf__method="smooth") as Doc_c:
+        d = Doc_c("Ali topu tut. Ömer ılık süt iç.")
+
+        assert np.sum(d.tf) == pytest.approx(tf)
+
         assert np.sum(d.tfidf) == pytest.approx(tfidf)
 
 

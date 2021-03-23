@@ -31,7 +31,8 @@ setup(
         'sadedegel.dataset': ['raw/*.txt', 'sents/*.json', 'annotated/*.json'],
         'sadedegel.ml': ['model/sbd.pickle'],
         'sadedegel.prebuilt': ['model/*.joblib'],
-        'sadedegel.bblock': ['data/vocabulary.json', 'data/stop-words.txt'],
+        'sadedegel.bblock': ['data/bert/vocabulary.hdf5', 'data/simple/vocabulary.hdf5', 'data/icu/vocabulary.hdf5',
+                             'data/stop-words.txt'],
         'sadedegel': ['default.ini']
     },
     # Needed for dependencies
@@ -50,5 +51,9 @@ setup(
         sadedegel-sbd=sadedegel.tokenize.__main__:cli
         sadedegel-server=sadedegel.server.__main__:server
         sadedegel-build-vocabulary=sadedegel.bblock.cli.__main__:build_vocabulary
-    '''
+    ''',
+    extras_require={
+        'w2v': ['gensim'],
+        'bert': ['torch==1.5.1', 'transformers==3.0.0']
+    }
 )
