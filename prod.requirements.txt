@@ -14,4 +14,4 @@ sadedegel-icu
 requests
 rich
 cached-property
-h5py==3.2.1
+h5py>=3.1.0,<=3.2.1
