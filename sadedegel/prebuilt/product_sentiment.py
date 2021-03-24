@@ -53,7 +53,6 @@ def cv(k=3, max_instances=-1):
         test = df.iloc[test_index]
 
         pipeline = empty_model()
-
         pipeline.fit(train.text, train.sentiment_class)
 
         y_pred = pipeline.predict(test.text)
@@ -78,18 +77,7 @@ def build(max_instances=-1, save=True):
     df = pd.DataFrame.from_records(raw)
     df = shuffle(df)
 
-    # BATCH_SIZE = CORPUS_SIZE
-
-    #console.log(f"Corpus Size: {CORPUS_SIZE}")
-
-    #n_split = ceil(len(df) / BATCH_SIZE)
-    #console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
-
-    #batches = np.array_split(df, n_split)
-
     pipeline = empty_model()
-
-    #for batch in batches:
     pipeline.fit(df.text, df.sentiment_class)
 
     console.log("Model build [green]DONE[/green]")
