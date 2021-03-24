@@ -9,6 +9,6 @@ from sadedegel.summarize import KMeansSummarizer,AutoKMeansSummarizer,Decomposed
 from sadedegel.summarize import TextRank  # noqa # pylint: disable=unused-import, wrong
 from sadedegel.summarize import TFIDFSummarizer # noqa # pylint: disable=unused-import
 from sadedegel import Doc, tokenizer_context # noqa # pylint: disable=unused-import, wrong
-from sadedegel.bblock import BertTokenizer, SimpleTokenizer # noqa # pylint: disable=unused-import, wrong
+from sadedegel.bblock import BertTokenizer, SimpleTokenizer, ICUTokenizer # noqa # pylint: disable=unused-import, wrong
 from sadedegel.config import tf_context # noqa # pylint: disable=unused-import, wrong
 from sadedegel.dataset import load_raw_corpus # noqa # pylint: disable=unused-import, wrong

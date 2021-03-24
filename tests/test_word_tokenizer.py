@@ -1,11 +1,13 @@
+import pkgutil  # noqa: F401 # pylint: disable=unused-import
+
 import numpy as np
 import pytest
 
 from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context, WordTokenizer
-from .context import config_context
 from .context import load_raw_corpus
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_bert_tokenizer():
     bt = BertTokenizer()
     text = "Havaalanında bekliyoruz."
@@ -31,6 +33,7 @@ def test_simple_tokenization_sentences():
         assert doc[1].tokens == ['Barış', 'için', 'geldik', '.']
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_bert_tokenization_sents():
     text = 'Merhaba dünya. Barış için geldik.'
 
@@ -48,30 +51,33 @@ def test_singleton_tokenizer():
 
     assert st1 == st2 == st3
 
+
+if pkgutil.find_loader("transformers") is not None:
     bt1 = WordTokenizer.factory('bert')
     bt2 = WordTokenizer.factory('bert-tokenizer')
     bt3 = WordTokenizer.factory('BERTTokenizer')
 
     assert bt1 == bt2 == bt3
 
-    bt1 = WordTokenizer.factory('icu')
-    bt2 = WordTokenizer.factory('icu-tokenizer')
-    bt3 = WordTokenizer.factory('ICUTokenizer')
+bt1 = WordTokenizer.factory('icu')
+bt2 = WordTokenizer.factory('icu-tokenizer')
+bt3 = WordTokenizer.factory('ICUTokenizer')
 
-    assert bt1 == bt2 == bt3
+assert bt1 == bt2 == bt3
 
 
 @pytest.mark.parametrize("toker", ["bert", "simple", "icu"])
 def test_word_counting(toker):
-    with config_context(tokenizer=toker) as D:
-        docs = [D(text) for text in load_raw_corpus()]
+    if pkgutil.find_loader("transformers") is not None or toker != "bert":
+        with tokenizer_context(toker) as D:
+            docs = [D(text) for text in load_raw_corpus()]
 
-        if toker == "bert":
-            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(18.14191)
-        elif toker == "simple":
-            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.66134)
-        else:
-            assert np.array([len(d) for d in docs]).mean() == pytest.approx(41.4897959)
-            assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.71987)
+            if toker == "bert":
+                assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
+                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(17.9340236)
+            elif toker == 'simple':
+                assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
+                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.4676138)
+            else:
+                assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
+                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.5215507)

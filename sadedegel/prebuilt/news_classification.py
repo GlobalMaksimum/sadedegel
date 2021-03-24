@@ -2,29 +2,32 @@ from math import ceil
 from pathlib import Path
 from os.path import dirname
 
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.linear_model import SGDClassifier
 from sklearn.utils import shuffle
+from sklearn.metrics import accuracy_score
 
 from rich.console import Console
-from rich.progress import Progress
 
 from joblib import dump, load as jl_load
 
 import numpy as np
 
 from ..dataset.tscorpus import load_classification_raw, CATEGORIES, CORPUS_SIZE
-from ..extension.sklearn import TfidfVectorizer, OnlinePipeline
+from ..extension.sklearn import TfidfVectorizer, OnlinePipeline, Text2Doc
 
 console = Console()
 
 
 def empty_model():
     return OnlinePipeline(
-        [('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth')),
-         ('pa', PassiveAggressiveClassifier(C=8.23704, average=False))])
+        [('text2doc', Text2Doc("icu")),
+         ('tfidf', TfidfVectorizer(tf_method='log_norm', idf_method='smooth', drop_punct=True, drop_stopwords=False,
+                                   lowercase=True)),
+         ('sgd',
+          SGDClassifier(penalty="l2", alpha=0.005190632263776186, loss="log", average=False, fit_intercept=True))])
 
 
-def build(max_rows=100_000):
+def build(max_rows=-1, batch_size=10000):
     try:
         import pandas as pd
     except ImportError:
@@ -33,34 +36,39 @@ def build(max_rows=100_000):
 
     raw = load_classification_raw()
     df = pd.DataFrame.from_records(raw)
-    df = shuffle(df)
+    df = shuffle(df, random_state=42)
 
     if max_rows > 0:
         df = df.sample(max_rows)
 
-    BATCH_SIZE = 1000
+    np.random.seed(42)
+    msk = np.random.rand(len(df)) < 0.9
 
-    n_split = ceil(len(df) / BATCH_SIZE)
+    df_train = df[msk]  # random state is a seed value
+    df_test = df[~msk]
+
+    BATCH_SIZE = batch_size
+
+    n_split = ceil(len(df_train) / BATCH_SIZE)
     console.log(f"{n_split} batches of {BATCH_SIZE} instances...")
 
-    batches = np.array_split(df, n_split)
+    batches = np.array_split(df_train, n_split)
 
     pipeline = empty_model()
 
-    with Progress() as progress:
-        building_task = progress.add_task("[blue]Training a classifier for news categories...",
-                                          total=max_rows if max_rows > 0 else CORPUS_SIZE)
+    for batch in batches:
+        pipeline.partial_fit(batch.text, batch.category, classes=[i for i in range(len(CATEGORIES))])
 
-        for batch in batches:
-            pipeline.partial_fit(batch.text, batch.category, classes=[i for i in range(len(CATEGORIES))])
-
-            progress.update(building_task, advance=len(batch))
+        y_pred = pipeline.predict(df_test.text)
+        console.log(f"Accuracy on test: {accuracy_score(df_test.category, y_pred)}")
 
     console.log("Model build [green]DONE[/green]")
 
     model_dir = Path(dirname(__file__)) / 'model'
 
     model_dir.mkdir(parents=True, exist_ok=True)
+
+    pipeline.steps[0][1].Doc = None
 
     dump(pipeline, (model_dir / 'news_classification.joblib').absolute(), compress=('gzip', 9))
 
@@ -70,4 +78,4 @@ def load(model_name="news_classification"):
 
 
 if __name__ == '__main__':
-    build()
+    build(-1, batch_size=10_000)

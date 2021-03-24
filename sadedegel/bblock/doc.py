@@ -1,23 +1,22 @@
-from collections import Counter
 import re
-from typing import List
-import warnings
+import sys
+from collections import Counter
 from functools import partial
-
-import torch
+from typing import List
 
 import numpy as np  # type:ignore
-
-from loguru import logger
+from rich.console import Console
 from scipy.sparse import csr_matrix
+from cached_property import cached_property
 
-from ..ml.sbd import load_model
-from ..metrics import rouge1_score
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad
-from ..config import load_config
-from .word_tokenizer import WordTokenizer
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
-from ..about import __version__
+from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name
+from .word_tokenizer import WordTokenizer
+from ..config import load_config
+from ..metrics import rouge1_score
+from ..ml.sbd import load_model
+
+console = Console()
 
 
 class Span:
@@ -168,7 +167,10 @@ class TFImpl:
         pass
 
     def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False) -> np.ndarray:
-        v = np.zeros(len(self.vocabulary))
+        if lowercase:
+            v = np.zeros(self.vocabulary.size)
+        else:
+            v = np.zeros(self.vocabulary.size_cs)
 
         if lowercase:
             tokens = [tr_lower(t) for t in self.tokens]
@@ -178,12 +180,15 @@ class TFImpl:
         counter = Counter(tokens)
 
         for token in tokens:
-            t = self.vocabulary[token]
+            t = Token(token)
             if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
                     drop_punct and t.is_punct):
                 continue
 
-            v[t.id] = counter[token]
+            if lowercase:
+                v[t.id] = counter[token]
+            else:
+                v[t.id_cs] = counter[token]
 
         return v
 
@@ -304,7 +309,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         self.config = doc.builder.config
         self._bert = None
 
-        # No failback to config read in here because this will slow down sentence instantiation extremely.
+        # No fail back to config read in here because this will slow down sentence instantiation extremely.
         self.tf_method = config['tf']['method']
 
         if self.tf_method == TF_BINARY:
@@ -436,11 +441,11 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return self.text == s  # no need for type checking, will return false for non-strings
 
     def __getitem__(self, token_ix):
-        return self.vocabulary[self.tokens[token_ix]]
+        return Token(self.tokens[token_ix])
 
     def __iter__(self):
         for t in self.tokens:
-            yield self.vocabulary[t]
+            yield Token(t)
 
 
 class Document(TFImpl, IDFImpl, BM25Impl):
@@ -453,7 +458,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self.spans = []
         self._sents = []
         self._tokens = None
-        self._bert = None
         self.builder = builder
         self.config = self.builder.config
 
@@ -510,6 +514,14 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         max_len = self.max_length()
 
         if not return_numpy:
+            try:
+                import torch
+            except ImportError:
+                console.print(
+                    ("Error in importing transformers module. "
+                     "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
+                sys.exit(1)
+
             mat = torch.tensor([pad(s.input_ids, max_len) for s in self])
 
             if return_mask:
@@ -524,27 +536,30 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             else:
                 return mat
 
-    @property
+    @cached_property
     def bert_embeddings(self):
-        if self._bert is None:
-            inp, mask = self.padded_matrix()
+        try:
+            import torch
+            from transformers import BertModel
+        except ImportError:
+            console.print(
+                ("Error in importing transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
+            sys.exit(1)
 
-            if DocBuilder.bert_model is None:
-                logger.info("Loading BertModel")
-                from transformers import BertModel
+        inp, mask = self.padded_matrix()
 
-                DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
-                                                                  output_hidden_states=True)
-                DocBuilder.bert_model.eval()
+        if DocBuilder.bert_model is None:
+            DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
+                                                              output_hidden_states=True)
+            DocBuilder.bert_model.eval()
 
-            with torch.no_grad():
-                outputs = DocBuilder.bert_model(inp, mask)
+        with torch.no_grad():
+            outputs = DocBuilder.bert_model(inp, mask)
 
-            twelve_layers = outputs[2][1:]
+        twelve_layers = outputs[2][1:]
 
-            self._bert = select_layer(twelve_layers, [11], return_cls=False)
-
-        return self._bert
+        return select_layer(twelve_layers, [11], return_cls=False)
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
@@ -568,7 +583,14 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
             indptr.append(len(indices))
 
-        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), len(self.vocabulary)))
+        lowercase = self.config['default'].getboolean('lowercase')
+
+        if lowercase:
+            dim = self.vocabulary.size
+        else:
+            dim = self.vocabulary.size_cs
+
+        m = csr_matrix((data, indices, indptr), dtype=np.float32, shape=(len(self), dim))
 
         return m
 
@@ -585,14 +607,14 @@ class DocBuilder:
 
         self.sbd = load_model()
 
-        self.tokenizer = WordTokenizer.factory(self.config['default']['tokenizer'])
+        tokenizer_str = normalize_tokenizer_name(self.config['default']['tokenizer'])
 
-        if self.tokenizer == "bert":
-            self.config['default']['avg_sentence_length'] = self.config['bert']['avg_sentence_length']
-            self.config['default']['avg_document_length'] = self.config['bert']['avg_document_length']
-        else:
-            self.config['default']['avg_sentence_length'] = self.config['simple']['avg_sentence_length']
-            self.config['default']['avg_document_length'] = self.config['simple']['avg_document_length']
+        self.tokenizer = WordTokenizer.factory(tokenizer_str)
+
+        Token.set_vocabulary(self.tokenizer.vocabulary)
+
+        self.config['default']['avg_sentence_length'] = self.config[tokenizer_str]['avg_sentence_length']
+        self.config['default']['avg_document_length'] = self.config[tokenizer_str]['avg_document_length']
 
         idf_method = self.config['idf']['method']
 
@@ -604,9 +626,10 @@ class DocBuilder:
     def __call__(self, raw):
 
         if raw is not None:
-            _spans = [match.span() for match in re.finditer(r"\S+", raw)]
+            raw_stripped = raw.strip()
+            _spans = [match.span() for match in re.finditer(r"\S+", raw_stripped)]
 
-            d = Document(raw, self)
+            d = Document(raw_stripped, self)
             d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
 
             if len(d.spans) > 0:
@@ -622,8 +645,13 @@ class DocBuilder:
                         d._sents.append(Sentences(i, d.raw[:eos].strip(), d, self.config))
                     else:
                         d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d, self.config))
+
+                if eos_list[-1] != len(raw_stripped):
+                    d._sents.append(Sentences(len(d._sents), d.raw[eos_list[-1] + 1:len(raw_stripped)], d,
+                                              self.config))
             else:
                 d._sents.append(Sentences(0, d.raw.strip(), d, self.config))
+
         else:
             raise Exception(f"{raw} document text can't be None")
 

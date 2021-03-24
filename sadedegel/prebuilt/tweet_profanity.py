@@ -8,7 +8,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import f1_score
 from sklearn.utils import shuffle
 
-from ..extension.sklearn import BM25Vectorizer
+from ..extension.sklearn import BM25Vectorizer, Text2Doc
 
 from ..dataset.profanity import load_offenseval_train, load_offenseval_test, \
     load_offenseval_test_label, CORPUS_SIZE
@@ -19,17 +19,15 @@ console = Console()
 
 def empty_model():
     return OnlinePipeline(
-        [('bm25', BM25Vectorizer(tf_method='log_norm', idf_method='probabilistic',
-                                 drop_stopwords=True, drop_suffix=False,
-                                 drop_punct=False, lowercase=True,
-                                 k1=1.7094943902452382, b=0.8044484402765772,
+        [('text2doc', Text2Doc("icu")),
+         ('bm25', BM25Vectorizer(tf_method='binary', idf_method='smooth',
+                                 drop_stopwords=False,
+                                 drop_punct=True, lowercase=True, k1=0.02978859422550008, b=4.825535232935995e-05,
+                                 delta=1.2258845996051257,
                                  show_progress=True)),
-         ('sgd', SGDClassifier(alpha=0.0011130974542755533,
-                               random_state=42,
-                               penalty='elasticnet',
-                               eta0=0.5818024200892028,
-                               learning_rate='optimal',
-                               class_weight=None))]
+         ('sgd', SGDClassifier(alpha=0.012998795143949122,
+                               loss="modified_huber", average=False, penalty="l2",
+                               random_state=42, fit_intercept=True))]
     )
 
 
@@ -58,6 +56,8 @@ def build(save=True):
         model_dir = Path(dirname(__file__)) / 'model'
 
         model_dir.mkdir(parents=True, exist_ok=True)
+
+        pipeline.steps[0][1].Doc = None
 
         dump(pipeline, (model_dir / 'tweet_profanity_classification.joblib').absolute(), compress=('gzip', 9))
 

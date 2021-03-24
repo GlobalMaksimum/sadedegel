@@ -19,11 +19,11 @@ class KMeansSummarizer(ExtractiveSummarizer):
         self.random_state = random_state
 
     def _predict(self, sentences: List[Sentences]):
-        with tokenizer_context('bert', warning=True):
+        with tokenizer_context('bert', warning=True) as Doc:
             if len(sentences) == 0:
                 raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-            doc = sentences[0].document
+            doc = Doc(sentences[0].document.raw)
 
             effective_n_clusters = min(self.n_clusters, len(doc))
 
@@ -44,11 +44,11 @@ class AutoKMeansSummarizer(ExtractiveSummarizer):
         self.random_state = random_state
 
     def _predict(self, sentences: List[Sentences]):
-        with tokenizer_context('bert', warning=True):
+        with tokenizer_context('bert', warning=True) as Doc:
             if len(sentences) == 0:
                 raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-            doc = sentences[0].document
+            doc = Doc(sentences[0].document.raw)
 
             effective_n_clusters = min(max(ceil(len(doc) * self.n_cluster_to_length), self.min_n_cluster), len(doc))
 
@@ -73,11 +73,11 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
         self.random_state = random_state
 
     def _predict(self, sentences: List[Sentences]):
-        with tokenizer_context('bert', warning=True):
+        with tokenizer_context('bert', warning=True) as Doc:
             if len(sentences) == 0:
                 raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
-            doc = sentences[0].document
+            doc = Doc(sentences[0].document.raw)
 
             effective_n_clusters = min(self.n_clusters, len(doc))
             effective_n_components = min(self.n_components, len(doc))
