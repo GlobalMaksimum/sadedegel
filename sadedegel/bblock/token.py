@@ -1,12 +1,13 @@
 import unicodedata
-
-from .vocabulary import Vocabulary
 from math import log
-import numpy as np
-from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
 
-IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
-IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
+import numpy as np
+
+from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
+from .vocabulary import Vocabulary
+
+IDF_SMOOTH, IDF_PROBABILISTIC, IDF_UNARY = "smooth", "probabilistic", "unary"
+IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC, IDF_UNARY]
 
 
 class IDFImpl:
@@ -38,11 +39,15 @@ class IDFImpl:
             if lowercase:
                 if method == IDF_SMOOTH:
                     v[t.id] = t.smooth_idf
+                elif method == IDF_UNARY:
+                    v[t.id] = t.unary_idf
                 else:
                     v[t.id] = t.prob_idf
             else:
                 if method == IDF_SMOOTH:
                     v[t.id_cs] = t.smooth_idf_cs
+                elif method == IDF_UNARY:
+                    v[t.id] = t.unary_idf_cs
                 else:
                     v[t.id_cs] = t.prob_idf_cs
 
@@ -134,6 +139,8 @@ class Token:
         else:
             if Token.config['idf']['method'] == IDF_SMOOTH:
                 return self.smooth_idf
+            elif Token.config['idf']['method'] == IDF_UNARY:
+                return self.unary_idf
             else:
                 return self.prob_idf
 
@@ -150,6 +157,20 @@ class Token:
             raise VocabularyIsNotSet("First run set_vocabulary")
         else:
             return log(self.vocabulary.document_count / (1 + self.df_cs)) + 1
+
+    @property
+    def unary_idf(self):
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return int(self.df > 0)
+
+    @property
+    def unary_idf_cs(self):
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return int(self.df_cs > 0)
 
     @property
     def prob_idf(self) -> float:
