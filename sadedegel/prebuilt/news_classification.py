@@ -8,12 +8,14 @@ from sklearn.metrics import accuracy_score
 
 from rich.console import Console
 
-from joblib import dump, load as jl_load
+from joblib import dump
 
 import numpy as np
 
 from ..dataset.tscorpus import load_classification_raw, CATEGORIES, CORPUS_SIZE
 from ..extension.sklearn import TfidfVectorizer, OnlinePipeline, Text2Doc
+
+from .util import load_model
 
 console = Console()
 
@@ -74,7 +76,7 @@ def build(max_rows=-1, batch_size=10000):
 
 
 def load(model_name="news_classification"):
-    return jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+    return load_model(model_name)
 
 
 if __name__ == '__main__':

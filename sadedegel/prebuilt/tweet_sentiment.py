@@ -12,6 +12,9 @@ from sklearn.utils import shuffle
 
 from ..dataset.tweet_sentiment import load_tweet_sentiment_train, CORPUS_SIZE, CLASS_VALUES
 from ..extension.sklearn import TfidfVectorizer, Text2Doc
+
+from .util import load_model
+
 from sklearn.pipeline import Pipeline
 
 from itertools import islice
@@ -24,7 +27,7 @@ def empty_model():
         [('text2doc', Text2Doc("icu")),
          ('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth', drop_punct=False, drop_stopwords=False,
                                    lowercase=True, show_progress=True)),
-         ('svc', SVC(C=0.3392899481481453, kernel="linear", random_state=42))
+         ('svc', SVC(C=0.3392899481481453, kernel="linear", probability=True, random_state=42))
          ]
     )
 
@@ -112,7 +115,7 @@ def build(max_instances=-1, save=True):
 
 
 def load(model_name="tweet_sentiment"):
-    return jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+    return load_model(model_name)
 
 
 if __name__ == '__main__':
