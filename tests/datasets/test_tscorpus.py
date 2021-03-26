@@ -2,6 +2,7 @@ from pathlib import Path  # pylint: disable=unused-import
 from os.path import expanduser  # pylint: disable=unused-import
 
 import pytest
+import pkgutil
 
 import numpy as np
 from .context import check_and_display, load_tokenization_raw, load_tokenization_tokenized, CORPUS_SIZE, \
@@ -37,8 +38,9 @@ def test_evaluator():
     assert table['simple'][1] > 0.83
     assert table['simple'][2] > 0.83
 
-    assert table['bert'][1] > 0.86
-    assert table['bert'][2] > 0.86
+    if pkgutil.find_loader("transformers") is not None:
+        assert table['bert'][1] > 0.86
+        assert table['bert'][2] > 0.86
 
     assert table['icu'][1] > 0.95
     assert table['icu'][2] > 0.95
