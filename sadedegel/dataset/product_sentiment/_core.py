@@ -3,7 +3,7 @@ import gzip
 from pathlib import Path
 from rich.console import Console
 
-CLASS_VALUES = ['NEUTRAL', 'NEGATIVE', 'POSITIVE']
+CLASS_VALUES = ['NEGATIVE', 'NEUTRAL', 'POSITIVE']
 CORPUS_SIZE = 11426
 
 console = Console()
