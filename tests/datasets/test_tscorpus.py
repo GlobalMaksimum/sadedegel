@@ -8,21 +8,21 @@ from .context import check_and_display, load_tokenization_raw, load_tokenization
     tok_eval
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/tscorpus")).exists()')
 def test_raw():
     raw = load_tokenization_raw()
 
     assert sum(1 for _ in raw) == CORPUS_SIZE
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/tscorpus")).exists()')
 def test_tokenized():
     tokenized = load_tokenization_tokenized()
 
     assert sum(1 for _ in tokenized) == CORPUS_SIZE
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/tscorpus")).exists()')
 def test_metadata():
     stats = check_and_display("~/.sadedegel_data")
 
@@ -30,7 +30,7 @@ def test_metadata():
     assert stats['byte']['raw'] * 1e6 >= 1 * 1024 * 1024
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/tscorpus")).exists()')
 def test_evaluator():
     table = dict((tokenizer, tok_eval(tokenizer, limit=1000)) for tokenizer in ["simple", "bert", "icu"])
 

@@ -1,4 +1,4 @@
-name: Python package
+name: Sadedegel Core on 3.7
 
 on:
   push:

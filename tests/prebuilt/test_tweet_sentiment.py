@@ -1,10 +1,13 @@
 import pytest
-from .context import tweet_sentiment
+from .context import tweet_sentiment, SENTIMENT_VALUES
 
 
-@pytest.mark.skip()
 def test_model_load():
     model = tweet_sentiment.load()
-    pred = model.predict(['süper bir haber bu'])
+    pred = model.predict(['harika bir haber bu'])
 
-    assert pred[0] == 0
+    assert SENTIMENT_VALUES[pred[0]] == 'POSITIVE'
+
+    probability = model.predict_proba(['harika bir haber bu'])
+
+    assert probability.shape == (1, 2)
