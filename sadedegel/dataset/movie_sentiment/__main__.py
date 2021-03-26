@@ -71,7 +71,7 @@ def validate():
             console.log("Cardinality check [yellow]DONE[/yellow]")
         else:
             console.log("Cardinality check [red]FAILED[/red]")
-            console.log(f"|Profanity (train)| : {n_train}")
+            console.log(f"|Movie Sentiment (train)| : {n_train}")
             sys.exit(1)
 
     with console.status("[bold yellow]Validate test"):
