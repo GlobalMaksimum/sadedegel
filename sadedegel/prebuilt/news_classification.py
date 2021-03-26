@@ -74,7 +74,11 @@ def build(max_rows=-1, batch_size=10000):
 
 
 def load(model_name="news_classification"):
-    return jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+    pipeline = jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+
+    pipeline.steps[0][1].init()
+
+    return pipeline
 
 
 if __name__ == '__main__':

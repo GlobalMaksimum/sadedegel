@@ -112,7 +112,11 @@ def build(max_instances=-1, save=True):
 
 
 def load(model_name="tweet_sentiment"):
-    return jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+    pipeline = jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
+
+    pipeline.steps[0][1].init()
+
+    return pipeline
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ from os.path import expanduser  # pylint: disable=unused-import
 from .context import load_extended_metadata, load_extended_raw_corpus, load_extended_sents_corpus
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/extended")).exists()')
 def test_metadata():
     md = load_extended_metadata()
 
@@ -13,7 +13,7 @@ def test_metadata():
     assert md['count']['raw'] == 36131
 
 
-@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
+@pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/extended")).exists()')
 def test_raw():
     raw = load_extended_raw_corpus()
 

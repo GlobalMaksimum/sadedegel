@@ -36,8 +36,11 @@ class Text2Doc(BaseEstimator, TransformerMixin):
         self.tokenizer = tokenizer
         # TODO: Add sadedegel version
 
+        self.init()
+
+    def init(self):
         if Text2Doc.Doc is None:
-            Text2Doc.Doc = DocBuilder(tokenizer=tokenizer)
+            Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer)
 
     def fit(self, X, y=None):
         return self

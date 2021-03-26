@@ -65,7 +65,11 @@ def build(save=True):
 
 
 def load():
-    return jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification.joblib')
+    pipeline = jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification.joblib')
+
+    pipeline.steps[0][1].init()
+
+    return pipeline
 
 
 def evaluate(model=None):
