@@ -1,7 +1,7 @@
 from os.path import dirname
 from pathlib import Path
 
-from joblib import dump, load as jl_load
+from joblib import dump
 from rich.console import Console
 
 from sklearn.linear_model import SGDClassifier
@@ -13,6 +13,8 @@ from ..extension.sklearn import BM25Vectorizer, Text2Doc
 from ..dataset.profanity import load_offenseval_train, load_offenseval_test, \
     load_offenseval_test_label, CORPUS_SIZE
 from ..extension.sklearn import OnlinePipeline
+
+from .util import load_model
 
 console = Console()
 
@@ -64,12 +66,8 @@ def build(save=True):
         console.log("Model save [green]DONE[/green]")
 
 
-def load():
-    pipeline = jl_load(Path(dirname(__file__)) / 'model' / 'tweet_profanity_classification.joblib')
-
-    pipeline.steps[0][1].init()
-
-    return pipeline
+def load(model_name="tweet_profanity_classification"):
+    return load_model(model_name)
 
 
 def evaluate(model=None):

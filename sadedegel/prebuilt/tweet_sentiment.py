@@ -12,6 +12,9 @@ from sklearn.utils import shuffle
 
 from ..dataset.tweet_sentiment import load_tweet_sentiment_train, CORPUS_SIZE, CLASS_VALUES
 from ..extension.sklearn import TfidfVectorizer, Text2Doc
+
+from .util import load_model
+
 from sklearn.pipeline import Pipeline
 
 from itertools import islice
@@ -112,11 +115,7 @@ def build(max_instances=-1, save=True):
 
 
 def load(model_name="tweet_sentiment"):
-    pipeline = jl_load(Path(dirname(__file__)) / 'model' / f"{model_name}.joblib")
-
-    pipeline.steps[0][1].init()
-
-    return pipeline
+    return load_model(model_name)
 
 
 if __name__ == '__main__':
