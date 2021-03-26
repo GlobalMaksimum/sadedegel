@@ -24,7 +24,7 @@ def empty_model():
         [('text2doc', Text2Doc("icu")),
          ('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth', drop_punct=False, drop_stopwords=False,
                                    lowercase=True, show_progress=True)),
-         ('svc', SVC(C=0.3392899481481453, kernel="linear", random_state=42))
+         ('svc', SVC(C=0.3392899481481453, kernel="linear", probability=True, random_state=42))
          ]
     )
 
