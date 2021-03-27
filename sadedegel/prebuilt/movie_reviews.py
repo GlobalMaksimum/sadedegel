@@ -25,7 +25,8 @@ def empty_model():
          ]
     )
 
-def build(max_rows=-1):
+
+def build(max_rows=-1, save=True):
     try:
         import pandas as pd
     except ImportError:
@@ -48,19 +49,21 @@ def build(max_rows=-1):
 
     console.log("Model build [green]DONE[/green]")
 
-    model_dir = Path(dirname(__file__)) / 'model'
+    if save:
+        model_dir = Path(dirname(__file__)) / 'model'
 
-    model_dir.mkdir(parents=True, exist_ok=True)
+        model_dir.mkdir(parents=True, exist_ok=True)
 
-    pipeline.steps[0][1].Doc = None
+        pipeline.steps[0][1].Doc = None
 
-    dump(pipeline, (model_dir / 'movie_sentiment.joblib').absolute(), compress=('gzip', 9))
+        dump(pipeline, (model_dir / 'movie_sentiment.joblib').absolute(), compress=('gzip', 9))
 
 
 def load(model_name="movie_sentiment"):
-    return load_model((model_name))
+    return load_model(model_name)
 
     return pipeline
+
 
 def evaluate():
     try:
@@ -80,4 +83,4 @@ def evaluate():
 
 
 if __name__ == '__main__':
-    build(-1)
+    build()

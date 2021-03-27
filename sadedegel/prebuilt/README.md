@@ -91,7 +91,7 @@ from sadedegel.prebuilt import movie_reviews
 model = movie_reviews.load()
 
 # Here we feed our text to get predictions:
-y_pred = model.predict([<Your text goes here>])
+y_pred = model.predict(['süper aksiyon, tavsiye ederim'])
 
 # You can check original test results on holdout set:
 movie_reviews.evaluate()
