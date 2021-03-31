@@ -19,4 +19,3 @@ from sadedegel.config import config_context # noqa # pylint: disable=unused-impo
 from sadedegel.bblock.word_tokenizer_helper import ICUTokenizerHelper # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.prebuilt import tweet_sentiment # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock.vocabulary import Vocabulary # noqa # pylint: disable=unused-import, wrong-import-position
-from sadedegel.prebuilt import product_sentiment
