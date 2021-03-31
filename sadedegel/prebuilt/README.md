@@ -78,3 +78,18 @@ y_pred = model.predict([])
 Current prebuilt model has 
 * 3-fold cross validation F1 macro score of `mean 0.7254, std 0.0034)`.
 * 5-fold cross validation F1 macro score of `mean 0.7271, std 0.0094)` 
+
+### Turkish Product Sentiment Classification
+Classifier assigns each Turkish product review texts into one of 3 classes ('NEUTRAL','NEGATIVE','POSITIVE') by using sadedegel built-in pipeline.
+#### Loading and Predicting with the Model:
+```python
+from sadedegel.prebuilt import product_sentiment
+# We load our prebuilt model:
+model = product_sentiment.load()
+# Here we enter our text to get sentiment predictions.
+y_pred = model.predict([])
+```
+#### Accuracy
+Current prebuilt model has 
+* 3-fold cross validation F1 macro score of `mean 0.6214, std 0.0084)`.
+* 5-fold cross validation F1 macro score of `mean 0.6331, std 0.01)` 

@@ -5,13 +5,13 @@ from pathlib import Path
 import numpy as np
 from joblib import dump, load as jl_load
 from rich.console import Console
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 
 from ..dataset.product_sentiment import load_product_sentiment_train, CORPUS_SIZE, CLASS_VALUES
-from ..extension.sklearn import TfidfVectorizer, OnlinePipeline
+from ..extension.sklearn import TfidfVectorizer, OnlinePipeline, Text2Doc
 
 from itertools import islice
 
@@ -20,11 +20,12 @@ console = Console()
 
 def empty_model():
     return OnlinePipeline(
-        [('tfidf', TfidfVectorizer(tf_method='binary', idf_method='smooth', show_progress=True)),
-         ('pa', PassiveAggressiveClassifier(C=5.20364763857138e-05, average=False))
+        [('text2doc', Text2Doc(tokenizer = 'icu')),
+         ('tfidf', TfidfVectorizer(tf_method='binary', idf_method='smooth', show_progress=True)),
+         ('pa', SGDClassifier(alpha= 0.051599170662053995, penalty= 'l2', eta0=0.8978760982905452,
+                              learning_rate= 'optimal'))
          ]
     )
-
 
 def cv(k=3, max_instances=-1):
     try:
@@ -86,6 +87,8 @@ def build(max_instances=-1, save=True):
         model_dir = Path(dirname(__file__)) / 'model'
 
         model_dir.mkdir(parents=True, exist_ok=True)
+
+        pipeline.steps[0][1].Doc = None
 
         dump(pipeline, (model_dir / 'product_sentiment.joblib').absolute(), compress=('gzip', 9))
 
