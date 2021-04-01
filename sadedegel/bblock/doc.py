@@ -360,12 +360,9 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
     def input_ids(self):
         return self.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
-    @property
+    @cached_property
     def tokens(self):
-        if self._tokens is None:
-            self._tokens = self.tokenizer(self.text)
-
-        return self._tokens
+        return self.tokenizer(self.text)
 
     @property
     def tokens_with_special_symbols(self):
