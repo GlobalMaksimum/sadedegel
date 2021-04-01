@@ -3,8 +3,8 @@ import gzip
 from pathlib import Path
 from rich.console import Console
 
-CLASS_VALUES = ['POSITIVE', 'NEGATIVE']
-CORPUS_SIZE = 65000 #TODO tweet included?
+CLASS_VALUES = ['POSITIVE', 'NEGATIVE', 'NEUTRAL']
+CORPUS_SIZE = 68000 #TODO tweet included?
 
 console = Console()
 
