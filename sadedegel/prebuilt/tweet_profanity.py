@@ -20,7 +20,7 @@ def empty_model():
     return Pipeline(
         [('text2doc', Text2Doc("icu")),
          ('hash', HashVectorizer(n_features=413833, alternate_sign=False)),
-         ('svc', SVC(C=0.28610731097622305, kernel="linear", verbose=True, random_state=42))]
+         ('svc', SVC(C=0.28610731097622305, kernel="linear", verbose=True, random_state=42, probability=True))]
     )
 
 
