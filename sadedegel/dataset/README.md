@@ -211,6 +211,12 @@ tweeter sentiment classifier.
 
 For more details please refer [tweet sentiment](../prebuilt/README.md)
 
+## `product_sentiment`
+[Product Sentiment Dataset](https://www.kaggle.com/burhanbilenn/duygu-analizi-icin-urun-yorumlari) is a corpus used to build prebuilt 
+product review sentiment classifier.
+
+For more details please refer [product sentiment](../prebuilt/README.md)
+
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 [Taner Sezer]: https://github.com/tanerim
 [tscorpus]: tscorpus/
