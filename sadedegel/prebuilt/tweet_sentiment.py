@@ -5,13 +5,13 @@ from pathlib import Path
 import numpy as np
 from joblib import dump, load as jl_load
 from rich.console import Console
-from sklearn.svm import SVC
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 
 from ..dataset.tweet_sentiment import load_tweet_sentiment_train, CORPUS_SIZE, CLASS_VALUES
-from ..extension.sklearn import TfidfVectorizer, Text2Doc
+from ..extension.sklearn import Text2Doc, HashVectorizer
 
 from .util import load_model
 
@@ -25,9 +25,8 @@ console = Console()
 def empty_model():
     return Pipeline(
         [('text2doc', Text2Doc("icu")),
-         ('tfidf', TfidfVectorizer(tf_method='freq', idf_method='smooth', drop_punct=False, drop_stopwords=False,
-                                   lowercase=True, show_progress=True)),
-         ('svc', SVC(C=0.3392899481481453, kernel="linear", probability=True, random_state=42))
+         ('hash', HashVectorizer(n_features=932380, alternate_sign=True)),
+         ('sgd', SGDClassifier(alpha=0.00041138474018800035, penalty="l2", loss="log", random_state=42))
          ]
     )
 
