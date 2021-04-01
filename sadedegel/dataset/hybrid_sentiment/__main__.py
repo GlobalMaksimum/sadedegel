@@ -74,7 +74,7 @@ def validate():
             console.log("Label check [yellow]DONE[/yellow]")
         else:
             console.log("Class check [red]FAILED[/red]")
-            console.log(f"\tHybrid sentiment classes : {categories} ({set(['POSITIVE', 'NEGATIVE'])} expected)")
+            console.log(f"\tHybrid sentiment classes : {categories} ({set(['POSITIVE', 'NEGATIVE', 'NEUTRAL'])} expected)")
             sys.exit(1)
 
 
