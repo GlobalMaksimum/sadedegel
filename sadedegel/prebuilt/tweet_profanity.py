@@ -3,33 +3,24 @@ from pathlib import Path
 
 from joblib import dump
 from rich.console import Console
-
-from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import f1_score
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
 from sklearn.utils import shuffle
 
-from ..extension.sklearn import BM25Vectorizer, Text2Doc
-
+from .util import load_model
 from ..dataset.profanity import load_offenseval_train, load_offenseval_test, \
     load_offenseval_test_label, CORPUS_SIZE
-from ..extension.sklearn import OnlinePipeline
-
-from .util import load_model
+from ..extension.sklearn import HashVectorizer, Text2Doc
 
 console = Console()
 
 
 def empty_model():
-    return OnlinePipeline(
+    return Pipeline(
         [('text2doc', Text2Doc("icu")),
-         ('bm25', BM25Vectorizer(tf_method='binary', idf_method='smooth',
-                                 drop_stopwords=False,
-                                 drop_punct=True, lowercase=True, k1=0.02978859422550008, b=4.825535232935995e-05,
-                                 delta=1.2258845996051257,
-                                 show_progress=True)),
-         ('sgd', SGDClassifier(alpha=0.012998795143949122,
-                               loss="modified_huber", average=False, penalty="l2",
-                               random_state=42, fit_intercept=True))]
+         ('hash', HashVectorizer(n_features=413833, alternate_sign=False)),
+         ('svc', SVC(C=0.28610731097622305, kernel="linear", verbose=True, random_state=42, probability=True))]
     )
 
 
