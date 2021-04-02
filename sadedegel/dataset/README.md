@@ -211,6 +211,49 @@ tweeter sentiment classifier.
 
 For more details please refer [tweet sentiment](../prebuilt/README.md)
 
+## `telco_sentiment`
+Telecom Sentiment dataset is an open sourced tweet sentiment corpus that includes tweets referring to a certain telecom company. It is a social media commentary dataset used to evaluate sentiments over a certain brand. Dataset [source](http://www.kemik.yildiz.edu.tr/veri_kumelerimiz.html) and [paper](https://ieeexplore.ieee.org/document/8554037) are provided. 
+
+### Using Corpus
+```python
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_train
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_test
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_target
+
+import pandas as pd
+
+train_raw = load_telco_sentiment_train()
+test_raw = load_telco_sentiment_test()
+target_raw = load_telco_sentiment_target()
+
+train_df = pd.DataFrame().from_records(train_raw)
+test_df = pd.DataFrame().from_records(test_raw)
+target_df = pd.DataFrame().from_records(target_raw)
+```
+
+## `movie_sentiment`
+
+Movie sentiment is a corpus of **entertainment** domain. It contains 42975 instances of movie reviews with `POSITIVE` and `NEGATIVE` sentiments as a class label. Dataset [source](https://www.kaggle.com/mustfkeskin/turkish-movie-sentiment-analysis-dataset)
+
+### Using Corpus
+```python
+from sadedegel.dataset.movie_sentiment import load_movie_sentiment_train
+from sadedegel.dataset.movie_sentiment import load_movie_sentiment_test
+from sadedegel.dataset.movie_sentiment import load_movie_sentiment_target
+
+import pandas as pd
+
+train_raw = load_movie_sentiment_train()
+test_raw = load_movie_sentiment_test()
+target_raw = load_movie_sentiment_target()
+
+train_df = pd.DataFrame().from_records(train_raw)
+test_df = pd.DataFrame().from_records(test_raw)
+target_df = pd.DataFrame().from_records(target_raw)
+```
+
+
+
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 [Taner Sezer]: https://github.com/tanerim
 [tscorpus]: tscorpus/
