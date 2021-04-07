@@ -10,4 +10,4 @@ from sadedegel.dataset.profanity import CLASS_VALUES # noqa # pylint: disable=un
 from sadedegel.prebuilt import tweet_sentiment , movie_reviews, customer_reviews_classification # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset.tweet_sentiment import CLASS_VALUES as SENTIMENT_VALUES  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset.movie_sentiment import CLASS_VALUES as SENTIMENT_VALUES_M  # noqa # pylint: disable=unused-import, wrong-import-position
-
+from sadedegel.dataset.customer_review_classification import CLASS_VALUES as CLASS_VALUES_CUST # noqa # pylint: disable=unused-import, wrong-import-position

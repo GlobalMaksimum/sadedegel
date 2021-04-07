@@ -6,7 +6,6 @@ from sklearn.utils import shuffle
 from sklearn.metrics import f1_score, roc_auc_score
 from sklearn.pipeline import Pipeline
 
-
 from rich.console import Console
 
 from joblib import dump
@@ -14,7 +13,8 @@ from joblib import dump
 from ..extension.sklearn import TfidfVectorizer, Text2Doc
 from .util import load_model
 
-# gonna add dataset paths
+from ..dataset.customer_review_classification import load_customer_review_train, \
+    load_customer_review_test, load_customer_review_target, CORPUS_SIZE
 
 console = Console()
 
@@ -33,12 +33,16 @@ def build(max_rows=-1, save=True):
     except ImportError:
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
-    # gonna add updated paths
-    df = pd.read_csv(Path(dirname(__file__)) /  'customer_reviews_train.csv')
+
+    raw = load_customer_review_train()
+    df = pd.DataFrame.from_records(raw)
+
     df = shuffle(df, random_state=42)
 
     if max_rows > 0:
         df = df.sample(max_rows, random_state=42)
+
+    console.log(f"Corpus Size: {CORPUS_SIZE}")
 
     pipeline = empty_model()
 
@@ -66,16 +70,18 @@ def evaluate(model=None, scoring='f1'):
     except ImportError:
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
-    model  = load()
+    model = load()
 
-    # gonna add updated paths
-    test = pd.read_csv(Path(dirname(__file__)) /  'customer_reviews_test.csv')
+    raw_test = load_customer_review_test()
+    test = pd.DataFrame.from_records(raw_test)
+    true_labels = pd.DataFrame.from_records(load_customer_review_target())
+
     if scoring=='f1':
         y_pred = model.predict(test.text)
-        console.log(f"Model test accuracy (f1-macro): {f1_score(test.review_class, y_pred, average='macro')}")
+        console.log(f"Model test accuracy (f1-macro): {f1_score(true_labels.review_class, y_pred, average='macro')}")
     if scoring=='auc':
         y_pred = model.predict_proba(test.text)
-        console.log(f"Model test roc_auc score: {roc_auc_score(test.review_class, y_pred, multi_class='ovr')}")
+        console.log(f"Model test roc_auc score: {roc_auc_score(true_labels.review_class, y_pred, multi_class='ovr')}")
 
 
 if __name__ == "__main__":
