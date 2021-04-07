@@ -1,4 +1,3 @@
-from math import ceil
 from pathlib import Path
 from os.path import dirname
 
@@ -12,10 +11,10 @@ from rich.console import Console
 
 from joblib import dump
 
-import numpy as np
-
 from ..extension.sklearn import TfidfVectorizer, Text2Doc
 from .util import load_model
+
+# gonna add dataset paths
 
 console = Console()
 
@@ -34,7 +33,7 @@ def build(max_rows=-1, save=True):
     except ImportError:
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
-
+    # gonna add updated paths
     df = pd.read_csv(Path(dirname(__file__)) /  'customer_reviews_train.csv')
     df = shuffle(df, random_state=42)
 
@@ -69,6 +68,7 @@ def evaluate(model=None, scoring='f1'):
                      " But we do have a dependency on building our prebuilt models"))
     model  = load()
 
+    # gonna add updated paths
     test = pd.read_csv(Path(dirname(__file__)) /  'customer_reviews_test.csv')
     if scoring=='f1':
         y_pred = model.predict(test.text)
