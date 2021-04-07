@@ -113,5 +113,5 @@ Classifier assigns each Turkish product review texts into one of 3 classes ('NEU
 ```
 #### Accuracy
 Current prebuilt model has 
-* 3-fold cross validation F1 macro score of `mean 0.6214, std 0.0084)`.
-* 5-fold cross validation F1 macro score of `mean 0.6331, std 0.01)` 
+* 3-fold cross validation F1 macro score of `mean 0.6494, std 0.0045)`.
+* 5-fold cross validation F1 macro score of `mean 0.655, std 0.0083)` 
