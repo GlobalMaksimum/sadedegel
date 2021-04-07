@@ -100,3 +100,27 @@ movie_reviews.evaluate()
 #### Accuracy
 
 * Current prebuilt movie review model has a **macro-F1** score of `0.825` on holdout test set model never seen before.
+
+### Turkish Customer Reviews Classification
+
+Classifier assigns each Turkish customer review text into 32 classes by using sadedegel built-in pipeline.
+
+#### Loading and Predicting with the Model:
+
+```python
+from sadedegel.prebuilt import customer_reviews_classification
+# We load our prebuilt model:
+model = customer_reviews_classification.load()
+
+# Here we feed our text to get predictions:
+y_pred = model.predict(['odalar çok kirliydi'])
+
+# You can also get probabilities with:
+y_probs = model.predict_proba(['odalar çok kirliydi'])
+
+# You can check original test results on holdout set:
+customer_reviews_classification.evaluate()
+```
+
+#### Accuracy
+Current prebuilt customer review classification model has a macro-F1 score of 0.851 on holdout test set model never seen before.
