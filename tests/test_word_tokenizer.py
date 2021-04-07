@@ -77,7 +77,7 @@ def test_word_counting(toker):
                 assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(17.9340236)
             elif toker == 'simple':
                 assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
-                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.4676138)
+                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.467854)
             else:
                 assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
-                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.5215507)
+                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.5213098)

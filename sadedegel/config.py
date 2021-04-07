@@ -71,6 +71,9 @@ def show_config(config, section=None):
                     "default__drop_stopwords": ("Whether to drop stopwords in various calculations. "
                                                 "Such as, tfidf, bm25, etc."),
                     "default__lowercase": "Whether to use lowercased form rather than form itself.",
+                    "tokenizer__hashtag": "enable/disable hashtag (#sadedegel) handler in word tokenizer",
+                    "tokenizer__mention": "enable/disable mention (@sadedegel) handler in word tokenizer",
+                    "tokenizer__emoji": "enable/disable emoji (🍰) handler in word tokenizer",
                     "default__drop_punct": ("Whether to drop punctuations in various calculations. "
                                             "Such as, tfidf, bm25, etc."),
                     "tf__method": "Method used in term frequency calculation",
@@ -78,6 +81,8 @@ def show_config(config, section=None):
                     "idf__method": "Method used in Inverse Document Frequency calculation",
                     "bert__avg_document_length": "Average number of tokens in a bert tokenized document.",
                     "bert__avg_sentence_length": "Average number of tokens in a bert tokenized sentences.",
+                    "icu__avg_document_length": "Average number of tokens in a icu tokenized document.",
+                    "icu__avg_sentence_length": "Average number of tokens in a icu tokenized sentences.",
                     "bert__drop_suffix": ("Whether to drop BERT generated suffixes in various calculations. "
                                           "Such as, tfidf, bm25, etc."),
                     "simple__avg_document_length": "Average token count in a simple tokenizer tokenized document.",
@@ -98,7 +103,7 @@ def show_config(config, section=None):
     table.add_column("parameter_name")
     table.add_column("current_value")
     table.add_column("default_value")
-    table.add_column("description", width=40)
+    table.add_column("description", width=50)
 
     for sec in config.sections():
         if sec == section or section is None:

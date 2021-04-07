@@ -107,6 +107,9 @@ class Token:
         token.is_digit = token.word.isdigit()
         token.is_suffix = token.word.startswith('##')
         token.shape = word_shape(token.word)
+        token.is_emoji = False
+        token.is_hashtag = False
+        token.is_mention = False
 
         return token
 
@@ -116,6 +119,14 @@ class Token:
             cls.cache[word] = cls._create_token(word)
 
         return cls.cache[word]
+
+    def __eq__(self, other):
+        if type(other) == str:
+            return self.word == other
+        elif type(other) == Token:
+            return self.word == other.word
+        else:
+            raise TypeError(f"Unknown comparison type with Token {type(other)}")
 
     @classmethod
     def set_vocabulary(cls, vocab: Vocabulary):

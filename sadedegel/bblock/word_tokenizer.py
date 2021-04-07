@@ -1,15 +1,36 @@
 import sys
+import re
+import sys
 import warnings
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from enum import Enum
 from typing import List
 
 from cached_property import cached_property
 from rich.console import Console
 
+from sadedegel.bblock.word_tokenizer_helper import ICUTokenizerHelper
 from .util import normalize_tokenizer_name
 from .vocabulary import Vocabulary
-from .word_tokenizer_helper import word_tokenize, ICUTokenizerHelper
+from .token import Token
+from .word_tokenizer_helper import word_tokenize
 from ..about import __version__
+
+
+class TokenType(Enum):
+    TEXT = "text"
+    MENTION = "mention"
+    EMOJI = "emoji"
+    HASHTAG = "hashtag"
+
+
+@dataclass
+class TokenSpan:
+    type: TokenType
+    start: int
+    end: int
+
 
 console = Console()
 
@@ -17,8 +38,32 @@ console = Console()
 class WordTokenizer(ABC):
     __instances = {}
 
-    def __init__(self):
+    def __init__(self, mention=False, hashtag=False, emoji=False):
+        """
+
+        @param mention: Handle mention in tweet texts.
+        @param hashtag: Handle hashtag in tweet texts.
+        @param emoji: Handle emoji unicode texts in texts.
+        """
         self._vocabulary = None
+        self.mention = mention
+        self.hashtag = hashtag
+        self.emoji = emoji
+
+        self.regexes = []
+
+        if self.hashtag:
+            self.regexes.append(re.compile(r"(?P<hashtag>#\S+)"))
+
+        if self.mention:
+            self.regexes.append(re.compile(r"(?P<mention>@\S+)"))
+
+        if self.emoji:
+            self.regexes.append(re.compile(r"(?P<emoji>[\U00010000-\U0010ffff])",
+                                           flags=re.UNICODE))
+
+        if len(self.regexes) > 0:
+            self.exception_rules = re.compile('|'.join(x.pattern for x in self.regexes), flags=re.UNICODE)
 
     @abstractmethod
     def _tokenize(self, text: str) -> List[str]:
@@ -28,23 +73,72 @@ class WordTokenizer(ABC):
     def convert_tokens_to_ids(self, tokens: List[str]) -> List[int]:
         pass
 
-    def __call__(self, sentence: str) -> List[str]:
-        return self._tokenize(str(sentence))
+    def __call__(self, sentence: str) -> List[Token]:
+        text = str(sentence)
+
+        if len(self.regexes) == 0:
+            return [Token(t) for t in self._tokenize(text)]
+        else:
+            EOS = len(text)
+
+            spans = []
+            for m in self.exception_rules.finditer(text):
+                start, end = m.start(), m.end()
+
+                if len(spans) == 0:
+                    if start != 0:
+                        spans.append(TokenSpan(TokenType.TEXT, 0, start))
+                else:
+                    if start > spans[-1].end:
+                        spans.append(TokenSpan(TokenType.TEXT, spans[-1].end, start))
+
+                if m.lastgroup == "hashtag":
+                    spans.append(TokenSpan(TokenType.HASHTAG, start, end))
+                elif m.lastgroup == "mention":
+                    spans.append(TokenSpan(TokenType.MENTION, start, end))
+                else:
+                    spans.append(TokenSpan(TokenType.EMOJI, start, end))
+
+            if len(spans) == 0:
+                if EOS != 0:
+                    spans.append(TokenSpan(TokenType.TEXT, 0, EOS))
+            else:
+                if EOS > spans[-1].end:
+                    spans.append(TokenSpan(TokenType.TEXT, spans[-1].end, EOS))
+
+            tokens = []
+            for s in spans:
+                if s.type == TokenType.TEXT:
+                    tokens += [Token(t) for t in self._tokenize(text[s.start:s.end])]
+                elif s.type == TokenType.EMOJI:
+                    t = Token(text[s.start:s.end])
+                    t.is_emoji = True
+                    tokens.append(t)
+                elif s.type == TokenType.HASHTAG:
+                    t = Token(text[s.start:s.end])
+                    t.is_hashtag = True
+                    tokens.append(t)
+                else:
+                    t = Token(text[s.start:s.end])
+                    t.is_mention = True
+                    tokens.append(t)
+
+            return tokens
 
     @staticmethod
-    def factory(tokenizer_name: str):
+    def factory(tokenizer_name: str, mention=False, hashtag=False, emoji=False):
         normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
-                WordTokenizer.__instances[normalized_name] = BertTokenizer()
+                WordTokenizer.__instances[normalized_name] = BertTokenizer(mention, hashtag, emoji)
             elif normalized_name == "simple":
                 warnings.warn(
                     ("Note that SimpleTokenizer is pretty new in sadedeGel. "
                      "If you experience any problems, open up a issue "
                      "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
-                WordTokenizer.__instances[normalized_name] = SimpleTokenizer()
+                WordTokenizer.__instances[normalized_name] = SimpleTokenizer(mention, hashtag, emoji)
             elif normalized_name == "icu":
-                WordTokenizer.__instances[normalized_name] = ICUTokenizer()
+                WordTokenizer.__instances[normalized_name] = ICUTokenizer(mention, hashtag, emoji)
             else:
                 raise Exception(
                     (f"No word tokenizer type match with name {tokenizer_name}."
@@ -59,8 +153,8 @@ class BertTokenizer(WordTokenizer):
     def convert_tokens_to_ids(self, tokens: List[str]) -> List[int]:
         return self.tokenizer.convert_tokens_to_ids(tokens)
 
-    def __init__(self):
-        super(BertTokenizer, self).__init__()
+    def __init__(self, mention=False, hashtag=False, emoji=False):
+        super(BertTokenizer, self).__init__(mention, hashtag, emoji)
 
         self.tokenizer = None
 
@@ -91,8 +185,8 @@ class BertTokenizer(WordTokenizer):
 class SimpleTokenizer(WordTokenizer):
     __name__ = "SimpleTokenizer"
 
-    def __init__(self):
-        super(SimpleTokenizer, self).__init__()
+    def __init__(self, mention=False, hashtag=False, emoji=False):
+        super(SimpleTokenizer, self).__init__(mention, hashtag, emoji)
         self.tokenizer = word_tokenize
 
     def _tokenize(self, text: str) -> List[str]:
@@ -114,8 +208,8 @@ class SimpleTokenizer(WordTokenizer):
 class ICUTokenizer(WordTokenizer):
     __name__ = "ICUTokenizer"
 
-    def __init__(self):
-        super(ICUTokenizer, self).__init__()
+    def __init__(self, mention=False, hashtag=False, emoji=False):
+        super(ICUTokenizer, self).__init__(mention, hashtag, emoji)
         self.tokenizer = ICUTokenizerHelper()
 
     def _tokenize(self, text: str) -> List[str]:
@@ -132,17 +226,3 @@ class ICUTokenizer(WordTokenizer):
             console.print("[red]icu[/red] vocabulary file not found.")
 
             return None
-
-
-def get_default_word_tokenizer() -> WordTokenizer:
-    if tuple(map(int, __version__.split('.'))) < (0, 17):
-        warnings.warn(
-            ("get_default_word_tokenizer is deprecated and will be removed by 0.17. "
-             "Use `sadedegel config` to get default configuration. "
-             "Use ~/.sadedegel/user.ini to update default tokenizer."),
-            DeprecationWarning,
-            stacklevel=2)
-    else:
-        raise Exception("Remove get_default_word_tokenizer before release.")
-
-    return WordTokenizer.factory(BertTokenizer.__name__)
