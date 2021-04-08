@@ -51,18 +51,17 @@ sents = load_annotated_corpus()
 
 * [extended](extended/) **raw** is simply a larger collection of news documents collected by [scraper]
 * [extended](extended/) **sents** is generated using [extended](extended/) **raw** and ML based sentence boundary detector trained over [sents](sents/) corpus
- 
 
 
-### Download Dataset 
+### Download Dataset
 
-You can download extended dataset using 
+You can download extended dataset using
 
 ```bash
 python -m sadedegel.dataset.extended download
 ```
 
-Sub command requires two flags to access GCS buckets 
+Sub command requires two flags to access GCS buckets
 * `access-key`
 * `secret-key`
 
@@ -74,7 +73,7 @@ Those can be passed in 3 ways:
 
 ### Check Metadata
 
-You can assert your extended dataset using 
+You can assert your extended dataset using
 
 ```bash
 python -m sadedegel.dataset.extended metadata 
@@ -148,7 +147,7 @@ Corpora consist of two corpus
 * sports
 * travel
 
-[tscorpus] allows us to 
+[tscorpus] allows us to
 1. Verify/Calibrate word tokenizers (bert, simple, etc.) available in sadedegel
 2. Ship a prebuilt news classifier.
 
@@ -175,16 +174,17 @@ data = load_classification_raw()
 
 Refer  [news classification](../prebuilt/README.md) for details
 
-
 ## `profanity`
-Corpus used in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) to implement profanity classifier over Turkish tweeter dataset.
+
+Corpus used in [SemEval-2020 Task 12](https://arxiv.org/pdf/2006.07235.pdf) to implement profanity classifier over
+Turkish tweeter dataset.
 
 Training dataset contains 31277 documents, whereas test dataset consists of 3515 documents.
 
 ### Using Corpus
 
 ```python
-from sadedegel.dataset.profanity import load_offenseval_train ,load_offenseval_test_label,load_offenseval_test
+from sadedegel.dataset.profanity import load_offenseval_train, load_offenseval_test_label, load_offenseval_test
 
 tr = load_offenseval_train()
 tst = load_offenseval_test()
@@ -192,21 +192,22 @@ tst_label = load_offenseval_test_label()
 
 next(tr)
 
-#{'id': 20948,
+# {'id': 20948,
 # 'tweet': "@USER en güzel uyuyan insan ödülü jeon jungkook'a gidiyor...",
 # 'profanity_class': 0}
 
 next(tst)
-#{'id': 41993, 'tweet': '@USER Sayın başkanım bu şekilde devam inşallah👏'}
+# {'id': 41993, 'tweet': '@USER Sayın başkanım bu şekilde devam inşallah👏'}
 
 next(tst_label)
-#{'id': 41993, 'profanity_class': 0}
+# {'id': 41993, 'profanity_class': 0}
 ```
 
 For more details please refer [tweet profanity](../prebuilt/README.md)
 
 ## `tweet_sentiment`
-[Twitter Dataset](https://www.kaggle.com/mrtbeyz/trke-sosyal-medya-paylam-veri-seti) is another corpus used to build prebuilt 
+
+[Twitter Dataset](https://www.kaggle.com/mrtbeyz/trke-sosyal-medya-paylam-veri-seti) is another corpus used to build prebuilt
 tweeter sentiment classifier.
 
 For more details please refer [tweet sentiment](../prebuilt/README.md)
@@ -249,8 +250,53 @@ from sadedegel.dataset.customer_review import CLASS_VALUES
 CLASS_VALUES[1]
 
 # Out[2]: 'alisveris'
+
+## `telco_sentiment`
+
+Telecom Sentiment dataset is an open sourced tweet sentiment corpus that includes tweets referring to a certain telecom
+company. It is a social media commentary dataset used to evaluate sentiments over a certain brand.
+Dataset [source](http://www.kemik.yildiz.edu.tr/veri_kumelerimiz.html)
+and [paper](https://ieeexplore.ieee.org/document/8554037) are provided.
+
+### Using Corpus
+
+```python
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_train
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_test
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_target
+
+import pandas as pd
+
+train_raw = load_telco_sentiment_train()
+test_raw = load_telco_sentiment_test()
+target_raw = load_telco_sentiment_target()
+
+train_df = pd.DataFrame().from_records(train_raw)
+test_df = pd.DataFrame().from_records(test_raw)
+target_df = pd.DataFrame().from_records(target_raw)
+```
+
+## `movie_sentiment`
+
+[Movie sentiment dataset](https://www.kaggle.com/mustfkeskin/turkish-movie-sentiment-analysis-dataset) is a corpus of **
+entertainment** domain.
+
+It contains 42975 instances of movie reviews with `POSITIVE` and `NEGATIVE` sentiments as a class label.
+
+### Using Corpus
+
+```python
+from sadedegel.dataset.movie_sentiment import load_movie_sentiment_train
+from sadedegel.dataset.movie_sentiment import load_movie_sentiment_test
+from sadedegel.dataset.movie_sentiment import load_movie_sentiment_test_label
+
+train = load_movie_sentiment_train()
+test = load_movie_sentiment_test()
+test_label = load_movie_sentiment_test_label()
 ```
 
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
+
 [Taner Sezer]: https://github.com/tanerim
+
 [tscorpus]: tscorpus/
