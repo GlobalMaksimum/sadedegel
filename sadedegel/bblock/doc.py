@@ -361,8 +361,8 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return self.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
     @cached_property
-    def tokens(self):
-        return self.tokenizer(self.text)
+    def tokens(self) -> List[str]:
+        return [t.word for t in self.tokenizer(self.text)]
 
     @property
     def tokens_with_special_symbols(self):
@@ -463,15 +463,14 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         """Average number of tokens per document"""
         return self.config['default'].getfloat('avg_document_length')
 
-    @property
-    def tokens(self):
-        if self._tokens is None:
-            self._tokens = []
-            for s in self:
-                for t in s.tokens:
-                    self._tokens.append(t)
+    @cached_property
+    def tokens(self) -> List[str]:
+        tokens = []
+        for s in self:
+            for t in s.tokens:
+                tokens.append(t)
 
-        return self._tokens
+        return tokens
 
     @property
     def vocabulary(self):
@@ -606,7 +605,7 @@ class DocBuilder:
 
         tokenizer_str = normalize_tokenizer_name(self.config['default']['tokenizer'])
 
-        self.tokenizer = WordTokenizer.factory(tokenizer_str)
+        self.tokenizer = WordTokenizer.factory(tokenizer_str, **self.config['tokenizer'])
 
         Token.set_vocabulary(self.tokenizer.vocabulary)
 
