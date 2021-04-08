@@ -4,7 +4,7 @@ from pathlib import Path
 from joblib import dump
 from rich.console import Console
 from sklearn.metrics import f1_score
-from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.utils import shuffle
 
