@@ -65,7 +65,7 @@ def load_movie_sentiment_test(data_home="~/.sadedegel_data"):
             yield dict(id=rec['text_uuid'], text=rec['comment'])
 
 
-def load_movie_sentiment_target(data_home="~/.sadedegel_data"):
+def load_movie_sentiment_test_label(data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Movie Sentiment Corpus validation error")
 
