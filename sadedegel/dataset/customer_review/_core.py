@@ -3,38 +3,13 @@ from pathlib import Path
 from rich.console import Console
 import gzip
 
-CLASS_VALUES = {0: 'alisveris',
- 1: 'anne-bebek',
- 2: 'beyaz-esya',
- 3: 'bilgisayar',
- 4: 'cep-telefon-kategori',
- 5: 'egitim',
- 6: 'elektronik',
- 7: 'emlak-ve-insaat',
- 8: 'enerji',
- 9: 'etkinlik-ve-organizasyon',
- 10: 'finans',
- 11: 'gida',
- 12: 'giyim',
- 13: 'hizmet-sektoru',
- 14: 'icecek',
- 15: 'internet',
- 16: 'kamu-hizmetleri',
- 17: 'kargo-nakliyat',
- 18: 'kisisel-bakim-ve-kozmetik',
- 19: 'kucuk-ev-aletleri',
- 20: 'medya',
- 21: 'mekan-ve-eglence',
- 22: 'mobilya-ev-tekstili',
- 23: 'mucevher-saat-gozluk',
- 24: 'mutfak-arac-gerec',
- 25: 'otomotiv',
- 26: 'saglik',
- 27: 'sigortacilik',
- 28: 'spor',
- 29: 'temizlik',
- 30: 'turizm',
- 31: 'ulasim'}
+CLASS_VALUES = ['Alışveriş', 'Anne-Bebek', 'Beyaz-Eşya', 'Bilgisayar', 'Cep Telefon Kategori', 'Eğitim', 'Elektronik',
+                'Emlak ve İnşaat', 'Enerji', 'Etkinlik ve Organizasyon', 'Finans',
+                'Gıda', 'Giyim', 'Hizmet Sektörü', 'İçecek', 'İnternet', 'Kamu Hizmetleri', 'Kargo Nakliyat',
+                'Kişisel Bakım ve Kozmetik', 'Küçük Ev Aletleri', 'Medya', 'Mekan ve Eğlence', 'Mobilya Ev Tekstili',
+                'Mücevher Saat Gözlük', 'Mutfak Araç Gereç', 'Otomotiv', 'Sağlık',
+                'Sigortacılık', 'Spor', 'Temizlik',
+                'Turizm', 'Ulaşım']
 
 CORPUS_SIZE = 323479
 
@@ -69,7 +44,7 @@ def check_directory_structure(path: str) -> bool:
     return False
 
 
-def load_customer_review_train(data_home="~/.sadedegel_data"):
+def load_train(data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Customer Review Classification Corpus validation error")
 
@@ -83,7 +58,7 @@ def load_customer_review_train(data_home="~/.sadedegel_data"):
             yield dict(id=rec['text_uuid'], text=rec['text'], review_class=int(rec['review_class']))
 
 
-def load_customer_review_test(data_home="~/.sadedegel_data"):
+def load_test(data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Customer Review Classification Corpus validation error")
 
@@ -97,7 +72,7 @@ def load_customer_review_test(data_home="~/.sadedegel_data"):
             yield dict(id=rec['text_uuid'], text=rec['text'])
 
 
-def load_customer_review_target(data_home="~/.sadedegel_data"):
+def load_test_label(data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Customer Review Classification Corpus validation error")
 

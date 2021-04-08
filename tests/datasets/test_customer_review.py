@@ -2,10 +2,10 @@ import pytest
 from pathlib import Path  # pylint: disable=unused-import
 from os.path import expanduser  # pylint: disable=unused-import
 
-from sadedegel.dataset.customer_review_classification import load_customer_review_train
-from sadedegel.dataset.customer_review_classification import load_customer_review_test
-from sadedegel.dataset.customer_review_classification import load_customer_review_target
-from sadedegel.dataset.customer_review_classification import CLASS_VALUES
+from sadedegel.dataset.customer_review import load_train
+from sadedegel.dataset.customer_review import load_test
+from sadedegel.dataset.customer_review import load_test_label
+from sadedegel.dataset.customer_review import CLASS_VALUES
 
 
 __class_names__ = ['alisveris',
@@ -44,7 +44,7 @@ __class_names__ = ['alisveris',
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/customer_review_classification")).exists()')
 def test_data_load_train():
-    data = load_customer_review_train()
+    data = load_train()
     for i, row in enumerate(data):
         assert any(key in row.keys() for key in ['id', 'text', 'review_class'])
         assert isinstance(row['id'], str)
@@ -55,7 +55,7 @@ def test_data_load_train():
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/customer_review_classification")).exists()')
 def test_data_load_test():
-    data = load_customer_review_test()
+    data = load_test()
     for i, row in enumerate(data):
         assert any(key in row.keys() for key in ['id', 'tweet'])
         assert isinstance(row['id'], str)
@@ -65,7 +65,7 @@ def test_data_load_test():
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/customer_review_classification")).exists()')
 def test_data_load_target():
-    data = load_customer_review_target()
+    data = load_test_label()
     for i, row in enumerate(data):
         assert any(key in row.keys() for key in ['id', 'sentiment_class'])
         assert isinstance(row['id'], str)

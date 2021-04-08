@@ -211,40 +211,44 @@ tweeter sentiment classifier.
 
 For more details please refer [tweet sentiment](../prebuilt/README.md)
 
-## `customer_review_classification`
+## `customer_review`
 
-Customer review classification corpus consists of 323479 training and 107827 test instances which contain customer reviews in the `text` field and shopping category that the review refers to in the `review_class` field. There are 32 unique class labels for this corpus which are mapped to their respectice IDs on `CLASS_VALUES` dict. 
+Customer review classification corpus consists of 323479 training and 107827 test instances which contains customer reviews in 
+the `text` field and shopping category that the review refers to in the `review_class` field. 
+
+There are 32 unique class labels for this corpus which are mapped to their respective IDs on `CLASS_VALUES` dict. 
 
 ### Using Corpus
 **Usage**
-```python
-from sadedegel.dataset.customer_review_classification import load_customer_review_train
-from sadedegel.dataset.customer_review_classification import load_customer_review_test
-from sadedegel.dataset.customer_review_classification import load_customer_review_target
 
-next(load_customer_review_train())
+```python
+from sadedegel.dataset.customer_review import load_train
+from sadedegel.dataset.customer_review import load_test
+from sadedegel.dataset.customer_review import load_test_label
+
+next(load_train())
 
 # Out[6]: 
 # {'id': 'cb60a760-cfeb-44e8-abb1-4cbcd6814c64',
 #  'text': 'Hipp 1 Mama Bebeğime Zarar Verdi,"Hipp 1devam sütü bebeğimde inanılmaz derecede gaz ve kusmaya neden oldu! Kızımda yıllar önce yine Hipp in devam sütü, pirinç maması, ek gıdaları gofret ve bisküvileri, yine aynı şekilde erik meyve püreleri her şeyini kullanıyordum. Hiçbir şekilde böyle bir sorunla karşılaşmamıştım. Ancak bu sefer al...Devamını oku"',
 #  'review_class': 1}
 
-next(load_customer_review_test())
+next(load_test())
 
 # {'id': '97fdc0de-98e1-4577-9d7f-86cb71a49bbe',
 #  'text': 'Samsung Garanti Garanti Değil!,BDH ile anlaşılmış garanti şirketi olarak ama hiçbir şekilde ne onlar kabul ediyor hatalarını ne de Samsung üstleniyor. Ben bıktım servise kendimi iletemediğimi sanıyordum içerisinde kağıt ile şikayetlerimi gönderdim ama maalesef okumayıp bir kez daha beni salak yerine koyup bu sefer eğik olan kasam...Devamını oku'}
 
-next(load_customer_review_target())
+next(load_test_label())
 
 # {'id': '97fdc0de-98e1-4577-9d7f-86cb71a49bbe', 'review_class': 4}
 ```
 
 ```python
-from sadedegel.dataset.customer_review_classification import CLASS_VALUES
+from sadedegel.dataset.customer_review import CLASS_VALUES
 
 CLASS_VALUES[1]
 
-Out[2]: 'alisveris'
+# Out[2]: 'alisveris'
 ```
 
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
