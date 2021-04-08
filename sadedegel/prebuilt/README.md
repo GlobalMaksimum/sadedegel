@@ -97,6 +97,24 @@ y_pred = model.predict(['süper aksiyon, tavsiye ederim'])
 movie_reviews.evaluate()
 ```
 
+### Telco Brand Tweet Sentiment Classification
+
+Classifier assigns each tweet mentioning the telecom brand into three classes ('olumlu', olumsuz', 'notr') by using sadedegel built-in pipeline.
+
+#### Loading and Predicting with the Model:
+
+```python
+from sadedegel.prebuilt import telco_sentiment
+# We load our prebuilt model:
+model = telco_sentiment.load()
+
+# Here we feed our text to get predictions:
+y_pred = model.predict(['Magma tabakasından bile çekiyor helal olsun valla.'])
+
+# You can check original test results on holdout set:
+telco_sentiment.evaluate()
+```
+
 #### Accuracy
 
-* Current prebuilt movie review model has a **macro-F1** score of `0.825` on holdout test set model never seen before.
+* Current prebuilt telco sentiment model has a **macro-F1** score of `0.6844` on holdout test set model never seen before. The open source [benchmark](https://ieeexplore.ieee.org/document/8554037/) best score on the hold-out set is `0.6925`. Please contact sadedegel team for better performing models. 
