@@ -5,8 +5,8 @@ def test_model_load():
     pred_hotel = model.predict(['odalar çok kirliydi'])
     pred_pc = model.predict(['ram çok düşük'])
 
-    assert CLASS_VALUES_CUST[pred_hotel[0]] == 'turizm'
-    assert CLASS_VALUES_CUST[pred_pc[0]] == 'bilgisayar'
+    assert CLASS_VALUES_CUST[pred_hotel[0]] == 'Turizm'
+    assert CLASS_VALUES_CUST[pred_pc[0]] == 'Bilgisayar'
 
     prob_hotel = model.predict_proba(['odalar çok kirliydi'])
 

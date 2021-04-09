@@ -13,8 +13,8 @@ from joblib import dump
 from ..extension.sklearn import TfidfVectorizer, Text2Doc
 from .util import load_model
 
-from ..dataset.customer_review_classification import load_customer_review_train, \
-    load_customer_review_test, load_customer_review_target, CORPUS_SIZE
+from ..dataset.customer_review import load_train, \
+    load_test, load_test_label, CORPUS_SIZE
 
 console = Console()
 
@@ -34,7 +34,7 @@ def build(max_rows=-1, save=True):
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
 
-    raw = load_customer_review_train()
+    raw = load_train()
     df = pd.DataFrame.from_records(raw)
 
     df = shuffle(df, random_state=42)
@@ -57,14 +57,14 @@ def build(max_rows=-1, save=True):
 
         dump(pipeline, (model_dir / 'customer_review_classification.joblib').absolute(), compress=('gzip', 9))
 
-    evaluate(pipeline)
+    evaluate(pipeline, max_rows=int(round(max_rows*0.20)))
 
     console.log('Model build [green]DONE[/green]')
 
 def load(model_name='customer_review_classification'):
     return load_model(model_name)
 
-def evaluate(model=None, scoring='f1'):
+def evaluate(model=None, scoring='f1', max_rows=-1):
     try:
         import pandas as pd
     except ImportError:
@@ -72,9 +72,13 @@ def evaluate(model=None, scoring='f1'):
                      " But we do have a dependency on building our prebuilt models"))
     model = load()
 
-    raw_test = load_customer_review_test()
+    raw_test = load_test()
     test = pd.DataFrame.from_records(raw_test)
-    true_labels = pd.DataFrame.from_records(load_customer_review_target())
+    true_labels = pd.DataFrame.from_records(load_test_label())
+
+    if max_rows > 0:
+        test = test[:max_rows]
+        true_labels = true_labels[:max_rows]
 
     if scoring=='f1':
         y_pred = model.predict(test.text)
