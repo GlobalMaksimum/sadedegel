@@ -161,14 +161,15 @@ def load_stopwords(base_path=None):
     return stopwords
 
 
-def deprecate(message: str, eol_version: tuple):
+def deprecate(message: str, eol_version: tuple, post_message: str = None):
     current = tuple([int(v) for v in __version__.split('.')])
 
     if current >= eol_version:
-        console.print(f"[red]{message}[/red]")
+        console.print(f"[red]{message}[/red]. {post_message}")
         sys.exit(1)
     else:
-        console.print(f"[magenta]{message}[/magenta], will be dropped by {'.'.join(map(str, eol_version))}")
+        console.print(
+            f"{message}, will be [magenta]dropped[/magenta] by {'.'.join(map(str, eol_version))}. {post_message}")
 
 
 class ConfigNotSet(Exception):
