@@ -10,7 +10,7 @@ from sklearn.utils import shuffle
 
 from .util import load_model
 from ..dataset.telco_sentiment import load_telco_sentiment_train, load_telco_sentiment_test, \
-    load_telco_sentiment_target, CORPUS_SIZE
+    load_telco_sentiment_test_label, CORPUS_SIZE
 from ..extension.sklearn import HashVectorizer, Text2Doc
 
 console = Console()
@@ -72,9 +72,9 @@ def evaluate(model=None):
         model = load()
 
     test = pd.DataFrame.from_records(load_telco_sentiment_test())
-    testLabel = pd.DataFrame.from_records(load_telco_sentiment_target())
+    test_label = pd.DataFrame.from_records(load_telco_sentiment_test_label())
 
-    test = test.merge(testLabel, on='id')
+    test = test.merge(test_label, on='id')
 
     y_pred = model.predict(test.tweet)
 
