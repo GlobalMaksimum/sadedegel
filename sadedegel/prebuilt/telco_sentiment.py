@@ -3,9 +3,9 @@ from pathlib import Path
 
 from joblib import dump
 from rich.console import Console
-from sklearn.metrics import f1_score
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
 from sklearn.utils import shuffle
 
 from .util import load_model
@@ -18,9 +18,9 @@ console = Console()
 
 def empty_model():
     return Pipeline(
-        [('text2doc', Text2Doc("icu")),
-         ('hash', HashVectorizer(n_features=496485, alternate_sign=True)),
-         ('svc', SVC(C=0.3184661147229449, kernel="linear", verbose=True, random_state=42, probability=True))]
+        [('text2doc', Text2Doc("icu", emoji=True, hashtag=True, mention=True)),
+         ('hash', HashVectorizer(n_features=299915, alternate_sign=True)),
+         ('sgd', SGDClassifier(alpha=2.0964900258121935e-07, penalty="l2", loss="log", random_state=42))]
     )
 
 
@@ -78,6 +78,7 @@ def evaluate(model=None):
 
     y_pred = model.predict(test.tweet)
 
+    console.log(f"Model test accuracy (accuracy): {accuracy_score(test.sentiment_class, y_pred)}")
     console.log(f"Model test accuracy (f1-macro): {f1_score(test.sentiment_class, y_pred, average='macro')}")
 
 

@@ -117,10 +117,10 @@ telco_sentiment.evaluate()
 
 #### Accuracy
 
-Current prebuilt open source telco sentiment model has a **macro-F1** score of `0.6844` on holdout test set model never seen before. 
+Current prebuilt open source telco sentiment model has a **accuracy** score of `0.6522` (**macro-F1** score of `0.64415`) on test set.
 
 Comparable [benchmark](https://ieeexplore.ieee.org/document/8554037/) models has  
-* `0.6925` **macro-F1** score (convolutional neural networks fed with char ngrams)
-* `0.66` **macro-F1** score (classical ML approach fed with bag-of-words)
+* `0.6925` **accuracy** score (convolutional neural networks fed with char ngrams)
+* `0.66` **accuracy** score (classical ML approach fed with bag-of-words)
 on the hold-out set.
 
