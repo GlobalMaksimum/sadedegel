@@ -132,21 +132,21 @@ class WordTokenizer(ABC):
         normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
-                WordTokenizer.__instances[normalized_name] = BertTokenizer(mention, hashtag, emoji)
+                return BertTokenizer(mention, hashtag, emoji)
             elif normalized_name == "simple":
                 warnings.warn(
                     ("Note that SimpleTokenizer is pretty new in sadedeGel. "
                      "If you experience any problems, open up a issue "
                      "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
-                WordTokenizer.__instances[normalized_name] = SimpleTokenizer(mention, hashtag, emoji)
+                return SimpleTokenizer(mention, hashtag, emoji)
             elif normalized_name == "icu":
-                WordTokenizer.__instances[normalized_name] = ICUTokenizer(mention, hashtag, emoji)
+                return ICUTokenizer(mention, hashtag, emoji)
             else:
                 raise Exception(
                     (f"No word tokenizer type match with name {tokenizer_name}."
                      " Use one of 'bert-tokenizer', 'SimpleTokenizer', etc."))
 
-        return WordTokenizer.__instances[normalized_name]
+        # return WordTokenizer.__instances[normalized_name]
 
 
 class BertTokenizer(WordTokenizer):
