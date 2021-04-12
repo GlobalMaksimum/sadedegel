@@ -332,7 +332,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
                 f"Unknown term frequency method {self.tf_method}. Choose on of {','.join(TF_METHOD_VALUES)}")
 
     @property
-    def avgdl(self) -> int:
+    def avgdl(self) -> float:
         """Average number of tokens per sentence"""
         return self.config['default'].getfloat('avg_sentence_length')
 
@@ -459,7 +459,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self.config = self.builder.config
 
     @property
-    def avgdl(self) -> int:
+    def avgdl(self) -> float:
         """Average number of tokens per document"""
         return self.config['default'].getfloat('avg_document_length')
 
@@ -605,7 +605,9 @@ class DocBuilder:
 
         tokenizer_str = normalize_tokenizer_name(self.config['default']['tokenizer'])
 
-        self.tokenizer = WordTokenizer.factory(tokenizer_str, **self.config['tokenizer'])
+        self.tokenizer = WordTokenizer.factory(tokenizer_str, emoji=self.config['tokenizer'].getboolean('emoji'),
+                                               hashtag=self.config['tokenizer'].getboolean('hashtag'),
+                                               mention=self.config['tokenizer'].getboolean('mention'))
 
         Token.set_vocabulary(self.tokenizer.vocabulary)
 
