@@ -48,7 +48,7 @@ def load_hotel_sentiment_train(data_home="~/.sadedegel_data"):
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(id=rec['text_uuid'], text=rec['text'], sentiment_class=CLASS_VALUES.index(rec['sentiment']))
+            yield dict(id=rec['text_uuid'], text=rec['text'], sentiment_class=rec['sentiment'])
 
 
 def load_hotel_sentiment_test(data_home="~/.sadedegel_data"):
@@ -70,10 +70,10 @@ def load_hotel_sentiment_test_label(data_home="~/.sadedegel_data"):
         raise Exception("Hotel Sentiment Corpus validation error")
 
     test_csv = Path(data_home).expanduser() / "hotel_sentiment"
-    test_csv = test_csv / "hotel_sentiment_test.csv.gz"
+    test_csv = test_csv / "hotel_sentiment_target.csv.gz"
 
     with gzip.open(test_csv, "rt") as csvfile:
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(id=rec['text_uuid'], sentiment_class=CLASS_VALUES.index(rec['sentiment']))
+            yield dict(id=rec['text_uuid'], sentiment_class=rec['sentiment'])
