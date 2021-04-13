@@ -117,7 +117,7 @@ telco_sentiment.evaluate()
 
 #### Accuracy
 
-Current prebuilt open source telco sentiment model has a **accuracy** score of `0.6522` (**macro-F1** score of `0.64415`) on test set.
+Current prebuilt open source telco sentiment model has a **accuracy** score of `0.6925` (**macro-F1** score of `0.6871`) on test set.
 
 Comparable [benchmark](https://ieeexplore.ieee.org/document/8554037/) models has  
 * `0.6925` **accuracy** score (convolutional neural networks fed with char ngrams)
