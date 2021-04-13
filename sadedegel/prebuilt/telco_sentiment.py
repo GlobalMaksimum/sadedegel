@@ -19,8 +19,8 @@ console = Console()
 def empty_model():
     return Pipeline(
         [('text2doc', Text2Doc("icu", emoji=True, hashtag=True, mention=True)),
-         ('hash', HashVectorizer(n_features=299915, alternate_sign=True)),
-         ('sgd', SGDClassifier(alpha=2.0964900258121935e-07, penalty="l2", loss="log", random_state=42))]
+         ('hash', HashVectorizer(n_features=1033297, alternate_sign=False)),
+         ('sgd', SGDClassifier(alpha=0.00036252996496306393, penalty="elasticnet", loss="log", random_state=42))]
     )
 
 
