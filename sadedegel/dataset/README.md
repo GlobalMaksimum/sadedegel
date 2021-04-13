@@ -295,6 +295,11 @@ test = load_movie_sentiment_test()
 test_label = load_movie_sentiment_test_label()
 ```
 
+## `hotel_sentiment`
+
+**TODO**
+DOCUMENT DATASET AND USAGE
+
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 
 [Taner Sezer]: https://github.com/tanerim
