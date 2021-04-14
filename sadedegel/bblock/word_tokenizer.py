@@ -67,7 +67,7 @@ class WordTokenizer(ABC):
         if len(self.regexes) > 0:
             self.exception_rules = re.compile('|'.join(x.pattern for x in self.regexes), flags=re.UNICODE)
 
-        console.log(f"{len(self.regexes)} exception rules.")
+        console.log(f"{len(self.regexes)} tokenizer exception rules.")
 
     @abstractmethod
     def _tokenize(self, text: str) -> List[str]:
