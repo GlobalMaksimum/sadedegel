@@ -315,9 +315,6 @@ test = load_hotel_sentiment_test()
 test_label = load_hotel_sentiment_test_label()
 ```
 
-**TODO**
-DOCUMENT DATASET AND USAGE
-
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 
 [Taner Sezer]: https://github.com/tanerim
