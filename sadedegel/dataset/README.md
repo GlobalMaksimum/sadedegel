@@ -250,7 +250,7 @@ from sadedegel.dataset.customer_review import CLASS_VALUES
 CLASS_VALUES[1]
 
 # Out[2]: 'alisveris'
-
+```
 ## `telco_sentiment`
 
 Telecom Sentiment dataset is an open sourced tweet sentiment corpus that includes tweets referring to a certain telecom
@@ -297,7 +297,7 @@ test_label = load_movie_sentiment_test_label()
 
 ## `categorized_product_sentiment`
 
-This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. The dataset is material to the research [papar](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
+This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. The dataset is material to the research [paper](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
 Each product category contains 1400 instances.
 
 ```python
