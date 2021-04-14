@@ -53,9 +53,11 @@ class WordTokenizer(ABC):
         self.regexes = []
 
         if self.hashtag:
+            console.print("Handling hashtags")
             self.regexes.append(re.compile(r"(?P<hashtag>#\S+)"))
 
         if self.mention:
+            console.print("Handling mentions")
             self.regexes.append(re.compile(r"(?P<mention>@\S+)"))
 
         if self.emoji:
@@ -129,6 +131,7 @@ class WordTokenizer(ABC):
 
     @staticmethod
     def factory(tokenizer_name: str, mention=False, hashtag=False, emoji=False):
+        console.log(f"mention={mention}, hashtag={hashtag}, emoji={emoji}")
         normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
@@ -152,8 +155,8 @@ class WordTokenizer(ABC):
 class BertTokenizer(WordTokenizer):
     __name__ = "BertTokenizer"
 
-    def convert_tokens_to_ids(self, tokens: List[str]) -> List[int]:
-        return self.tokenizer.convert_tokens_to_ids(tokens)
+    def convert_tokens_to_ids(self, tokens: List[Token]) -> List[int]:
+        return self.tokenizer.convert_tokens_to_ids([t.word for t in tokens])
 
     def __init__(self, mention=False, hashtag=False, emoji=False):
         super(BertTokenizer, self).__init__(mention, hashtag, emoji)

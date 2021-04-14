@@ -2,6 +2,7 @@ import unicodedata
 from math import log
 
 import numpy as np
+from cached_property import cached_property
 
 from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
 from .vocabulary import Vocabulary
@@ -25,13 +26,7 @@ class IDFImpl:
         else:
             v = np.zeros(self.vocabulary.size_cs)
 
-        if lowercase:
-            tokens = [tr_lower(t) for t in self.tokens]
-        else:
-            tokens = self.tokens
-
-        for token in tokens:
-            t = Token(token)
+        for t in self.tokens:
             if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
                     drop_punct and t.is_punct):
                 continue
@@ -106,7 +101,6 @@ class Token:
         token.is_punct = all(unicodedata.category(c).startswith("P") for c in token.word)
         token.is_digit = token.word.isdigit()
         token.is_suffix = token.word.startswith('##')
-        token.shape = word_shape(token.word)
         token.is_emoji = False
         token.is_hashtag = False
         token.is_mention = False
@@ -119,6 +113,9 @@ class Token:
             cls.cache[word] = cls._create_token(word)
 
         return cls.cache[word]
+
+    def __len__(self):
+        return len(self.word)
 
     def __eq__(self, other):
         if type(other) == str:
@@ -246,6 +243,10 @@ class Token:
             return self.vocabulary.vector(self.word)
         else:
             raise WordVectorNotFound(self.word)
+
+    @cached_property
+    def shape(self) -> str:
+        return word_shape(self.word)
 
     def __str__(self):
         return self.word

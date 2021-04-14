@@ -173,9 +173,9 @@ class TFImpl:
             v = np.zeros(self.vocabulary.size_cs)
 
         if lowercase:
-            tokens = [tr_lower(t) for t in self.tokens]
+            tokens = [t.lower_ for t in self.tokens]
         else:
-            tokens = self.tokens
+            tokens = [t.word for t in self.tokens]
 
         counter = Counter(tokens)
 
@@ -304,7 +304,6 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         self.id = id_
         self.text = text
 
-        self._tokens = None
         self.document = doc
         self.config = doc.builder.config
         self._bert = None
@@ -361,17 +360,17 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return self.tokenizer.convert_tokens_to_ids(self.tokens_with_special_symbols)
 
     @cached_property
-    def tokens(self) -> List[str]:
-        return [t.word for t in self.tokenizer(self.text)]
+    def tokens(self) -> List[Token]:
+        return [t for t in self.tokenizer(self.text)]
 
     @property
     def tokens_with_special_symbols(self):
-        return ['[CLS]'] + self.tokens + ['[SEP]']
+        return [Token('[CLS]')] + self.tokens + [Token('[SEP]')]
 
-    def rouge1(self, metric):
+    def rouge1(self, metric) -> float:
         return rouge1_score(
-            flatten([[tr_lower(token) for token in sent.tokens] for sent in self.document if sent.id != self.id]),
-            [tr_lower(t) for t in self.tokens], metric)
+            flatten([[t.lower_ for t in sent] for sent in self.document if sent.id != self.id]),
+            [t.lower_ for t in self], metric)
 
     @property
     def bm25(self) -> np.float32:
@@ -418,8 +417,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
     def idf(self):
         v = np.zeros(len(self.vocabulary))
 
-        for token in self.tokens:
-            t = self.vocabulary[token]
+        for t in self.tokens:
             if not t.is_oov:
                 v[t.id] = t.idf
 
@@ -438,11 +436,10 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return self.text == s  # no need for type checking, will return false for non-strings
 
     def __getitem__(self, token_ix):
-        return Token(self.tokens[token_ix])
+        return self.tokens[token_ix]
 
     def __iter__(self):
-        for t in self.tokens:
-            yield Token(t)
+        yield from self.tokens
 
 
 class Document(TFImpl, IDFImpl, BM25Impl):

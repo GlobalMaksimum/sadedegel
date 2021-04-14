@@ -20,7 +20,10 @@ __tr_lower_abbrv__ = ['hz.', 'dr.', 'prof.', 'doç.', 'org.', 'sn.', 'st.', 'mah
 
 
 def tr_lower(s: str) -> str:
-    return s.replace("I", "ı").replace("İ", "i").lower()
+    if "I" in s or "İ" in s:
+        return s.replace("I", "ı").replace("İ", "i").lower()
+    else:
+        return s.lower()
 
 
 def tr_upper(s: str) -> str:
