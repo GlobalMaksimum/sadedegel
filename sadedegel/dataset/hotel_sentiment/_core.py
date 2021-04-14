@@ -48,7 +48,7 @@ def load_hotel_sentiment_train(data_home="~/.sadedegel_data"):
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(id=rec['text_uuid'], text=rec['text'], sentiment_class=rec['sentiment'])
+            yield dict(id=rec['text_uuid'], text=rec['text'], sentiment_class=int(rec['sentiment']))
 
 
 def load_hotel_sentiment_test(data_home="~/.sadedegel_data"):
@@ -76,4 +76,4 @@ def load_hotel_sentiment_test_label(data_home="~/.sadedegel_data"):
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(id=rec['text_uuid'], sentiment_class=rec['sentiment'])
+            yield dict(id=rec['text_uuid'], sentiment_class=int(rec['sentiment']))
