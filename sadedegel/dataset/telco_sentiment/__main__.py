@@ -11,7 +11,7 @@ import boto3
 
 from loguru import logger
 
-from ._core import load_telco_sentiment_target, load_telco_sentiment_train, \
+from ._core import load_telco_sentiment_test_label, load_telco_sentiment_train, \
                    load_telco_sentiment_test, CORPUS_SIZE, CLASS_VALUES
 
 from zipfile import ZipFile
