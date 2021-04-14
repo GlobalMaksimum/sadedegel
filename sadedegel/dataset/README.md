@@ -250,7 +250,7 @@ from sadedegel.dataset.customer_review import CLASS_VALUES
 CLASS_VALUES[1]
 
 # Out[2]: 'alisveris'
-
+```
 ## `telco_sentiment`
 
 Telecom Sentiment dataset is an open sourced tweet sentiment corpus that includes tweets referring to a certain telecom
@@ -263,13 +263,13 @@ and [paper](https://ieeexplore.ieee.org/document/8554037) are provided.
 ```python
 from sadedegel.dataset.telco_sentiment import load_telco_sentiment_train
 from sadedegel.dataset.telco_sentiment import load_telco_sentiment_test
-from sadedegel.dataset.telco_sentiment import load_telco_sentiment_target
+from sadedegel.dataset.telco_sentiment import load_telco_sentiment_test_label
 
 import pandas as pd
 
 train_raw = load_telco_sentiment_train()
 test_raw = load_telco_sentiment_test()
-target_raw = load_telco_sentiment_target()
+target_raw = load_telco_sentiment_test_label()
 
 train_df = pd.DataFrame().from_records(train_raw)
 test_df = pd.DataFrame().from_records(test_raw)
@@ -314,6 +314,49 @@ train = load_hotel_sentiment_train()
 test = load_hotel_sentiment_test()
 test_label = load_hotel_sentiment_test_label()
 ```
+
+## `categorized_product_sentiment`
+
+This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. Each product category contains 1400 instances. The dataset is material to the research [paper](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
+
+Number of instances in each `product_category` grouped by `sentiment_class`:
+
+|             | `Kitchen` | `Books` | `DVD`    | `Electronics` |
+| :---        | :----:  | :---: |  :---: | :---:  |
+| **`POSITIVE`**    | 700     | 700   |  700   |  700   |
+| **`NEGATIVE`**    | 700     | 700   |  700   |  700   |
+
+```python
+import pandas as pd
+
+from sadedegel.dataset.categorized_product_sentiment import load_categorized_product_sentiment_train
+from sadedegel.dataset.categorized_product_sentiment import SENTIMENT_CLASS_VALUES, PRODUCT_CATEGORIES
+
+raw = load_categorized_product_sentiment_train()
+
+next(raw)
+
+# Out [0]: {'id': 'bac3a153-397e-4c90-aaec-c9dfa51a9784', 'text': 'ürünün tedarik edilme süreci biraz uzasa da beklediğime değdi, set cam ağırlıklı olmasına rağmen sağlam olarak elime ulaştı. almayı düşünenlere tavsiye ederim, set beklentilerinizi karşılıyor...', 'product_category': 0, 'sentiment_class': 0}
+
+
+df = pd.DataFrame().from_records(raw)
+
+# Load Subsets
+
+dvd = load_categorized_product_sentiment_train('DVD')
+kitchen = load_categorized_product_sentiment_train('Kitchen')
+books = load_categorized_product_sentiment_train('Books')
+electronics = load_categorized_product_sentiment_train('Electronics')
+
+# Mappings
+
+SENTIMENT_CLASS_VALUES[0]
+# Out [0]: 'POSITIVE'
+
+PRODUCT_CATEGORIES[0]
+# Out [0]: 'Kitchen'
+```
+
 
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 
