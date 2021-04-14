@@ -3,8 +3,10 @@ import gzip
 from pathlib import Path
 from rich.console import Console
 
+from typing import Union, List, Iterator
+
 SENTIMENT_CLASS_VALUES = ['POSITIVE', 'NEGATIVE']
-PRODUCT_CLASS_VALUES = ['Kitchen', 'DVD', 'Books', 'Electronics']
+PRODUCT_CATEGORIES = ['Kitchen', 'DVD', 'Books', 'Electronics']
 CORPUS_SIZE = 5600
 
 console = Console()
@@ -38,50 +40,40 @@ def check_directory_structure(path: str) -> bool:
     return False
 
 
-def load_categorized_product_sentiment_train(subset=None, data_home="~/.sadedegel_data"):
+def load_categorized_product_sentiment_train(data_home="~/.sadedegel_data",
+                                             categories: Union[None, List[str], str] = None) -> Iterator[dict]:
     """
 
-    :param subset: Subset of product category. default=None. Valid Values: ['Kitchen', 'DVD', 'Books', 'Electronics']
-    :param data_home:
-    :return: iter(dict)
+    @param data_home: Sadedegel data directory base. Default to be ~/.sadedegel_data
+    @param categories:
+        If None (default), load all the categories.
+        If not None, list of category names (or a single category) to load (other categories
+        ignored).
+    @return: Iterator of dictionary
     """
+
     if not check_directory_structure(data_home):
         raise Exception("Categorized Product Corpus validation error")
 
     train_csv = Path(data_home).expanduser() / "categorized_product_sentiment"
     train_csv = train_csv / "categorized_product_sentiment.csv.gz"
 
+    if categories is None:
+        filtered_categories = PRODUCT_CATEGORIES
+    elif isinstance(categories, str):
+        filtered_categories = [categories]
+    elif isinstance(categories, list):
+        filtered_categories = categories
+    else:
+        raise ValueError(f"categories of type {type(categories)} is invalid.")
+
     with gzip.open(train_csv, "rt") as csvfile:
         rd = csv.DictReader(csvfile)
 
-        if subset is None:
-            for rec in rd:
-                yield dict(id=rec['text_uuid'], text=rec['text'],
-                           product_category=PRODUCT_CLASS_VALUES.index(rec['category']),
-                           sentiment_class=SENTIMENT_CLASS_VALUES.index(rec['sentiment_class']))
-        elif subset == 'Kitchen':
-            for rec in rd:
-                if rec['category'] == subset:
-                    yield dict(id=rec['text_uuid'], text=rec['text'],
-                               product_category=PRODUCT_CLASS_VALUES.index(rec['category']),
-                               sentiment_class=SENTIMENT_CLASS_VALUES.index(rec['sentiment_class']))
-        elif subset == 'Books':
-            for rec in rd:
-                if rec['category'] == subset:
-                    yield dict(id=rec['text_uuid'], text=rec['text'],
-                               product_category=PRODUCT_CLASS_VALUES.index(rec['category']),
-                               sentiment_class=SENTIMENT_CLASS_VALUES.index(rec['sentiment_class']))
-        elif subset == 'DVD':
-            for rec in rd:
-                if rec['category'] == subset:
-                    yield dict(id=rec['text_uuid'], text=rec['text'],
-                               product_category=PRODUCT_CLASS_VALUES.index(rec['category']),
-                               sentiment_class=SENTIMENT_CLASS_VALUES.index(rec['sentiment_class']))
-        elif subset == 'Electronics':
-            for rec in rd:
-                if rec['category'] == subset:
-                    yield dict(id=rec['text_uuid'], text=rec['text'],
-                               product_category=PRODUCT_CLASS_VALUES.index(rec['category']),
-                               sentiment_class=SENTIMENT_CLASS_VALUES.index(rec['sentiment_class']))
-        else:
-            raise ValueError('Not a valid subset. Valid Values: ["Kitchen", "DVD", "Books", "Electronics"]')
+        for rec in rd:
+            d = dict(id=rec['text_uuid'], text=rec['text'],
+                     product_category=PRODUCT_CATEGORIES.index(rec['category']),
+                     sentiment_class=SENTIMENT_CLASS_VALUES.index(rec['sentiment_class']))
+
+            if rec['category'] in filtered_categories:
+                yield d

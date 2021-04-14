@@ -310,7 +310,7 @@ Number of instances in each `product_category` grouped by `sentiment_class`:
 import pandas as pd
 
 from sadedegel.dataset.categorized_product_sentiment import load_categorized_product_sentiment_train
-from sadedegel.dataset.categorized_product_sentiment import SENTIMENT_CLASS_VALUES, PRODUCT_CLASS_VALUES
+from sadedegel.dataset.categorized_product_sentiment import SENTIMENT_CLASS_VALUES, PRODUCT_CATEGORIES
 
 raw = load_categorized_product_sentiment_train()
 
@@ -333,7 +333,7 @@ electronics = load_categorized_product_sentiment_train('Electronics')
 SENTIMENT_CLASS_VALUES[0]
 # Out [0]: 'POSITIVE'
 
-PRODUCT_CLASS_VALUES[0]
+PRODUCT_CATEGORIES[0]
 # Out [0]: 'Kitchen'
 ```
 
