@@ -297,6 +297,24 @@ test_label = load_movie_sentiment_test_label()
 
 ## `hotel_sentiment`
 
+Hotel sentiment data is part of [HUMIR dataset](http://humirapps.cs.hacettepe.edu.tr/tsad.aspx), which is a combination
+of hotel and movie reviews. This implementation contains reviews of type 'Hotel Review'.
+
+It contains 11,600 instances with `POSITIVE` and `NEGATIVE` sentiments as a class label. The train and
+test split is based on the split present in HUMIR dataset.
+
+### Using Corpus
+
+```python
+from sadedegel.dataset.hotel_sentiment import load_hotel_sentiment_train
+from sadedegel.dataset.hotel_sentiment import load_hotel_sentiment_test
+from sadedegel.dataset.hotel_sentiment import load_hotel_sentiment_test_label
+
+train = load_hotel_sentiment_train()
+test = load_hotel_sentiment_test()
+test_label = load_hotel_sentiment_test_label()
+```
+
 **TODO**
 DOCUMENT DATASET AND USAGE
 
