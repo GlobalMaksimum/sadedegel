@@ -12,6 +12,7 @@ from sadedegel.dataset.product_sentiment import CLASS_VALUES as PS_CLASS_VALUES 
 from sadedegel.dataset.telco_sentiment import load_telco_sentiment_train, load_telco_sentiment_test, load_telco_sentiment_test_label # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset.telco_sentiment import CLASS_VALUES as TELCO_CLASS_VALUES # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset import movie_sentiment # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.dataset import hotel_sentiment # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.bblock.cli.__main__ import tok_eval # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset import util # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset import file_paths, CorpusTypeEnum # noqa # pylint: disable=unused-import, wrong-import-position
