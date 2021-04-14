@@ -4,7 +4,7 @@ from pathlib import Path
 from rich.console import Console
 
 CLASS_VALUES = ["NEGATIVE", "POSITIVE"]
-CORPUS_SIZE = 11600
+CORPUS_SIZE = 5800
 
 console = Console()
 
