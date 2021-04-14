@@ -295,6 +295,43 @@ test = load_movie_sentiment_test()
 test_label = load_movie_sentiment_test_label()
 ```
 
+## `categorized_product_sentiment`
+
+This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. The dataset is material to the research [papar](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
+Each product category contains 1400 instances.
+
+```python
+import pandas as pd
+
+from sadedegel.dataset.categorized_product_sentiment import load_categorized_product_sentiment_train
+from sadedegel.dataset.categorized_product_sentiment import SENTIMENT_CLASS_VALUES, PRODUCT_CLASS_VALUES
+
+raw = load_categorized_product_sentiment_train()
+
+next(raw)
+
+# Out [0]: {'id': 'bac3a153-397e-4c90-aaec-c9dfa51a9784', 'text': 'ürünün tedarik edilme süreci biraz uzasa da beklediğime değdi, set cam ağırlıklı olmasına rağmen sağlam olarak elime ulaştı. almayı düşünenlere tavsiye ederim, set beklentilerinizi karşılıyor...', 'product_category': 0, 'sentiment_class': 0}
+
+
+df = pd.DataFrame().from_records(raw)
+
+# Load Subsets
+
+dvd = load_categorized_product_sentiment_train('DVD')
+kitchen = load_categorized_product_sentiment_train('Kitchen')
+books = load_categorized_product_sentiment_train('Books')
+electronics = load_categorized_product_sentiment_train('Electronics')
+
+# Mappings
+
+SENTIMENT_CLASS_VALUES[0]
+# Out [0]: 'POSITIVE'
+
+PRODUCT_CLASS_VALUES[0]
+# Out [0]: 'Kitchen'
+```
+
+
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 
 [Taner Sezer]: https://github.com/tanerim
