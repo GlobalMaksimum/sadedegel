@@ -297,8 +297,14 @@ test_label = load_movie_sentiment_test_label()
 
 ## `categorized_product_sentiment`
 
-This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. The dataset is material to the research [paper](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
-Each product category contains 1400 instances.
+This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. Each product category contains 1400 instances. The dataset is material to the research [paper](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
+
+Number of instances in each `product_category` grouped by `sentiment_class`:
+
+|             | `Kitchen` | `Books` | `DVD`    | `Electronics` |
+| :---        | :----:  | :---: |  :---: | :---:  |
+| **`POSITIVE`**    | 700     | 700   |  700   |  700   |
+| **`NEGATIVE`**    | 700     | 700   |  700   |  700   |
 
 ```python
 import pandas as pd
