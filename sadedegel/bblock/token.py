@@ -2,6 +2,7 @@ import unicodedata
 from math import log
 
 import numpy as np
+from cached_property import cached_property
 
 from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
 from .vocabulary import Vocabulary
@@ -106,7 +107,6 @@ class Token:
         token.is_punct = all(unicodedata.category(c).startswith("P") for c in token.word)
         token.is_digit = token.word.isdigit()
         token.is_suffix = token.word.startswith('##')
-        token.shape = word_shape(token.word)
         token.is_emoji = False
         token.is_hashtag = False
         token.is_mention = False
@@ -246,6 +246,10 @@ class Token:
             return self.vocabulary.vector(self.word)
         else:
             raise WordVectorNotFound(self.word)
+
+    @cached_property
+    def shape(self) -> str:
+        return word_shape(self.word)
 
     def __str__(self):
         return self.word
