@@ -26,13 +26,7 @@ class IDFImpl:
         else:
             v = np.zeros(self.vocabulary.size_cs)
 
-        if lowercase:
-            tokens = [tr_lower(t) for t in self.tokens]
-        else:
-            tokens = self.tokens
-
-        for token in tokens:
-            t = Token(token)
+        for t in self.tokens:
             if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
                     drop_punct and t.is_punct):
                 continue
@@ -119,6 +113,9 @@ class Token:
             cls.cache[word] = cls._create_token(word)
 
         return cls.cache[word]
+
+    def __len__(self):
+        return len(self.word)
 
     def __eq__(self, other):
         if type(other) == str:
