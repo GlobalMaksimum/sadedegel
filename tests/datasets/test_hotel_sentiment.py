@@ -14,7 +14,7 @@ def test_data_load():
         assert isinstance(row['id'], str)
         assert isinstance(row['text'], str)
         assert hotel_sentiment.CLASS_VALUES[row['sentiment_class']] in ['POSITIVE', 'NEGATIVE']
-    assert i + 1 == hotel_sentiment.CORPUS_SIZE // 2
+    assert i + 1 == 5800
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
 def test_data_load_test():
@@ -23,7 +23,7 @@ def test_data_load_test():
         assert any(key in row.keys() for key in ['id', 'text'])
         assert isinstance(row['id'], str)
         assert isinstance(row['text'], str)
-    assert i +1 == hotel_sentiment.CORPUS_SIZE // 2
+    assert i +1 == 5800
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data")).exists()')
 def test_data_load_label():
@@ -32,4 +32,4 @@ def test_data_load_label():
         assert any(key in row.keys() for key in ['id', 'sentiment_class'])
         assert isinstance(row['id'], str)
         assert hotel_sentiment.CLASS_VALUES[row['sentiment_class']] in ['POSITIVE', 'NEGATIVE']
-    assert i +1 == hotel_sentiment.CORPUS_SIZE // 2
+    assert i +1 == 5800
