@@ -75,8 +75,8 @@ def validate():
             sys.exit(1)
 
     with console.status("[bold yellow]Validate test"):
-        test = set((d['text_uuid'] for d in load_telco_sentiment_test()))
-        test_label = set((d['text_uuid'] for d in load_telco_sentiment_target()))
+        test = set((d['id'] for d in load_telco_sentiment_test()))
+        test_label = set((d['id'] for d in load_telco_sentiment_test_label()))
 
         a_b, ab, b_a = test - test_label, test & test_label, test_label - test
 
