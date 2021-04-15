@@ -1,29 +1,25 @@
 import os.path
-from pathlib import Path
 import sys
 from itertools import tee
-
-from smart_open import open
-
-import click
+from pathlib import Path
+from zipfile import ZipFile
+import logging
 
 import boto3
-
+import click
 from loguru import logger
-
-from ._core import load_telco_sentiment_test_label, load_telco_sentiment_train, \
-                   load_telco_sentiment_test, CORPUS_SIZE, CLASS_VALUES
-
-from zipfile import ZipFile
-
 from rich.console import Console
+from smart_open import open
+
+from ._core import load_test_label, load_test, \
+    load_train, CORPUS_SIZE
 
 console = Console()
 
 logger.disable("sadedegel")
 
 
-@click.group(help="Telco Sentiment Dataset Commandline")
+@click.group(help="Customer Review Classification Dataset Commandline")
 def cli():
     pass
 
@@ -34,12 +30,17 @@ def cli():
 @click.option("--secret-key", help="Secret Key ID to download dataset.", prompt=True,
               default=lambda: os.environ.get('sadedegel_secret_key', ''))
 @click.option("--data_home", '-d', help="Data home directory", default="~/.sadedegel_data")
-def download(access_key, secret_key, data_home):
+@click.option("--verbose", "-v", is_flag=True, default=False, help="Cli verbosity")
+def download(access_key, secret_key, data_home, verbose):
     """Download tokenization corpus from cloud with your key."""
 
     data_home = Path(os.path.expanduser(data_home))
     data_home.mkdir(parents=True, exist_ok=True)
-    console.print(f"Data directory for telco sentiment data {data_home}")
+    console.print(f"Data directory for customer review classification data {data_home}")
+
+    if verbose:
+        boto3.set_stream_logger("boto3", logging.DEBUG)
+        boto3.set_stream_logger("botocore", logging.DEBUG)
 
     transport_params = {
         'session': boto3.Session(aws_access_key_id=access_key,
@@ -49,7 +50,7 @@ def download(access_key, secret_key, data_home):
         }
     }
 
-    url = f"s3://sadedegel/dataset/telco_sentiment.zip"
+    url = f"s3://sadedegel/dataset/customer_review_classification.zip"
 
     with open(url, 'rb', transport_params=transport_params) as fp:
         with ZipFile(fp) as zp:
@@ -61,7 +62,7 @@ def validate():
     """Sanity check on corpus
     """
     with console.status("[bold yellow]Validating train"):
-        train = load_telco_sentiment_train()
+        train = load_train()
 
         train_clone, train = tee(train, 2)
 
@@ -75,8 +76,8 @@ def validate():
             sys.exit(1)
 
     with console.status("[bold yellow]Validate test"):
-        test = set((d['id'] for d in load_telco_sentiment_test()))
-        test_label = set((d['id'] for d in load_telco_sentiment_test_label()))
+        test = set((d['id'] for d in load_test()))
+        test_label = set((d['id'] for d in load_test_label()))
 
         a_b, ab, b_a = test - test_label, test & test_label, test_label - test
 

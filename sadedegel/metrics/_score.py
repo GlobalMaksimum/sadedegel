@@ -43,7 +43,7 @@ def _get_f1(y_ref: list, y_cand: list) -> float:
     return f1
 
 
-def rouge1_score(y_ref: List, y_cand: List, metric: str = "f1"):
+def rouge1_score(y_ref: List, y_cand: List, metric: str = "f1") -> float:
     if metric.lower() not in _AVAILABLE_METRICS:
         raise ValueError(f"metrics ({metric}) should be one of {_AVAILABLE_METRICS}")
 

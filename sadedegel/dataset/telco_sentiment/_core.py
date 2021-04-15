@@ -65,7 +65,7 @@ def load_telco_sentiment_test(data_home="~/.sadedegel_data"):
             yield dict(id=rec['text_uuid'], tweet=rec['tweet'])
 
 
-def load_telco_sentiment_target(data_home="~/.sadedegel_data"):
+def load_telco_sentiment_test_label(data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Telco Sentiment Corpus validation error")
 

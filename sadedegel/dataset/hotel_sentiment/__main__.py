@@ -2,20 +2,13 @@ import os.path
 from pathlib import Path
 import sys
 from itertools import tee
-
 from smart_open import open
-
 import click
-
 import boto3
-
 from loguru import logger
-
-from ._core import load_telco_sentiment_test_label, load_telco_sentiment_train, \
-                   load_telco_sentiment_test, CORPUS_SIZE, CLASS_VALUES
-
+from ._core import load_hotel_sentiment_train, load_hotel_sentiment_test, load_hotel_sentiment_test_label, \
+    CLASS_VALUES, CORPUS_SIZE
 from zipfile import ZipFile
-
 from rich.console import Console
 
 console = Console()
@@ -23,7 +16,7 @@ console = Console()
 logger.disable("sadedegel")
 
 
-@click.group(help="Telco Sentiment Dataset Commandline")
+@click.group(help="Hotel Sentiment Dataset Commandline")
 def cli():
     pass
 
@@ -39,7 +32,7 @@ def download(access_key, secret_key, data_home):
 
     data_home = Path(os.path.expanduser(data_home))
     data_home.mkdir(parents=True, exist_ok=True)
-    console.print(f"Data directory for telco sentiment data {data_home}")
+    console.print(f"Data directory for  data {data_home}")
 
     transport_params = {
         'session': boto3.Session(aws_access_key_id=access_key,
@@ -49,7 +42,7 @@ def download(access_key, secret_key, data_home):
         }
     }
 
-    url = f"s3://sadedegel/dataset/telco_sentiment.zip"
+    url = f"s3://sadedegel/dataset/hotel_sentiment.zip"
 
     with open(url, 'rb', transport_params=transport_params) as fp:
         with ZipFile(fp) as zp:
@@ -61,7 +54,7 @@ def validate():
     """Sanity check on corpus
     """
     with console.status("[bold yellow]Validating train"):
-        train = load_telco_sentiment_train()
+        train = load_hotel_sentiment_train()
 
         train_clone, train = tee(train, 2)
 
@@ -71,12 +64,12 @@ def validate():
             console.log("Cardinality check [yellow]DONE[/yellow]")
         else:
             console.log("Cardinality check [red]FAILED[/red]")
-            console.log(f"|Telco Sentiment (train)| : {n_train}")
+            console.log(f"|Hotel Sentiment (train)| : {n_train}")
             sys.exit(1)
 
     with console.status("[bold yellow]Validate test"):
-        test = set((d['id'] for d in load_telco_sentiment_test()))
-        test_label = set((d['id'] for d in load_telco_sentiment_test_label()))
+        test = set((d['id'] for d in load_hotel_sentiment_test()))
+        test_label = set((d['id'] for d in load_hotel_sentiment_test_label()))
 
         a_b, ab, b_a = test - test_label, test & test_label, test_label - test
 

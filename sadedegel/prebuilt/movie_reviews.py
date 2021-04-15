@@ -11,7 +11,7 @@ from sklearn.pipeline import Pipeline
 from ..extension.sklearn import TfidfVectorizer, Text2Doc
 from .util import load_model
 from ..dataset.movie_sentiment import load_movie_sentiment_train, load_movie_sentiment_test, \
-    load_movie_sentiment_target, CORPUS_SIZE
+    load_movie_sentiment_test_label, CORPUS_SIZE
 
 console = Console()
 
@@ -75,7 +75,7 @@ def evaluate():
 
     raw_test = load_movie_sentiment_test()
     test = pd.DataFrame.from_records(raw_test)
-    true_labels = pd.DataFrame.from_records(load_movie_sentiment_target())
+    true_labels = pd.DataFrame.from_records(load_movie_sentiment_test_label())
 
     y_pred = model.predict(test.text)
 
