@@ -1,9 +1,8 @@
-import gzip
 import os.path
 import sys
 from itertools import tee
 from pathlib import Path
-from shutil import copyfileobj
+from zipfile import ZipFile
 
 import boto3
 import click
@@ -43,12 +42,12 @@ def download(access_key, secret_key, data_home):
             'endpoint_url': 'https://storage.googleapis.com',
         }
     }
-    
-    url = f"s3://sadedegel/dataset/product_sentiment.csv.gz"
 
-    with open(url, 'rb', transport_params=transport_params) as fp, gzip.open(data_home / os.path.basename(url),
-                                                                             "wb") as wp:
-        copyfileobj(fp, wp)
+    url = f"s3://sadedegel/dataset/product_sentiment/product_sentiment.zip"
+
+    with open(url, 'rb', transport_params=transport_params) as fp:
+        with ZipFile(fp) as zp:
+            zp.extractall(data_home)
 
 
 @cli.command()
@@ -74,7 +73,8 @@ def validate():
             console.log("Label check [yellow]DONE[/yellow]")
         else:
             console.log("Class check [red]FAILED[/red]")
-            console.log(f"\tProduct sentiment classes : {categories} ({set(['POSITIVE', 'NEGATIVE', 'NEUTRAL'])} expected)")
+            console.log(
+                f"\tProduct sentiment classes : {categories} ({set(['POSITIVE', 'NEGATIVE', 'NEUTRAL'])} expected)")
             sys.exit(1)
 
 
