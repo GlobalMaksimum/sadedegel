@@ -37,15 +37,32 @@ def check_directory_structure(path: str) -> bool:
     return False
 
 
-def load_product_sentiment_train(data_home="~/.sadedegel_data"):
+def load_product_sentiment_train(patched=True, data_home="~/.sadedegel_data"):
     if not check_directory_structure(data_home):
         raise Exception("Product Sentiment Corpus validation error")
 
-    train_csv = Path(data_home).expanduser() / "product_sentiment"
-    train_csv = train_csv / "product_sentiment.csv.gz"
+    dataset_dir = Path(data_home).expanduser() / "product_sentiment"
+    train_csv = dataset_dir / "product_sentiment.csv.gz"
+
+    patch_dict = {}
+
+    if patched:
+        patch_csv = dataset_dir / "patch.csv.gz"
+
+        with gzip.open(patch_csv, "rt") as patch:
+            patch = csv.DictReader(patch)
+
+            patch_dict = {}
+            for rec in patch:
+                patch_dict[rec['uuid']] = rec['sentiment_patch']
 
     with gzip.open(train_csv, "rt") as csvfile:
         rd = csv.DictReader(csvfile)
 
         for rec in rd:
-            yield dict(text=rec['text'], sentiment_class=CLASS_VALUES.index(rec['sentiment']))
+            if rec['uuid'] in patch_dict:
+                sentiment = patch_dict[rec['uuid']]
+            else:
+                sentiment = rec['sentiment']
+
+            yield dict(text=rec['text'], sentiment_class=CLASS_VALUES.index(sentiment))
