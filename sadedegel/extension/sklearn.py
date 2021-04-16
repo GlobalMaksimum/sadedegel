@@ -5,8 +5,11 @@ from rich.progress import track
 from scipy.sparse import csr_matrix
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction import FeatureHasher
 
 from ..bblock.doc import DocBuilder, Document
+from ..bblock.token import Token
+from tqdm import tqdm
 
 
 def check_type(X):
@@ -32,15 +35,20 @@ class OnlinePipeline(Pipeline):
 class Text2Doc(BaseEstimator, TransformerMixin):
     Doc = None
 
-    def __init__(self, tokenizer="icu"):
+    def __init__(self, tokenizer="icu", hashtag=False, mention=False, emoji=False, progress_tracking=True):
         self.tokenizer = tokenizer
+        self.hashtag = hashtag
+        self.mention = mention
+        self.emoji = emoji
+        self.progress_tracking = progress_tracking
         # TODO: Add sadedegel version
 
         self.init()
 
     def init(self):
         if Text2Doc.Doc is None:
-            Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer)
+            Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=self.hashtag,
+                                      tokenizer__mention=self.mention, tokenizer__emoji=self.emoji)
 
     def fit(self, X, y=None):
         return self
@@ -63,7 +71,7 @@ class Text2Doc(BaseEstimator, TransformerMixin):
 
         docs = []
 
-        for text in X:
+        for text in tqdm(X, disable=not hasattr(self, 'progress_tracking') or not self.progress_tracking, unit="doc"):
             docs.append(Text2Doc.Doc(text))
 
         return docs
@@ -77,6 +85,27 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
 
     def partial_fit(self, X, y=None, **kwargs):
         return self
+
+
+class HashVectorizer(BaseEstimator, TransformerMixin):
+    def __init__(self, n_features=1048576, *, alternate_sign=True):
+        self.n_features = n_features
+        self.alternate_sign = alternate_sign
+
+    def fit(self, X, y=None):
+        return self
+
+    def partial_fit(self, X, y=None, **kwargs):
+        return self
+
+    def transform(self, docs):
+        def feature_iter():
+            for d in docs:
+                yield [('prefix5', t.lower_[:5]) for t in d.tokens] + [('prefix3', t.lower_[:3]) for t in
+                                                                       d.tokens]
+
+        return FeatureHasher(self.n_features, alternate_sign=self.alternate_sign, input_type="pair",
+                             dtype=np.float32).transform(feature_iter())
 
 
 class TfidfVectorizer(SadedegelVectorizer):

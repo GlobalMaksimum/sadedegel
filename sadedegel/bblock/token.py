@@ -1,12 +1,14 @@
 import unicodedata
-
-from .vocabulary import Vocabulary
 from math import log
-import numpy as np
-from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
 
-IDF_SMOOTH, IDF_PROBABILISTIC = "smooth", "probabilistic"
-IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC]
+import numpy as np
+from cached_property import cached_property
+
+from .util import tr_lower, load_stopwords, deprecate, ConfigNotSet, VocabularyIsNotSet, WordVectorNotFound
+from .vocabulary import Vocabulary
+
+IDF_SMOOTH, IDF_PROBABILISTIC, IDF_UNARY = "smooth", "probabilistic", "unary"
+IDF_METHOD_VALUES = [IDF_SMOOTH, IDF_PROBABILISTIC, IDF_UNARY]
 
 
 class IDFImpl:
@@ -24,13 +26,7 @@ class IDFImpl:
         else:
             v = np.zeros(self.vocabulary.size_cs)
 
-        if lowercase:
-            tokens = [tr_lower(t) for t in self.tokens]
-        else:
-            tokens = self.tokens
-
-        for token in tokens:
-            t = Token(token)
+        for t in self.tokens:
             if t.is_oov or (drop_stopwords and t.is_stopword) or (drop_suffix and t.is_suffix) or (
                     drop_punct and t.is_punct):
                 continue
@@ -38,11 +34,15 @@ class IDFImpl:
             if lowercase:
                 if method == IDF_SMOOTH:
                     v[t.id] = t.smooth_idf
+                elif method == IDF_UNARY:
+                    v[t.id] = t.unary_idf
                 else:
                     v[t.id] = t.prob_idf
             else:
                 if method == IDF_SMOOTH:
                     v[t.id_cs] = t.smooth_idf_cs
+                elif method == IDF_UNARY:
+                    v[t.id] = t.unary_idf_cs
                 else:
                     v[t.id_cs] = t.prob_idf_cs
 
@@ -101,7 +101,9 @@ class Token:
         token.is_punct = all(unicodedata.category(c).startswith("P") for c in token.word)
         token.is_digit = token.word.isdigit()
         token.is_suffix = token.word.startswith('##')
-        token.shape = word_shape(token.word)
+        token.is_emoji = False
+        token.is_hashtag = False
+        token.is_mention = False
 
         return token
 
@@ -111,6 +113,17 @@ class Token:
             cls.cache[word] = cls._create_token(word)
 
         return cls.cache[word]
+
+    def __len__(self):
+        return len(self.word)
+
+    def __eq__(self, other):
+        if type(other) == str:
+            return self.word == other
+        elif type(other) == Token:
+            return self.word == other.word
+        else:
+            raise TypeError(f"Unknown comparison type with Token {type(other)}")
 
     @classmethod
     def set_vocabulary(cls, vocab: Vocabulary):
@@ -134,6 +147,8 @@ class Token:
         else:
             if Token.config['idf']['method'] == IDF_SMOOTH:
                 return self.smooth_idf
+            elif Token.config['idf']['method'] == IDF_UNARY:
+                return self.unary_idf
             else:
                 return self.prob_idf
 
@@ -150,6 +165,20 @@ class Token:
             raise VocabularyIsNotSet("First run set_vocabulary")
         else:
             return log(self.vocabulary.document_count / (1 + self.df_cs)) + 1
+
+    @property
+    def unary_idf(self):
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return int(self.df > 0)
+
+    @property
+    def unary_idf_cs(self):
+        if Token.vocabulary is None:
+            raise VocabularyIsNotSet("First run set_vocabulary")
+        else:
+            return int(self.df_cs > 0)
 
     @property
     def prob_idf(self) -> float:
@@ -214,6 +243,10 @@ class Token:
             return self.vocabulary.vector(self.word)
         else:
             raise WordVectorNotFound(self.word)
+
+    @cached_property
+    def shape(self) -> str:
+        return word_shape(self.word)
 
     def __str__(self):
         return self.word

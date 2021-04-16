@@ -3,7 +3,7 @@ import pkgutil  # noqa: F401 # pylint: disable=unused-import
 import numpy as np
 import pytest
 
-from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context, WordTokenizer
+from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context, WordTokenizer, ICUTokenizer
 from .context import load_raw_corpus
 
 
@@ -44,26 +44,25 @@ def test_bert_tokenization_sents():
         assert doc[1].tokens == ['Barış', 'için', 'geldik', '.']
 
 
-def test_singleton_tokenizer():
+def test_tokenizer_type():
     st1 = WordTokenizer.factory('simple')
     st2 = WordTokenizer.factory('simple-tokenizer')
     st3 = WordTokenizer.factory('SimpleTokenizer')
 
-    assert st1 == st2 == st3
+    assert isinstance(st1, SimpleTokenizer) == isinstance(st2, SimpleTokenizer) == isinstance(st3, SimpleTokenizer)
 
+    if pkgutil.find_loader("transformers") is not None:
+        bt1 = WordTokenizer.factory('bert')
+        bt2 = WordTokenizer.factory('bert-tokenizer')
+        bt3 = WordTokenizer.factory('BERTTokenizer')
 
-if pkgutil.find_loader("transformers") is not None:
-    bt1 = WordTokenizer.factory('bert')
-    bt2 = WordTokenizer.factory('bert-tokenizer')
-    bt3 = WordTokenizer.factory('BERTTokenizer')
+        assert isinstance(bt1, BertTokenizer) and isinstance(bt2, BertTokenizer) and isinstance(bt3, BertTokenizer)
 
-    assert bt1 == bt2 == bt3
+    icut1 = WordTokenizer.factory('icu')
+    icut2 = WordTokenizer.factory('icu-tokenizer')
+    icut3 = WordTokenizer.factory('ICUTokenizer')
 
-bt1 = WordTokenizer.factory('icu')
-bt2 = WordTokenizer.factory('icu-tokenizer')
-bt3 = WordTokenizer.factory('ICUTokenizer')
-
-assert bt1 == bt2 == bt3
+    assert isinstance(icut1, ICUTokenizer) == isinstance(icut2, ICUTokenizer) == isinstance(icut3, ICUTokenizer)
 
 
 @pytest.mark.parametrize("toker", ["bert", "simple", "icu"])

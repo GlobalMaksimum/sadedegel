@@ -20,7 +20,10 @@ __tr_lower_abbrv__ = ['hz.', 'dr.', 'prof.', 'doç.', 'org.', 'sn.', 'st.', 'mah
 
 
 def tr_lower(s: str) -> str:
-    return s.replace("I", "ı").replace("İ", "i").lower()
+    if "I" in s or "İ" in s:
+        return s.replace("I", "ı").replace("İ", "i").lower()
+    else:
+        return s.lower()
 
 
 def tr_upper(s: str) -> str:
@@ -161,14 +164,15 @@ def load_stopwords(base_path=None):
     return stopwords
 
 
-def deprecate(message: str, eol_version: tuple):
+def deprecate(message: str, eol_version: tuple, post_message: str = None):
     current = tuple([int(v) for v in __version__.split('.')])
 
     if current >= eol_version:
-        console.print(f"[red]{message}[/red]")
+        console.print(f"[red]{message}[/red]. {post_message}")
         sys.exit(1)
     else:
-        console.print(f"[magenta]{message}[/magenta], will be dropped by {'.'.join(map(str, eol_version))}")
+        console.print(
+            f"{message}, will be [magenta]dropped[/magenta] by {'.'.join(map(str, eol_version))}. {post_message}")
 
 
 class ConfigNotSet(Exception):

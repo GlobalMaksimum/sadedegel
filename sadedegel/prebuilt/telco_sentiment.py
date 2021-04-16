@@ -3,14 +3,14 @@ from pathlib import Path
 
 from joblib import dump
 from rich.console import Console
-from sklearn.metrics import f1_score
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
 from sklearn.utils import shuffle
 
 from .util import load_model
-from ..dataset.profanity import load_offenseval_train, load_offenseval_test, \
-    load_offenseval_test_label, CORPUS_SIZE
+from ..dataset.telco_sentiment import load_telco_sentiment_train, load_telco_sentiment_test, \
+    load_telco_sentiment_test_label, CORPUS_SIZE
 from ..extension.sklearn import HashVectorizer, Text2Doc
 
 console = Console()
@@ -18,9 +18,9 @@ console = Console()
 
 def empty_model():
     return Pipeline(
-        [('text2doc', Text2Doc("icu")),
-         ('hash', HashVectorizer(n_features=413833, alternate_sign=False)),
-         ('svc', SVC(C=0.28610731097622305, kernel="linear", verbose=True, random_state=42, probability=True))]
+        [('text2doc', Text2Doc("icu", emoji=True, hashtag=True, mention=True)),
+         ('hash', HashVectorizer(n_features=1033297, alternate_sign=False)),
+         ('sgd', SGDClassifier(alpha=0.00036252996496306393, penalty="elasticnet", loss="log", random_state=42))]
     )
 
 
@@ -31,7 +31,7 @@ def build(save=True):
         console.log(("pandas package is not a general sadedegel dependency."
                      " But we do have a dependency on building our prebuilt models"))
 
-    raw = load_offenseval_train()
+    raw = load_telco_sentiment_train()
     df = pd.DataFrame.from_records(raw)
     df = shuffle(df)
 
@@ -39,7 +39,7 @@ def build(save=True):
 
     pipeline = empty_model()
 
-    pipeline.fit(df.tweet, df.profanity_class)
+    pipeline.fit(df.tweet, df.sentiment_class)
 
     evaluate(pipeline)
 
@@ -52,12 +52,12 @@ def build(save=True):
 
         pipeline.steps[0][1].Doc = None
 
-        dump(pipeline, (model_dir / 'tweet_profanity_classification.joblib').absolute(), compress=('gzip', 9))
+        dump(pipeline, (model_dir / 'telco_sentiment_classification.joblib').absolute(), compress=('gzip', 9))
 
         console.log("Model save [green]DONE[/green]")
 
 
-def load(model_name="tweet_profanity_classification"):
+def load(model_name="telco_sentiment_classification"):
     return load_model(model_name)
 
 
@@ -71,14 +71,15 @@ def evaluate(model=None):
     if model is None:
         model = load()
 
-    test = pd.DataFrame.from_records(load_offenseval_test())
-    testLabel = pd.DataFrame.from_records(load_offenseval_test_label())
+    test = pd.DataFrame.from_records(load_telco_sentiment_test())
+    test_label = pd.DataFrame.from_records(load_telco_sentiment_test_label())
 
-    test = test.merge(testLabel, on='id')
+    test = test.merge(test_label, on='id')
 
     y_pred = model.predict(test.tweet)
 
-    console.log(f"Model test accuracy (f1-macro): {f1_score(test.profanity_class, y_pred, average='macro')}")
+    console.log(f"Model test accuracy (accuracy): {accuracy_score(test.sentiment_class, y_pred)}")
+    console.log(f"Model test accuracy (f1-macro): {f1_score(test.sentiment_class, y_pred, average='macro')}")
 
 
 if __name__ == "__main__":
