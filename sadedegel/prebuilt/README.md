@@ -124,3 +124,37 @@ Comparable [benchmark](https://ieeexplore.ieee.org/document/8554037/) models has
 * `0.66` **accuracy** score (classical ML approach fed with bag-of-words)
 on the hold-out set.
 
+
+### Turkish Customer Reviews Classification
+
+Classifier assigns each Turkish customer review text into 32 classes by using sadedegel built-in pipeline.
+
+#### Loading and Predicting with the Model:
+
+```python
+from sadedegel.prebuilt import customer_reviews_classification
+
+# We load our prebuilt model:
+model = customer_reviews_classification.load()
+
+# Here we feed our text to get predictions:
+y_pred = model.predict(['odalar çok kirliydi'])
+
+# You can also get probabilities with:
+y_probs = model.predict_proba(['odalar çok kirliydi'])
+
+# You can check original test results on holdout set:
+customer_reviews_classification.evaluate()
+
+# You convert class id's back to labels by importing:
+from sadedegel.dataset.customer_review import CLASS_VALUES
+
+# And simply map them to get the converted string list:
+y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
+```
+
+#### Accuracy
+Current prebuilt customer review classification model has a macro-F1 score of `0.851` on holdout test set model never seen before.
+
+If you want to compare benchmark results:
+> The model on [Kaggle](https://www.kaggle.com/savasy/multiclass-classification-data-for-turkish-tc32) where we got dataset from has F1 score of `0.84`.
