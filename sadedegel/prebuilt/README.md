@@ -158,3 +158,47 @@ Current prebuilt customer review classification model has a macro-F1 score of `0
 
 If you want to compare benchmark results:
 > The model on [Kaggle](https://www.kaggle.com/savasy/multiclass-classification-data-for-turkish-tc32) where we got dataset from has F1 score of `0.84`.
+
+###  Hotel Sentiment Classification
+
+Using sadedegel built-in pipeline, the prebuilt model for hotel review sentiment classification assigns text into two
+classes, `0` and `1`, for `NEGATIVE` and `POSITIVE` sentiments consecutively.
+
+#### Loading and Predicting with the Model:
+
+```python
+from sadedegel.prebuilt import hotel_sentiment
+
+# We load our prebuilt model:
+model = hotel_sentiment.load()
+
+# Here we feed our text to get predictions:
+y_pred = model.predict(['otel çok temiz, çalışanlar güler yüzlü, yemekler fena değil'])
+
+# You can also get probabilities with:
+y_probs = model.predict_proba(['otel çok temiz, çalışanlar güler yüzlü, yemekler fena değil'])
+
+# You can check original test results on holdout set:
+hotel_sentiment.evaluate()
+
+# You convert class id's back to labels by importing:
+from sadedegel.dataset.hotel_sentiment import CLASS_VALUES
+
+# And simply map them to get the converted string list:
+y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
+```
+
+#### Accuracy
+Current prebuilt hotel sentiment classification model has an accuracy of `0.863` on holdout test set. Comparable
+benchmark results found [here](https://journals.tubitak.gov.tr/elektrik/issues/elk-19-27-3/elk-27-3-16-1808-189.pdf) 
+where their results with different classifiers are given below.
+
+| Classifier|Method| Accuracy |
+|---------|--------|--------|
+| NB      | ML     | 83.80% |
+|         | Hybrid | 89.98% |
+| SVM     | ML     | 91.14% |
+|         | Hybrid | 91.96% |
+| J48     | ML     | 86.10% |
+|         | Hybrid | 88.96% |
+| Lexicon |        | 78.88% |
