@@ -5,7 +5,6 @@ from joblib import dump
 from rich.console import Console
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
 from sklearn.linear_model import SGDClassifier
 from sklearn.utils import shuffle
 
