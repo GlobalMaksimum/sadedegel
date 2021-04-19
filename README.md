@@ -9,7 +9,7 @@ Development of the library started as a part of [Açık Kaynak Hackathon Program
 We keep adding lots to become a general purpose open source NLP library for Turkish langauge.
 
 
-💫 **Version 0.19 out now!**
+💫 **Version 0.20 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -40,8 +40,10 @@ We keep adding lots to become a general purpose open source NLP library for Turk
 The SadedeGel project is initialized by [@globalmaksimum](https://github.com/GlobalMaksimum) AI team members
 [@dafajon](https://github.com/dafajon),
 [@askarbozcan](https://github.com/askarbozcan),
-[@mccakir](https://github.com/mccakir) and 
-[@husnusensoy](https://github.com/husnusensoy). 
+[@mccakir](https://github.com/mccakir),
+[@husnusensoy](https://github.com/husnusensoy) and 
+[@ertugruldemir](https://github.com/ertugrul-dmr).
+
 
 Other community maintainers
 
