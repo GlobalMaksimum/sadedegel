@@ -12,4 +12,4 @@ from sadedegel.dataset.tweet_sentiment import CLASS_VALUES as SENTIMENT_VALUES  
 from sadedegel.dataset.movie_sentiment import CLASS_VALUES as SENTIMENT_VALUES_M  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset.telco_sentiment import CLASS_VALUES as SENTIMENT_VALUES_T  # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset.customer_review import CLASS_VALUES as CLASS_VALUES_CUST # noqa # pylint: disable=unused-import, wrong-import-position
-from sadedegel.dataset.hotel_sentiment import CLASS_VALUES as CLASS_VALUES_CUST # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.dataset.hotel_sentiment import CLASS_VALUES as CLASS_VALUES_HOTEL # noqa # pylint: disable=unused-import, wrong-import-position
