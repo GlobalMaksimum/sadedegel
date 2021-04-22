@@ -88,9 +88,10 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
 
 
 class HashVectorizer(BaseEstimator, TransformerMixin):
-    def __init__(self, n_features=1048576, *, alternate_sign=True):
+    def __init__(self, n_features=1048576, prefix_range=[3, 5], *, alternate_sign=True):
         self.n_features = n_features
         self.alternate_sign = alternate_sign
+        self.prefix_range = prefix_range
 
     def fit(self, X, y=None):
         return self
@@ -99,10 +100,13 @@ class HashVectorizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, docs):
+        range_iter = self.prefix_range
+        if isinstance(self.prefix_range, tuple):
+            range_iter = range(self.prefix_range[0], self.prefix_range[1] + 1)
+
         def feature_iter():
             for d in docs:
-                yield [('prefix5', t.lower_[:5]) for t in d.tokens] + [('prefix3', t.lower_[:3]) for t in
-                                                                       d.tokens]
+                yield [(f'prefix{p_ix}', t.lower_[:p_ix]) for p_ix in range_iter for t in d.tokens]
 
         return FeatureHasher(self.n_features, alternate_sign=self.alternate_sign, input_type="pair",
                              dtype=np.float32).transform(feature_iter())
