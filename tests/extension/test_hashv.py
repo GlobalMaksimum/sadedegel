@@ -1,9 +1,9 @@
-from itertools import islice, product
+from itertools import product
 
 import pytest
 from sklearn.pipeline import Pipeline
 
-from .context import HashVectorizer, Text2Doc, load_tweet_sentiment_train
+from .context import HashVectorizer, Text2Doc
 
 p = product(["icu", "simple", "bert"], [(1, 3), (2, 5), (3, 8), (3, 6)], [True, False])
 
@@ -13,8 +13,8 @@ def test_hashvect(tokenizer, prefix_range, alternate_sign):
     feng_pipeline = Pipeline([("Text2Doc", Text2Doc(tokenizer=tokenizer)),
                               ("HashVec", HashVectorizer(prefix_range=prefix_range,
                                                          alternate_sign=alternate_sign))])
-    X = [rec['tweet'] for rec in islice(load_tweet_sentiment_train(), 10)]
-    assert feng_pipeline.fit_transform(X).shape[0] == len(X)
+    mini_corpus = ['Sabah bir tweet', 'Öğlen bir başka tweet', 'Akşam bir tweet', '...ve gece son bir tweet']
+    assert feng_pipeline.fit_transform(mini_corpus).shape[0] == len(mini_corpus)
 
 
 def test_prefix_range_type_error():
