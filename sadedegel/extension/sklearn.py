@@ -4,22 +4,27 @@ import numpy as np
 from rich.progress import track
 from scipy.sparse import csr_matrix
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction import FeatureHasher
-
-from ..bblock.doc import DocBuilder, Document
-from ..bblock.token import Token
+from sklearn.pipeline import Pipeline
 from tqdm import tqdm
 
-
-def check_type(X):
-    if not all(isinstance(x, str) for x in X):
-        raise ValueError(f"X should be an iterable string. {type(X)} found")
+from ..bblock.doc import DocBuilder, Document
 
 
-def check_doc_type(X):
-    if not all(isinstance(x, Document) for x in X):
-        raise ValueError(f"X should be an iterable sadedegel Document. {type(X)} found")
+def check_type_all(X, expected_type=str):
+    if not all(isinstance(x, expected_type) for x in X):
+        raise ValueError(f"X should be an iterable {expected_type}. {type(X)} found")
+
+
+def check_type(v, expected_type, error_msg: str) -> None:
+    """Check variable type
+
+    @param v: Variable to be checked
+    @param expected_type: Expected type of variable
+    @param error_msg: Error message
+    """
+    if not isinstance(v, expected_type):
+        raise ValueError(error_msg)
 
 
 class OnlinePipeline(Pipeline):
@@ -58,12 +63,12 @@ class Text2Doc(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         if isinstance(X, list):
-            check_type(X)
+            check_type_all(X)
             n_total = len(X)
         else:
             X1, X2, X = tee(X, 3)
 
-            check_type(X1)
+            check_type_all(X1)
             n_total = sum((1 for _ in X2))
 
         if n_total == 0:
@@ -88,9 +93,12 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
 
 
 class HashVectorizer(BaseEstimator, TransformerMixin):
-    def __init__(self, n_features=1048576, *, alternate_sign=True):
+    def __init__(self, n_features: int = 1048576, prefix_range: tuple = (3, 5), *, alternate_sign: bool = True):
+        check_type(prefix_range, tuple, f"prefix_range should be of tuple type. {type(prefix_range)} found.")
         self.n_features = n_features
         self.alternate_sign = alternate_sign
+
+        self.prefix_range = prefix_range
 
     def fit(self, X, y=None):
         return self
@@ -101,8 +109,8 @@ class HashVectorizer(BaseEstimator, TransformerMixin):
     def transform(self, docs):
         def feature_iter():
             for d in docs:
-                yield [('prefix5', t.lower_[:5]) for t in d.tokens] + [('prefix3', t.lower_[:3]) for t in
-                                                                       d.tokens]
+                yield [(f'prefix{p_ix}', t.lower_[:p_ix]) for p_ix in
+                       range(self.prefix_range[0], self.prefix_range[1] + 1) for t in d.tokens]
 
         return FeatureHasher(self.n_features, alternate_sign=self.alternate_sign, input_type="pair",
                              dtype=np.float32).transform(feature_iter())
@@ -124,12 +132,12 @@ class TfidfVectorizer(SadedegelVectorizer):
 
     def transform(self, X, y=None):
         if isinstance(X, list):
-            check_doc_type(X)
+            check_type_all(X, Document)
             n_total = len(X)
         else:
             X1, X2, X = tee(X, 3)
 
-            check_doc_type(X1)
+            check_type_all(X1, Document)
             n_total = sum((1 for _ in X2))
 
         if n_total == 0:
@@ -179,12 +187,12 @@ class BM25Vectorizer(SadedegelVectorizer):
 
     def transform(self, X, y=None):
         if isinstance(X, list):
-            check_doc_type(X)
+            check_type_all(X, Document)
             n_total = len(X)
         else:
             X1, X2, X = tee(X, 3)
 
-            check_doc_type(X1)
+            check_type_all(X1, Document)
             n_total = sum((1 for _ in X2))
 
         if n_total == 0:
