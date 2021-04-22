@@ -108,9 +108,14 @@ class HashVectorizer(BaseEstimator, TransformerMixin):
 
     def transform(self, docs):
         def feature_iter():
-            for d in docs:
-                yield [(f'prefix{p_ix}', t.lower_[:p_ix]) for p_ix in
-                       range(self.prefix_range[0], self.prefix_range[1] + 1) for t in d.tokens]
+            if hasattr(self, 'prefix_range'):
+                for d in docs:
+                    yield [(f'prefix{p_ix}', t.lower_[:p_ix]) for p_ix in
+                           range(self.prefix_range[0], self.prefix_range[1] + 1) for t in d.tokens]
+            else:
+                for d in docs:
+                    yield [('prefix5', t.lower_[:5]) for t in d.tokens] + [('prefix3', t.lower_[:3]) for t in
+                                                                           d.tokens]
 
         return FeatureHasher(self.n_features, alternate_sign=self.alternate_sign, input_type="pair",
                              dtype=np.float32).transform(feature_iter())
