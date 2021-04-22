@@ -1,7 +1,7 @@
-import warnings
 from collections import defaultdict
 from os.path import dirname
 from pathlib import Path
+from typing import Dict
 
 import h5py
 import numpy as np
@@ -158,22 +158,54 @@ class Vocabulary:
         with h5py.File(self.file_name, "r") as fp:
             return fp['lower_'].attrs['size']
 
+    @cached_property
+    def feature_to_id(self) -> Dict[str, int]:
+        """Dictionary of feature -> id
+
+        @return: dict of feature -> id
+        """
+        with h5py.File(self.file_name, "r") as fp:
+            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
+
+    @cached_property
+    def id_to_feature(self) -> Dict[int, str]:
+        """Dictionary of id -> feature
+
+        @return: dict of id -> feature
+        """
+        return dict((i, s) for s, i in self.feature_to_id.items())
+
+    @cached_property
+    def feature_cs_to_id(self) -> Dict[str, int]:
+        """Dictionary of feature -> id (case sensitive)
+
+        @return: dict of feature -> id
+        """
+        with h5py.File(self.file_name, "r") as fp:
+            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
+
+    @cached_property
+    def id_to_feature_cs(self) -> Dict[int, str]:
+        """Dictionary of id -> feature (case sensitive)
+
+        @return: dict of id -> feature
+        """
+        return dict((i, s) for s, i in self.feature_cs_to_id.items())
+
     def __len__(self):
         return self.size
 
     def id_cs(self, word: str, default: int = -1):
         if self.dword_cs is None:
-            with h5py.File(self.file_name, "r") as fp:
-                self.dword = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
-                self.dword_cs = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
+            self.dword = self.feature_to_id
+            self.dword_cs = self.feature_cs_to_id
 
         return self.dword_cs.get(word, default)
 
     def id(self, word: str, default: int = -1):
         if self.dword is None:
-            with h5py.File(self.file_name, "r") as fp:
-                self.dword = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
-                self.dword_cs = dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
+            self.dword = self.feature_to_id
+            self.dword_cs = self.feature_cs_to_id
 
         return self.dword.get(tr_lower(word), default)
 
