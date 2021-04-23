@@ -461,7 +461,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return self.config['default'].getfloat('avg_document_length')
 
     @cached_property
-    def tokens(self) -> List[str]:
+    def tokens(self) -> List[Token]:
         tokens = []
         for s in self:
             for t in s.tokens:
