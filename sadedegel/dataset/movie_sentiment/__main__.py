@@ -11,7 +11,7 @@ import boto3
 
 from loguru import logger
 
-from ._core import load_movie_sentiment_train, load_movie_sentiment_test, load_movie_sentiment_target, \
+from ._core import load_movie_sentiment_train, load_movie_sentiment_test, load_movie_sentiment_test_label, \
     CLASS_VALUES, CORPUS_SIZE
 
 from zipfile import ZipFile
