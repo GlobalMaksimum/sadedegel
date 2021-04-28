@@ -190,15 +190,4 @@ y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
 
 #### Accuracy
 Current prebuilt hotel sentiment classification model has an accuracy of `0.863` on holdout test set. Comparable
-benchmark results found [here](https://journals.tubitak.gov.tr/elektrik/issues/elk-19-27-3/elk-27-3-16-1808-189.pdf) 
-where their results with different classifiers are given below.
-
-| Classifier|Method| Accuracy |
-|---------|--------|--------|
-| NB      | ML     | 83.80% |
-|         | Hybrid | 89.98% |
-| SVM     | ML     | 91.14% |
-|         | Hybrid | 91.96% |
-| J48     | ML     | 86.10% |
-|         | Hybrid | 88.96% |
-| Lexicon |        | 78.88% |
+benchmark results can be found [here](https://ieeexplore.ieee.org/document/7907484) where they obtained an Accuracy score of 0.797 with SVM.
