@@ -11,7 +11,7 @@ from sklearn.utils import shuffle
 from .util import load_model
 from ..dataset.telco_sentiment import load_telco_sentiment_train, load_telco_sentiment_test, \
     load_telco_sentiment_test_label, CORPUS_SIZE
-from ..extension.sklearn import HashVectorizer, Text2Doc
+from ..extension.sklearn import HashVectorizer, Text2Doc, CharHashVectorizer
 
 console = Console()
 
@@ -19,8 +19,8 @@ console = Console()
 def empty_model():
     return Pipeline(
         [('text2doc', Text2Doc("icu", emoji=True, hashtag=True, mention=True)),
-         ('hash', HashVectorizer(n_features=1033297, alternate_sign=False)),
-         ('sgd', SGDClassifier(alpha=0.00036252996496306393, penalty="elasticnet", loss="log", random_state=42))]
+         ('charhash', CharHashVectorizer(n_features=678753, ngram_range=[3, 5], alternate_sign=False)),
+         ('sgd', SGDClassifier(alpha=0.0011267467370123317, penalty="l2", loss="log", random_state=42))]
     )
 
 
