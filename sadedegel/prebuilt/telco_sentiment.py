@@ -19,7 +19,7 @@ console = Console()
 def empty_model():
     return Pipeline(
         [('text2doc', Text2Doc("icu", emoji=True, hashtag=True, mention=True)),
-         ('charhash', CharHashVectorizer(n_features=678753, ngram_range=[3, 5], alternate_sign=False)),
+         ('charhash', CharHashVectorizer(n_features=678753, ngram_range=[3, 5], alternate_sign=True)),
          ('sgd', SGDClassifier(alpha=0.0011267467370123317, penalty="l2", loss="log", random_state=42))]
     )
 
