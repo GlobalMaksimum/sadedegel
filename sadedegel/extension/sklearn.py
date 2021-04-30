@@ -96,6 +96,29 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
         return self
 
 
+class CharHashVectorizer(BaseEstimator, TransformerMixin):
+    def __init__(self, n_features=1048576, ngram_range=(1, 1), *, alternate_sign=True):
+        self.n_features = n_features
+        self.ngram_range = ngram_range
+        self.alternate_sign = alternate_sign
+
+    def fit(self, X, y=None):
+        return self
+
+    def partial_fit(self, X, y=None, **kwargs):
+        return self
+
+    def transform(self, docs):
+        range_iter = range(self.ngram_range[0], self.ngram_range[1] + 1)
+
+        def feature_iter():
+            for d in docs:
+                yield [(f"{ngram}gram", t.lower_[i:i+ngram]) for ngram in range_iter for t in d.tokens for i in range(len(t.word)) if len(t.lower_[i:i+ngram]) == ngram]
+
+        return FeatureHasher(self.n_features, alternate_sign=self.alternate_sign, input_type="pair",
+                             dtype=np.float32).transform(feature_iter())
+
+
 class HashVectorizer(BaseEstimator, TransformerMixin):
     def __init__(self, n_features: int = 1048576, prefix_range: tuple = (3, 5), *, alternate_sign: bool = True):
         check_type(prefix_range, tuple, f"prefix_range should be of tuple type. {type(prefix_range)} found.")
