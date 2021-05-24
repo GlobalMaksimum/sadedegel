@@ -1,82 +1,38 @@
-import pkgutil  # noqa: F401 # pylint: disable=unused-import
-
-import numpy as np
 import pytest
 
-from .context import Doc, SimpleTokenizer, BertTokenizer, tokenizer_context, WordTokenizer, ICUTokenizer
-from .context import load_raw_corpus
+from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer
 
 
-@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
-def test_bert_tokenizer():
-    bt = BertTokenizer()
-    text = "Havaalanında bekliyoruz."
-    tokens = bt(text)
-    assert tokens == ['Havaalanı', '##nda', 'bekliyoruz', '.']
-
-
-@pytest.mark.parametrize("text, tokens_true", [("Havaalanında bekliyoruz.", ['Havaalanında', 'bekliyoruz', '.']),
-                                               ('Ali topu tut.', ['Ali', 'topu', 'tut', '.'])])
-def test_simple_tokenizer(text, tokens_true):
-    st = SimpleTokenizer()
-    tokens_pred = st(text)
+@pytest.mark.parametrize('toker, text, tokens_true', [
+    (ICUTokenizer, '👍basarili ve kaliteli bir urun .', ['👍', 'basarili', 've', 'kaliteli', 'bir', 'urun', '.']),
+    (SimpleTokenizer, '👍basarili ve kaliteli bir urun .', ['👍', 'basarili', 've', 'kaliteli', 'bir', 'urun', '.']),
+    (BertTokenizer, '👍basarili ve kaliteli bir urun .',
+     ['👍', 'basar', '##ili', 've', 'kaliteli', 'bir', 'ur', '##un', '.'])
+])
+def test_tokenizer_emoji(text, tokens_true, toker):
+    it = toker(emoji=True)
+    tokens_pred = it._tokenize(text)
     assert tokens_pred == tokens_true
 
 
-def test_simple_tokenization_sentences():
-    text = 'Merhaba dünya. Barış için geldik.'
-
-    with tokenizer_context(SimpleTokenizer.__name__):
-        doc = Doc(text)
-
-        assert doc[0].tokens == ['Merhaba', 'dünya', '.']
-        assert doc[1].tokens == ['Barış', 'için', 'geldik', '.']
-
-
-@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
-def test_bert_tokenization_sents():
-    text = 'Merhaba dünya. Barış için geldik.'
-
-    with tokenizer_context(BertTokenizer.__name__):
-        doc = Doc(text)
-
-        assert doc[0].tokens == ['Merhaba', 'dünya', '.']
-        assert doc[1].tokens == ['Barış', 'için', 'geldik', '.']
+@pytest.mark.parametrize('toker, text, tokens_true', [
+    (ICUTokenizer, 'çok güzel kütüphane olmuş @sadedegel', ['çok', 'güzel', 'kütüphane', 'olmuş', '@sadedegel']),
+    (SimpleTokenizer, 'çok güzel kütüphane olmuş @sadedegel', ['çok', 'güzel', 'kütüphane', 'olmuş', '@sadedegel']),
+    (BertTokenizer, 'çok güzel kütüphane olmuş @sadedegel', ['çok', 'güzel', 'kütüphane', 'olmuş', '@sadedegel'])
+])
+def test_tokenizer_mention(text, tokens_true, toker):
+    it = toker(mention=True)
+    tokens_pred = it._tokenize(text)
+    assert tokens_pred == tokens_true
 
 
-def test_tokenizer_type():
-    st1 = WordTokenizer.factory('simple')
-    st2 = WordTokenizer.factory('simple-tokenizer')
-    st3 = WordTokenizer.factory('SimpleTokenizer')
+@pytest.mark.parametrize('toker, text, tokens_true', [
+    (ICUTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanmasın', '!', '#yeşiltürkiye']),
+    (SimpleTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanmasın', 'yeşiltürkiye']),
+    (BertTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanma', '##sın', '!', '#yeşiltürkiye'])
+])
 
-    assert isinstance(st1, SimpleTokenizer) == isinstance(st2, SimpleTokenizer) == isinstance(st3, SimpleTokenizer)
-
-    if pkgutil.find_loader("transformers") is not None:
-        bt1 = WordTokenizer.factory('bert')
-        bt2 = WordTokenizer.factory('bert-tokenizer')
-        bt3 = WordTokenizer.factory('BERTTokenizer')
-
-        assert isinstance(bt1, BertTokenizer) and isinstance(bt2, BertTokenizer) and isinstance(bt3, BertTokenizer)
-
-    icut1 = WordTokenizer.factory('icu')
-    icut2 = WordTokenizer.factory('icu-tokenizer')
-    icut3 = WordTokenizer.factory('ICUTokenizer')
-
-    assert isinstance(icut1, ICUTokenizer) == isinstance(icut2, ICUTokenizer) == isinstance(icut3, ICUTokenizer)
-
-
-@pytest.mark.parametrize("toker", ["bert", "simple", "icu"])
-def test_word_counting(toker):
-    if pkgutil.find_loader("transformers") is not None or toker != "bert":
-        with tokenizer_context(toker) as D:
-            docs = [D(text) for text in load_raw_corpus()]
-
-            if toker == "bert":
-                assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
-                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(17.9340236)
-            elif toker == 'simple':
-                assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
-                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(12.4676138)
-            else:
-                assert np.array([len(d) for d in docs]).mean() == pytest.approx(42.3775510)
-                assert np.array([len(s) for d in docs for s in d]).mean() == pytest.approx(13.5215507)
+def test_tokenizer_hashtag(text, tokens_true, toker):
+    it = toker(hashtag=True)
+    tokens_pred = it._tokenize(text)
+    assert tokens_pred == tokens_true
