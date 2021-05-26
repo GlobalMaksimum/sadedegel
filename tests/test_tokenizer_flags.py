@@ -11,7 +11,7 @@ from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer
 ])
 def test_tokenizer_emoji(text, tokens_true, toker):
     it = toker(emoji=True)
-    tokens_pred = it._tokenize(text)
+    tokens_pred = it(text)
     assert tokens_pred == tokens_true
 
 
@@ -22,7 +22,7 @@ def test_tokenizer_emoji(text, tokens_true, toker):
 ])
 def test_tokenizer_mention(text, tokens_true, toker):
     it = toker(mention=True)
-    tokens_pred = it._tokenize(text)
+    tokens_pred = it(text)
     assert tokens_pred == tokens_true
 
 
@@ -34,5 +34,5 @@ def test_tokenizer_mention(text, tokens_true, toker):
 
 def test_tokenizer_hashtag(text, tokens_true, toker):
     it = toker(hashtag=True)
-    tokens_pred = it._tokenize(text)
+    tokens_pred = it(text)
     assert tokens_pred == tokens_true
