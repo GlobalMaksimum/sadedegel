@@ -163,11 +163,8 @@ def load_stopwords(base_path=None):
     return stopwords
 
 def character_repetition_correction(word):
-    word = list(word)
-    for match in re.finditer(r'(\w)\1{2,}', ''.join(word)):
-        word[match.start()+1:match.end()] = [''] * (match.end()-match.start())
-    return ''.join(word)
-
+    pattern = re.compile(r"(.)\1{2,}", re.DOTALL)
+    return pattern.sub(r"\1", word)
 
 def deprecate(message: str, eol_version: tuple, post_message: str = None):
     current = tuple([int(v) for v in __version__.split('.')])
