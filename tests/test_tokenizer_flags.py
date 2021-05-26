@@ -10,8 +10,8 @@ from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer
      ['👍', 'basar', '##ili', 've', 'kaliteli', 'bir', 'ur', '##un', '.'])
 ])
 def test_tokenizer_emoji(text, tokens_true, toker):
-    it = toker(emoji=True)
-    tokens_pred = it(text)
+    tokenizer = toker(emoji=True)
+    tokens_pred = tokenizer(text)
     assert tokens_pred == tokens_true
 
 
@@ -21,18 +21,17 @@ def test_tokenizer_emoji(text, tokens_true, toker):
     (BertTokenizer, 'çok güzel kütüphane olmuş @sadedegel', ['çok', 'güzel', 'kütüphane', 'olmuş', '@sadedegel'])
 ])
 def test_tokenizer_mention(text, tokens_true, toker):
-    it = toker(mention=True)
-    tokens_pred = it(text)
+    tokenizer = toker(mention=True)
+    tokens_pred = tokenizer(text)
     assert tokens_pred == tokens_true
 
 
 @pytest.mark.parametrize('toker, text, tokens_true', [
     (ICUTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanmasın', '!', '#yeşiltürkiye']),
-    (SimpleTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanmasın', 'yeşiltürkiye']),
+    (SimpleTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanmasın', '#yeşiltürkiye']),
     (BertTokenizer, 'ağaçlar yanmasın! #yeşiltürkiye', ['ağaçlar', 'yanma', '##sın', '!', '#yeşiltürkiye'])
 ])
-
 def test_tokenizer_hashtag(text, tokens_true, toker):
-    it = toker(hashtag=True)
-    tokens_pred = it(text)
+    tokenizer = toker(hashtag=True)
+    tokens_pred = tokenizer(text)
     assert tokens_pred == tokens_true
