@@ -28,5 +28,5 @@ bundle install
 ## Run
 
 ```bash
-bundle exec jekyll serve -b /sadedegel
+bundle exec jekyll serve
 ```
