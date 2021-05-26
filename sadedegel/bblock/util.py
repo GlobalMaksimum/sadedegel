@@ -4,7 +4,7 @@ from collections import defaultdict
 from os.path import dirname
 from pathlib import Path
 from typing import List
-
+import re
 import numpy as np
 from rich.console import Console
 
@@ -24,7 +24,6 @@ def tr_lower(s: str) -> str:
         return s.replace("I", "ı").replace("İ", "i").lower()
     else:
         return s.lower()
-
 
 def tr_upper(s: str) -> str:
     return s.replace("i", "İ").upper()
@@ -162,6 +161,12 @@ def load_stopwords(base_path=None):
     stopwords = [s.rstrip() for s in stopwords]
 
     return stopwords
+
+def character_repetition_correction(word):
+    word = list(word)
+    for match in re.finditer(r'(\w)\1{2,}', ''.join(word)):
+        word[match.start()+1:match.end()] = [''] * (match.end()-match.start())
+    return ''.join(word)
 
 
 def deprecate(message: str, eol_version: tuple, post_message: str = None):

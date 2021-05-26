@@ -604,7 +604,8 @@ class DocBuilder:
 
         self.tokenizer = WordTokenizer.factory(tokenizer_str, emoji=self.config['tokenizer'].getboolean('emoji'),
                                                hashtag=self.config['tokenizer'].getboolean('hashtag'),
-                                               mention=self.config['tokenizer'].getboolean('mention'))
+                                               mention=self.config['tokenizer'].getboolean('mention'),
+                                               repetition_correction=self.config['tokenizer'].getboolean('repetition_correction'))
 
         Token.set_vocabulary(self.tokenizer.vocabulary)
 
