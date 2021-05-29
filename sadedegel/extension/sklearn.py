@@ -38,7 +38,7 @@ class OnlinePipeline(Pipeline):
 
 
 class Text2Doc(BaseEstimator, TransformerMixin):
-    Doc = None
+    #Doc = None
 
     def __init__(self, tokenizer="icu", hashtag=False, mention=False, emoji=False, progress_tracking=True):
         self.tokenizer = tokenizer
@@ -51,11 +51,10 @@ class Text2Doc(BaseEstimator, TransformerMixin):
         self.init()
 
     def init(self):
-        if Text2Doc.Doc is None:
-            if hasattr(self, 'hashtag') and hasattr(self, 'mention') and hasattr(self, 'emoji'):
+        if hasattr(self, 'hashtag') and hasattr(self, 'mention') and hasattr(self, 'emoji'):
                 Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=self.hashtag,
                                           tokenizer__mention=self.mention, tokenizer__emoji=self.emoji)
-            else:
+        else:
                 Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=False,
                                           tokenizer__mention=False, tokenizer__emoji=False)
 
@@ -81,7 +80,7 @@ class Text2Doc(BaseEstimator, TransformerMixin):
         docs = []
 
         for text in tqdm(X, disable=not hasattr(self, 'progress_tracking') or not self.progress_tracking, unit="doc"):
-            docs.append(Text2Doc.Doc(text))
+            docs.append(self.Doc(text))
 
         return docs
 
