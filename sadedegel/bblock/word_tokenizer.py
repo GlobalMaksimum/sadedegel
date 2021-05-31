@@ -11,7 +11,7 @@ from cached_property import cached_property
 from rich.console import Console
 
 from sadedegel.bblock.word_tokenizer_helper import ICUTokenizerHelper
-from .util import normalize_tokenizer_name
+from .util import normalize_tokenizer_name, repetition_correct
 from .vocabulary import Vocabulary
 from .token import Token
 from .word_tokenizer_helper import word_tokenize
@@ -53,6 +53,7 @@ class WordTokenizer(ABC):
 
         self.regexes = []
 
+
         if self.hashtag:
             console.print("Handling hashtags")
             self.regexes.append(re.compile(r"(?P<hashtag>#\S+)"))
@@ -80,6 +81,9 @@ class WordTokenizer(ABC):
 
     def __call__(self, sentence: str) -> List[Token]:
         text = str(sentence)
+
+        if self.repetition:
+            text = repetition_correct(text)
 
         if len(self.regexes) == 0:
             return [Token(t) for t in self._tokenize(text)]

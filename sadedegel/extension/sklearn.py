@@ -40,11 +40,12 @@ class OnlinePipeline(Pipeline):
 class Text2Doc(BaseEstimator, TransformerMixin):
     Doc = None
 
-    def __init__(self, tokenizer="icu", hashtag=False, mention=False, emoji=False, progress_tracking=True):
+    def __init__(self, tokenizer="icu", hashtag=False, mention=False, emoji=False, repetition=False, progress_tracking=True):
         self.tokenizer = tokenizer
         self.hashtag = hashtag
         self.mention = mention
         self.emoji = emoji
+        self.repetition = repetition
         self.progress_tracking = progress_tracking
         # TODO: Add sadedegel version
 
@@ -52,12 +53,13 @@ class Text2Doc(BaseEstimator, TransformerMixin):
 
     def init(self):
         if Text2Doc.Doc is None:
-            if hasattr(self, 'hashtag') and hasattr(self, 'mention') and hasattr(self, 'emoji'):
+            if hasattr(self, 'hashtag') and hasattr(self, 'mention') and hasattr(self, 'emoji') and hasattr(self, 'repetition'):
                 Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=self.hashtag,
-                                          tokenizer__mention=self.mention, tokenizer__emoji=self.emoji)
+                                          tokenizer__mention=self.mention, tokenizer__emoji=self.emoji,
+                                          tokenizer__repetition=self.repetition)
             else:
                 Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=False,
-                                          tokenizer__mention=False, tokenizer__emoji=False)
+                                          tokenizer__mention=False, tokenizer__emoji=False, tokenizer__repetition=False)
 
     def fit(self, X, y=None):
         return self
