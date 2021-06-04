@@ -1,7 +1,6 @@
 import pytest
-from sadedegel.extension.sklearn import Text2Doc
 
-from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer
+from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer, Text2Doc
 
 
 @pytest.mark.parametrize('toker, text, tokens_true', [
