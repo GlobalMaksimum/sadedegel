@@ -8,7 +8,7 @@ from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer, Text2Doc
     (SimpleTokenizer, 'alemiiiin kralı geliyooor geliyooooooor', ['alemin', 'kralı', 'geliyor', 'geliyor']),
     (BertTokenizer, 'alemiiiin kralı geliyooor geliyooooooor', ['alem', '##in', 'kralı', 'geliyor', 'geliyor'])
 ])
-def test_tokenizer_emoji(text, tokens_true, toker):
+def test_tokenizer_repeat(text, tokens_true, toker):
     tokenizer = toker(repetition=True)
     tokens_pred = tokenizer(text)
     assert tokens_pred == tokens_true
@@ -19,9 +19,7 @@ def test_tokenizer_emoji(text, tokens_true, toker):
     ('simple', ['alemiiiin kralı geliyooor geliyooooooor'], ['alemin', 'kralı', 'geliyor', 'geliyor']),
     ('bert', ['alemiiiin kralı geliyooor geliyooooooor'], ['alem', '##in', 'kralı', 'geliyor', 'geliyor'])
 ])
-
-
-def test_t2d_hashtag(text, tokens_true, toker):
+def test_t2d_repeat(text, tokens_true, toker):
     tokenizer = Text2Doc(tokenizer=toker, repetition=True)
     tokens_pred = tokenizer.transform(text)
     assert tokens_pred[0].tokens == tokens_true
