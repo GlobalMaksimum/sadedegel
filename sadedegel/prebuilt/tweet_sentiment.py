@@ -44,11 +44,11 @@ def cv(k=3, max_instances=-1):
         raw = load_tweet_sentiment_train()
 
     df = pd.DataFrame.from_records(raw)
-    df = shuffle(df)
+    df = shuffle(df, random_state=42)
 
     BATCH_SIZE = 1000
 
-    kf = KFold(n_splits=k)
+    kf = KFold(n_splits=k, random_state=42)
     console.log(f"Corpus Size: {CORPUS_SIZE}")
 
     scores = []
@@ -86,7 +86,7 @@ def build(max_instances=-1, save=True):
         raw = load_tweet_sentiment_train()
 
     df = pd.DataFrame.from_records(raw)
-    df = shuffle(df)
+    df = shuffle(df, random_state=42)
 
     BATCH_SIZE = 1000
 
