@@ -103,6 +103,9 @@ y_pred = model.predict(['süper aksiyon, tavsiye ederim'])
 # You can check original test results on holdout set:
 movie_reviews.evaluate()
 ```
+#### Accuracy
+
+Current prebuilt movie review model has a **macro-F1** score of `0.8258` on holdout test set model never seen before.
 
 ### Telco Brand Tweet Sentiment Classification
 
