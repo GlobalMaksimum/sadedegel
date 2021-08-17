@@ -461,7 +461,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return self.config['default'].getfloat('avg_document_length')
 
     @cached_property
-    def tokens(self) -> List[Token]:
+    def tokens(self) -> List[str]:
         tokens = []
         for s in self:
             for t in s.tokens:
@@ -604,7 +604,8 @@ class DocBuilder:
 
         self.tokenizer = WordTokenizer.factory(tokenizer_str, emoji=self.config['tokenizer'].getboolean('emoji'),
                                                hashtag=self.config['tokenizer'].getboolean('hashtag'),
-                                               mention=self.config['tokenizer'].getboolean('mention'))
+                                               mention=self.config['tokenizer'].getboolean('mention'),
+                                               emoticon=self.config['tokenizer'].getboolean('emoticon'))
 
         Token.set_vocabulary(self.tokenizer.vocabulary)
 

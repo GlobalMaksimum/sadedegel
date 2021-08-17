@@ -1,0 +1,30 @@
+import pytest
+from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer
+
+
+@pytest.mark.parametrize('toker, text, tokens_true', [
+    (ICUTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
+     ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^"]),
+    (SimpleTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
+     ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^"]),
+    (BertTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
+     ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^"]),
+])
+def test_tokenizer_emoji(text, tokens_true, toker):
+    tokenizer = toker(emoticon=True)
+    tokens_pred = tokenizer(text)
+    assert tokens_pred == tokens_true
+
+
+@pytest.mark.parametrize('toker, text, tokens_true', [
+    (ICUTokenizer, "komik:)",
+     ["komik", ":", ")"]),
+    (SimpleTokenizer, "komik:)",
+     ["komik"]),
+    (BertTokenizer, "komik:)",
+     ["komik", ":", ")"]),
+])
+def test_tokenizer_emoji_f(text, tokens_true, toker):
+    tokenizer = toker(emoticon=False)
+    tokens_pred = tokenizer(text)
+    assert tokens_pred == tokens_true
