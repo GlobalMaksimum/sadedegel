@@ -104,6 +104,7 @@ class Token:
         token.is_emoji = False
         token.is_hashtag = False
         token.is_mention = False
+        token.is_emoticon = False
 
         return token
 

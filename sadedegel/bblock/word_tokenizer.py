@@ -23,6 +23,7 @@ class TokenType(Enum):
     MENTION = "mention"
     EMOJI = "emoji"
     HASHTAG = "hashtag"
+    EMOTICON = "emoticon"
 
 
 @dataclass
@@ -38,17 +39,19 @@ console = Console()
 class WordTokenizer(ABC):
     __instances = {}
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
+    def __init__(self, mention=False, hashtag=False, emoji=False, emoticon=False):
         """
 
         @param mention: Handle mention in tweet texts.
         @param hashtag: Handle hashtag in tweet texts.
         @param emoji: Handle emoji unicode texts in texts.
+        @param emoticın : Handle emoticons in texts.
         """
         self._vocabulary = None
         self.mention = mention
         self.hashtag = hashtag
         self.emoji = emoji
+        self.emoticon = emoticon
 
         self.regexes = []
 
@@ -63,6 +66,11 @@ class WordTokenizer(ABC):
         if self.emoji:
             self.regexes.append(re.compile(r"(?P<emoji>[\U00010000-\U0010ffff])",
                                            flags=re.UNICODE))
+        if self.emoticon:
+            console.print("Handling emoticons")
+            self.regexes.append(
+                re.compile(
+                    r"(?P<emoticon>(\:\)+|\:\(+|\;\)+|<3+|\:\/+|\:-\/+|\:\||\:p+|\:P+|\:d+|\:D+|\:-\)+|\:-\(+|xd+|xD+|XD+|\:S+|\:s+|\:\>|\:\'\(+|\:o+|\:c|\:\]|\:-3|\^_\^))"))
 
         if len(self.regexes) > 0:
             self.exception_rules = re.compile('|'.join(x.pattern for x in self.regexes), flags=re.UNICODE)
@@ -100,8 +108,10 @@ class WordTokenizer(ABC):
                     spans.append(TokenSpan(TokenType.HASHTAG, start, end))
                 elif m.lastgroup == "mention":
                     spans.append(TokenSpan(TokenType.MENTION, start, end))
-                else:
+                elif m.lastgroup == "emoji":
                     spans.append(TokenSpan(TokenType.EMOJI, start, end))
+                else:
+                    spans.append(TokenSpan(TokenType.EMOTICON, start, end))
 
             if len(spans) == 0:
                 if EOS != 0:
@@ -122,28 +132,32 @@ class WordTokenizer(ABC):
                     t = Token(text[s.start:s.end])
                     t.is_hashtag = True
                     tokens.append(t)
-                else:
+                elif s.type == TokenType.MENTION:
                     t = Token(text[s.start:s.end])
                     t.is_mention = True
+                    tokens.append(t)
+                else:
+                    t = Token(text[s.start:s.end])
+                    t.is_emoticon = True
                     tokens.append(t)
 
             return tokens
 
     @staticmethod
-    def factory(tokenizer_name: str, mention=False, hashtag=False, emoji=False):
-        console.log(f"mention={mention}, hashtag={hashtag}, emoji={emoji}")
+    def factory(tokenizer_name: str, mention=False, hashtag=False, emoji=False, emoticon=False):
+        console.log(f"mention={mention}, hashtag={hashtag}, emoji={emoji}, emoticon={emoticon}")
         normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
-                return BertTokenizer(mention, hashtag, emoji)
+                return BertTokenizer(mention, hashtag, emoji, emoticon)
             elif normalized_name == "simple":
                 warnings.warn(
                     ("Note that SimpleTokenizer is pretty new in sadedeGel. "
                      "If you experience any problems, open up a issue "
                      "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
-                return SimpleTokenizer(mention, hashtag, emoji)
+                return SimpleTokenizer(mention, hashtag, emoji, emoticon)
             elif normalized_name == "icu":
-                return ICUTokenizer(mention, hashtag, emoji)
+                return ICUTokenizer(mention, hashtag, emoji, emoticon)
             else:
                 raise Exception(
                     (f"No word tokenizer type match with name {tokenizer_name}."
@@ -158,8 +172,8 @@ class BertTokenizer(WordTokenizer):
     def convert_tokens_to_ids(self, tokens: List[Token]) -> List[int]:
         return self.tokenizer.convert_tokens_to_ids([t.word for t in tokens])
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
-        super(BertTokenizer, self).__init__(mention, hashtag, emoji)
+    def __init__(self, mention=False, hashtag=False, emoji=False, emoticon=False):
+        super(BertTokenizer, self).__init__(mention, hashtag, emoji, emoticon)
 
         self.tokenizer = None
 
@@ -190,8 +204,8 @@ class BertTokenizer(WordTokenizer):
 class SimpleTokenizer(WordTokenizer):
     __name__ = "SimpleTokenizer"
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
-        super(SimpleTokenizer, self).__init__(mention, hashtag, emoji)
+    def __init__(self, mention=False, hashtag=False, emoji=False, emoticon=False):
+        super(SimpleTokenizer, self).__init__(mention, hashtag, emoji, emoticon)
         self.tokenizer = word_tokenize
 
     def _tokenize(self, text: str) -> List[str]:
@@ -213,8 +227,8 @@ class SimpleTokenizer(WordTokenizer):
 class ICUTokenizer(WordTokenizer):
     __name__ = "ICUTokenizer"
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
-        super(ICUTokenizer, self).__init__(mention, hashtag, emoji)
+    def __init__(self, mention=False, hashtag=False, emoji=False, emoticon=False):
+        super(ICUTokenizer, self).__init__(mention, hashtag, emoji, emoticon)
         self.tokenizer = ICUTokenizerHelper()
 
     def _tokenize(self, text: str) -> List[str]:
