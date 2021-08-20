@@ -70,7 +70,7 @@ class WordTokenizer(ABC):
             console.print("Handling emoticons")
             self.regexes.append(
                 re.compile(
-                    r"(?P<emoticon>(\:\)+|\:\(+|\;\)+|<3+|\:\/+|\:-\/+|\:\||\:p+|\:P+|\:d+|\:D+|\:-\)+|\:-\(+|xd+|xD+|XD+|\:S+|\:s+|\:\>|\:\'\(+|\:o+|\:c|\:\]|\:-3|\^_\^))"))
+                    r"(?P<emoticon>(\:\)+|\:\(+|\;\)+|<3+|\:\/+|\:-\/+|\:\||\:p+|\:P+|\:d+|\:D+|\:-\)+|\:-\(+|xd+|xD+|XD+|\:S+|\:s+|\:\>|\:\'\(+|\:o+|\:c|\:\]|\:-3|\^_\^))|8=+D"))
 
         if len(self.regexes) > 0:
             self.exception_rules = re.compile('|'.join(x.pattern for x in self.regexes), flags=re.UNICODE)

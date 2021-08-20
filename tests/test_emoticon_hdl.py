@@ -3,8 +3,9 @@ from .context import SimpleTokenizer, BertTokenizer, ICUTokenizer
 
 
 @pytest.mark.parametrize('toker, text, tokens_true', [
-    (ICUTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
-     ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^"]),
+    (ICUTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^ bu da benimki 8=======D",
+     ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^", "bu",
+      "da", "benimki", "8=======D"]),
     (SimpleTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
      ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^"]),
     (BertTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
