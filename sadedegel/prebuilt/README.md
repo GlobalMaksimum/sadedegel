@@ -165,3 +165,31 @@ Current prebuilt customer review classification model has a macro-F1 score of `0
 
 If you want to compare benchmark results:
 > The model on [Kaggle](https://www.kaggle.com/savasy/multiclass-classification-data-for-turkish-tc32) where we got dataset from has F1 score of `0.84`.
+
+### Online Food Delivery Review Sentiment Classification
+Classifier assigns each Turkish review texts into two classes ('NEGATIVE', 'POSITIVE') by using sadedegel buil-in pipeline.
+
+#### Loading and Predicting with the Model:
+```python
+from sadedegel.prebuilt import food_reviews
+# We load our prebuilt model:
+model = food_reviews.load()
+
+# Here we enter our text to get sentiment predictions.
+y_pred = model.predict(['sıradan bir yemek yorumu'])
+
+# You can also get probabilities with:
+y_probs = model.predict_proba(['sıradan bir yemek yorumu'])
+
+# You can check original test results on holdout set:
+food_reviews.evaluate()
+
+# You can conver class id's back to labels by importing:
+from sadedegel.dataset.food_reviews import CLASS_VALUES
+
+# And simply map them to get converted string list:
+y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
+```
+
+#### Accuracy
+Current prebuilt food review classification model has a macro-F1 score of `0.898` on holdout test set model never seen before.
