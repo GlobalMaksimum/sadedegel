@@ -17,3 +17,5 @@ from sadedegel.dataset import hotel_sentiment # noqa # pylint: disable=unused-im
 from sadedegel.bblock.cli.__main__ import tok_eval # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset import util # noqa # pylint: disable=unused-import, wrong-import-position
 from sadedegel.dataset import file_paths, CorpusTypeEnum # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.dataset.food_review import load_food_review_train, load_food_review_test # noqa # pylint: disable=unused-import, wrong-import-position
+from sadedegel.dataset.food_review import CLASS_VALUES as FOOD_CLASS_VALUES # noqa # pylint: disable=unused-import, wrong-import-position
