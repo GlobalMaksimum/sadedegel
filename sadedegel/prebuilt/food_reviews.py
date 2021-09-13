@@ -19,9 +19,9 @@ console = Console()
 def empty_model():
     return Pipeline(
         [('text2doc', Text2Doc('icu')),
-         ('hash', HashVectorizer(n_features=1040000)),
-         ('sgd', SGDClassifier(alpha= 0.00018808839341359152, penalty='elasticnet',
-                               eta0=0.255200881621394, learning_rate='optimal'))
+         ('hash', HashVectorizer(n_features=1050000)),
+         ('sgd', SGDClassifier(loss='log', alpha= 0.00018808839341359152, penalty='elasticnet',
+                               learning_rate='optimal'))
          ]
     )
 
@@ -81,7 +81,7 @@ def evaluate(scoring='f1', max_rows=-1):
         console.log(f"Model test accuracy (f1-macro): {f1_score(true_labels, y_pred, average='macro')}")
     if scoring=='auc':
         y_pred = model.predict_proba(test.text)
-        console.log(f"Model test roc_auc score: {roc_auc_score(true_labels, y_pred, multi_class='ovr')}")
+        console.log(f"Model test roc_auc score: {roc_auc_score(true_labels, y_pred[:,1])}")
 
 
 if __name__ == "__main__":
