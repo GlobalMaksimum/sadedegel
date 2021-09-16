@@ -185,11 +185,11 @@ y_probs = model.predict_proba(['sıradan bir yemek yorumu'])
 food_reviews.evaluate()
 
 # You can conver class id's back to labels by importing:
-from sadedegel.dataset.food_reviews import CLASS_VALUES
+from sadedegel.dataset.food_review import CLASS_VALUES
 
 # And simply map them to get converted string list:
 y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
 ```
 
 #### Accuracy
-Current prebuilt food review classification model has a macro-F1 score of `0.898` on holdout test set model never seen before.
+Current prebuilt food review classification model has a macro-F1 score of `0.896` on holdout test set model never seen before.
