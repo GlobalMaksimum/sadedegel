@@ -16,14 +16,14 @@ def test_dataset_import():
         assert rev.get("id") is not None
         assert rev.get("text") is not None
         assert rev.get("sentiment_class") is not None
-    assert i + 1 == 470396
+    assert i + 1 == 502706
 
     for i, rev in enumerate(raw_test):
         assert isinstance(rev, dict)
         assert rev.get("id") is not None
         assert rev.get("text") is not None
         assert rev.get("sentiment_class") is not None
-    assert i + 1 == 117599
+    assert i + 1 == 125677
 
 
 @pytest.mark.skipif('not Path(expanduser("~/.sadedegel_data/food_review")).exists()')
