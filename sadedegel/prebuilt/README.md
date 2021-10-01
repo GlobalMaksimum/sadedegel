@@ -193,7 +193,7 @@ y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
 
 #### Accuracy
 Current prebuilt food review classification model has a macro-F1 score of `0.896` on holdout test set model never seen before.
-#### If you want to get seperate sentiment for each category (['speed', 'service', 'flavour']), you can use `multilabel` version instead:
+#### If you want to get separate sentiment for each category (['speed', 'service', 'flavour']), you can use `multilabel` version instead:
 ```python
 from sadedegel.prebuilt import food_reviews_multilabel
 # We load our prebuilt model:
@@ -215,7 +215,7 @@ y_probs = model.predict_proba(['sıradan bir yemek yorumu'])
 # You can check original test results on holdout set:
 food_reviews_multilabel.evaluate()
 ```
-#### Accuracy for Multioutput
+#### Accuracy for Multilabel
 Current prebuilt multilabel food review classification model has a macro-F1 score of `0.865` on holdout test set model never seen before.
 
 
