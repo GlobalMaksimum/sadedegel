@@ -534,28 +534,19 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         try:
             import torch
             from transformers import BertModel
+            from sentence_transformers import SentenceTransformer
         except ImportError:
             console.print(
                 ("Error in importing transformers module. "
                  "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
             sys.exit(1)
 
-        inp, mask = self.padded_matrix()
-
         if DocBuilder.bert_model is None:
-            DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased",
                                                               output_hidden_states=True)
-            DocBuilder.bert_model.eval()
+            embeddings = DocBuilder.bert_model.encode(for s in text)
 
-        with torch.no_grad():
-            outputs = DocBuilder.bert_model(inp, mask)
-
-        twelve_layers = outputs[2][1:]
-
-        return select_layer(twelve_layers, [11], return_cls=False)
-
-    def get_tfidf(self, tf_method, idf_method, **kwargs):
-        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
+        return embeddings
 
     @property
     def tfidf(self):
