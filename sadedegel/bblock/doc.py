@@ -532,8 +532,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     @cached_property
     def bert_embeddings(self):
         try:
-            import torch
-            from transformers import BertModel
             from sentence_transformers import SentenceTransformer
         except ImportError:
             console.print(
@@ -542,9 +540,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             sys.exit(1)
 
         if DocBuilder.bert_model is None:
-            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased",
-                                                              output_hidden_states=True)
-            embeddings = DocBuilder.bert_model.encode(for s in text)
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
+            embeddings = DocBuilder.bert_model.encode(s.text for s in self)
 
         return embeddings
 
