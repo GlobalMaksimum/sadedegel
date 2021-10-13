@@ -541,7 +541,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
         if DocBuilder.bert_model is None:
             DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
-            embeddings = DocBuilder.bert_model.encode(s.text for s in self)
+            embeddings = DocBuilder.bert_model.encode([s.text for s in self])
 
         return embeddings
 
