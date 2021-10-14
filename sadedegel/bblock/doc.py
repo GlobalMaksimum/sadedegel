@@ -545,6 +545,9 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
         return embeddings
 
+    def get_tfidf(self,tf_method , idf_method, **kwargs):
+        return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
+
     @property
     def tfidf(self):
         return self.tf * self.idf
