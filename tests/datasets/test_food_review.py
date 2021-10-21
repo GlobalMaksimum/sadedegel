@@ -1,7 +1,6 @@
 from pathlib import Path  # pylint: disable=unused-import
 from os.path import expanduser  # pylint: disable=unused-import
 
-import pandas as pd
 import pytest
 from .context import load_food_review_train, load_food_review_test, FOOD_CLASS_VALUES
 
@@ -37,8 +36,5 @@ def test_from_records():
     raw_train = load_food_review_train()
     raw_test = load_food_review_test()
 
-    train_df = pd.DataFrame().from_records(raw_train)
-    test_df = pd.DataFrame().from_records(raw_test)
-
-    assert set(train_df.columns.tolist()) == {"id", "text", "sentiment_class", "speed", "service", "flavour"}
-    assert set(test_df.columns.tolist()) == {"id", "text", "sentiment_class", "speed", "service", "flavour"}
+    assert set(next(raw_train).keys()) == {"id", "text", "sentiment_class", "speed", "service", "flavour"}
+    assert set(next(raw_test).keys()) == {"id", "text", "sentiment_class", "speed", "service", "flavour"}
