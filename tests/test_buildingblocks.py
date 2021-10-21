@@ -57,6 +57,14 @@ def test_bert_document_embedding_generation(tokenizer):
         assert d.bert_document_embedding.shape == (1, 768)
 
 
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__, ICUTokenizer.__name__])
+def test_bert_document_embedding_generation_long(tokenizer):
+    with tokenizer_context(tokenizer) as Doc2:
+        d = Doc2("Ali " * 1024)
+        assert d.bert_document_embedding.shape == (1, 768)
+
+
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
 def test_tfidf_embedding_generation(tf_type):
     with tf_context(tf_type) as D:
