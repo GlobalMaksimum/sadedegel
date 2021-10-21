@@ -46,12 +46,7 @@ def test_bert_embedding_generation(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
 
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
-
-        if tokenizer in [SimpleTokenizer.__name__, ICUTokenizer.__name__]:
-            with raises(NotImplementedError):
-                assert d.bert_embeddings.shape == (2, 768)
-        else:
-            assert d.bert_embeddings.shape == (2, 768)
+        assert d.bert_embeddings.shape == (2, 768)
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
