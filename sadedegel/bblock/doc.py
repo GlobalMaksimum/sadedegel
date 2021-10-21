@@ -9,6 +9,9 @@ from rich.console import Console
 from scipy.sparse import csr_matrix
 from cached_property import cached_property
 
+import warnings
+warnings.filterwarnings("ignore")
+
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name
 from .word_tokenizer import WordTokenizer
@@ -533,19 +536,39 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     def bert_embeddings(self):
         try:
             from sentence_transformers import SentenceTransformer
-        except ImportError:
+        except ImportError as ie:
             console.print(
-                ("Error in importing transformers module. "
-                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
-            sys.exit(1)
+                ("Error in importing sentence_transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            return ie
 
         if DocBuilder.bert_model is None:
-            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased", output_hidden_states=True)
-            embeddings = DocBuilder.bert_model.encode([s.text for s in self])
+            console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
+
+        embeddings = DocBuilder.bert_model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
 
         return embeddings
 
-    def get_tfidf(self,tf_method , idf_method, **kwargs):
+    @cached_property
+    def bert_document_embedding(self):
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as ie:
+            console.print(
+                ("Error in importing sentence_transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            return ie
+
+        if DocBuilder.bert_model is None:
+            console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
+
+        embedding = DocBuilder.bert_model.encode([self.raw], show_progress_bar=False, batch_size=4)
+
+        return embedding
+
+    def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
     @property
