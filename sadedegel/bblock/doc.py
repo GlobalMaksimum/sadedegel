@@ -532,27 +532,20 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     @cached_property
     def bert_embeddings(self):
         try:
-            import torch
-            from transformers import BertModel
-        except ImportError:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as ie:
             console.print(
                 ("Error in importing transformers module. "
-                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
-            sys.exit(1)
-
-        inp, mask = self.padded_matrix()
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            raise
 
         if DocBuilder.bert_model is None:
-            DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
-                                                              output_hidden_states=True)
-            DocBuilder.bert_model.eval()
+            console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
 
-        with torch.no_grad():
-            outputs = DocBuilder.bert_model(inp, mask)
+        embeddings = DocBuilder.bert_model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
 
-        twelve_layers = outputs[2][1:]
-
-        return select_layer(twelve_layers, [11], return_cls=False)
+        return embeddings
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
