@@ -10,7 +10,8 @@ from scipy.sparse import csr_matrix
 from cached_property import cached_property
 
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name
+from .util import tr_lower, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name, __transformer_model_mapper__, \
+    ArchitectureNotFound, TransformerModel
 from .word_tokenizer import WordTokenizer
 from ..config import load_config
 from ..metrics import rouge1_score
@@ -529,6 +530,37 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             else:
                 return mat
 
+    def get_pretrained_embedding(self, architecture: str, do_sents: bool):
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as ie:
+            console.print(
+                ("Error in importing sentence_transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            return ie
+
+        model_name = __transformer_model_mapper__.get(architecture)
+        if model_name is None:
+            raise ArchitectureNotFound(f"'{architecture}' is not a supported architecture type. "
+                                       f"Try any among list of implemented architectures {list(__transformer_model_mapper__.keys())}")
+
+        if DocBuilder.transformer_model is None:
+            console.print(f"Loading \"{model_name}\"...")
+            DocBuilder.transformer_model = TransformerModel(model_name, SentenceTransformer(model_name))
+        elif DocBuilder.transformer_model.name != model_name:
+            console.print(f"Changing configured transformer model of "
+                          f"Doc from {DocBuilder.transformer_model.name} to {model_name}")
+            DocBuilder.transformer_model = None
+            self.get_pretrained_embedding(architecture=architecture, do_sents=do_sents)
+
+        if do_sents:
+            embeddings = DocBuilder.transformer_model.model.encode([s.text for s in self], show_progress_bar=False,
+                                                                   batch_size=4)
+        else:
+            embeddings = DocBuilder.transformer_model.model.encode([self.raw], show_progress_bar=False)
+
+        return embeddings
+
     @staticmethod
     def _bert_embedding(texts: List):
         try:
@@ -593,6 +625,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
 
 class DocBuilder:
+    transformer_model = None
     bert_model = None
 
     def __init__(self, **kwargs):
