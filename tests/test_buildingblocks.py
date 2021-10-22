@@ -2,7 +2,6 @@ import pkgutil  # noqa: F401 # pylint: disable=unused-import
 
 import numpy as np
 import pytest
-from pytest import raises
 from scipy.sparse import isspmatrix_csr
 
 from .context import Doc, BertTokenizer, SimpleTokenizer, ICUTokenizer, tokenizer_context, tf_context, config_context
