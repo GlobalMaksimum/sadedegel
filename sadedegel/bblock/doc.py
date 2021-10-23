@@ -452,7 +452,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self.raw = raw
         self.spans = []
         self._sents = []
-        self._tokens = None
         self.builder = builder
         self.config = self.builder.config
 
@@ -462,13 +461,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return self.config['default'].getfloat('avg_document_length')
 
     @cached_property
-    def tokens(self) -> List[str]:
-        tokens = []
-        for s in self:
-            for t in s.tokens:
-                tokens.append(t)
-
-        return tokens
+    def tokens(self) -> List[Token]:
+        return [t for t in self.builder.tokenizer(self.raw)]
 
     @property
     def vocabulary(self):
