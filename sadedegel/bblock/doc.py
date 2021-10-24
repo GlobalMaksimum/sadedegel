@@ -37,16 +37,16 @@ class Span:
 
     def span_features(self):
         is_first_span = self.i == 0
-        is_last_span = self.i == len(self.doc.spans) - 1
+        is_last_span = self.i == len(self.doc._spans) - 1
         word = self.doc.raw[slice(*self.value)]
 
         if not is_first_span:
-            word_m1 = self.doc.raw[slice(*self.doc.spans[self.i - 1].value)]
+            word_m1 = self.doc.raw[slice(*self.doc._spans[self.i - 1].value)]
         else:
             word_m1 = '<D>'
 
         if not is_last_span:
-            word_p1 = self.doc.raw[slice(*self.doc.spans[self.i + 1].value)]
+            word_p1 = self.doc.raw[slice(*self.doc._spans[self.i + 1].value)]
         else:
             word_p1 = '</D>'
 
@@ -449,8 +449,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         BM25Impl.__init__(self)
 
         self.raw = raw
-        self.spans = []
-        self._sents = []
+        self._spans = []
+        self._sentences = []
         self.builder = builder
         self.config = self.builder.config
 
@@ -458,6 +458,38 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     def avgdl(self) -> float:
         """Average number of tokens per document"""
         return self.config['default'].getfloat('avg_document_length')
+
+    @cached_property
+    def _sents(self):
+        if not self._sentences:
+            _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
+            self._spans = [Span(i, span, self) for i, span in enumerate(_spans)]
+
+            if len(self._spans) > 0:
+                y_pred = self.builder.sbd.predict((span.span_features() for span in self._spans))
+            else:
+                y_pred = []
+
+            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
+            if len(eos_list) > 0:
+                for i, eos in enumerate(eos_list):
+                    if i == 0:
+                        self._sentences.append(Sentences(i, self.raw[:eos].strip(), self, self.builder.config))
+                    else:
+                        self._sentences.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self, self.builder.config))
+
+                if eos_list[-1] != len(self.raw):
+                    self._sentences.append(Sentences(len(self._sentences), self.raw[eos_list[-1] + 1:len(self.raw)], self,
+                                                     self.builder.config))
+            else:
+                self._sentences.append(Sentences(0, self.raw.strip(), self, self.builder.config))
+
+        return self._sentences
+
+    @cached_property
+    def spans(self):
+        _ = self._sents
+        return self._spans
 
     @cached_property
     def tokens(self) -> List[Token]:
@@ -616,30 +648,8 @@ class DocBuilder:
 
         if raw is not None:
             raw_stripped = raw.strip()
-            _spans = [match.span() for match in re.finditer(r"\S+", raw_stripped)]
-
             d = Document(raw_stripped, self)
-            d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
 
-            if len(d.spans) > 0:
-                y_pred = self.sbd.predict((span.span_features() for span in d.spans))
-            else:
-                y_pred = []
-
-            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
-
-            if len(eos_list) > 0:
-                for i, eos in enumerate(eos_list):
-                    if i == 0:
-                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d, self.config))
-                    else:
-                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d, self.config))
-
-                if eos_list[-1] != len(raw_stripped):
-                    d._sents.append(Sentences(len(d._sents), d.raw[eos_list[-1] + 1:len(raw_stripped)], d,
-                                              self.config))
-            else:
-                d._sents.append(Sentences(0, d.raw.strip(), d, self.config))
 
         else:
             raise Exception(f"{raw} document text can't be None")
@@ -651,6 +661,6 @@ class DocBuilder:
 
         d = Document(raw, self)
         for i, s in enumerate(sentences):
-            d._sents.append(Sentences(i, s, d, self.config))
+            d._sentences.append(Sentences(i, s, d, self.config))
 
         return d
