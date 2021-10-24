@@ -451,7 +451,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         self.raw = raw
         self.spans = []
         self._sents = []
-        self._tokens = None
         self.builder = builder
         self.config = self.builder.config
 
@@ -462,12 +461,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def tokens(self) -> List[Token]:
-        tokens = []
-        for s in self:
-            for t in s.tokens:
-                tokens.append(t)
-
-        return tokens
+        return [t for t in self.builder.tokenizer(self.raw)]
 
     @property
     def vocabulary(self):
