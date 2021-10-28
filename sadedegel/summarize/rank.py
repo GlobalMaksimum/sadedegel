@@ -36,6 +36,8 @@ class TextRank(ExtractiveSummarizer):
     def _predict(self, sentences: List[Sentences]) -> np.ndarray:
         if len(sentences) == 0:
             raise ValueError(f"Ensure that document contains a few sentences for summarization")
+        elif len(sentences) == 1 and sentences[0] == "":
+            raise ValueError(f"Ensure that document contains a few sentences for summarization")
 
         if sentences[0].tokenizer.__name__ != "BertTokenizer":
             with tokenizer_context('bert', warning=True) as Doc2:
