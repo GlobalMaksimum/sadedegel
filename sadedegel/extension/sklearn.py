@@ -231,3 +231,33 @@ class BM25Vectorizer(SadedegelVectorizer):
             indptr.append(len(indices))
 
         return csr_matrix((data, indices, indptr), dtype=np.float32, shape=(n_total, n_vocabulary))
+
+
+class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
+    Doc = None
+
+    def __init__(self, model: str, do_sents = False, progress_tracking = True):
+        super().__init__()
+        self.model = model
+        self.do_sents = do_sents
+        self.progress_tracking = progress_tracking
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        if PreTrainedVectorizer.Doc is None:
+            PreTrainedVectorizer.Doc = DocBuilder()
+
+        vecs = []
+        n_total = 0
+        for text in tqdm(X, disable=not hasattr(self, 'progress_tracking') or not self.progress_tracking, unit="doc"):
+            d = PreTrainedVectorizer.Doc(text)
+            vecs.append(d.get_pretrained_embedding(architecture=self.model, do_sents=self.do_sents))
+            if self.do_sents:
+                n_total += len(d)
+            else:
+                n_total += 1
+        vector_shape = vecs[0].shape[1]
+
+        return csr_matrix(np.vstack(vecs), dtype=np.float16, shape=(n_total, vector_shape))

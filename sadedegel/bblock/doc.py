@@ -9,8 +9,11 @@ from rich.console import Console
 from scipy.sparse import csr_matrix
 from cached_property import cached_property
 
+import warnings
+warnings.filterwarnings("ignore")
+
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
-from .util import tr_lower, select_layer, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name
+from .util import tr_lower, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name, __transformer_model_mapper__, ArchitectureNotFound, TransformerModel
 from .word_tokenizer import WordTokenizer
 from ..config import load_config
 from ..metrics import rouge1_score
@@ -88,7 +91,7 @@ class Span:
         # In parenthesis feature
         if word[0] == '(' and word[-1] == ')':
             features["IN_PARENTHESIS"] = True
-
+        #this is test comment
         # Suffix features
         m = re.search(r'\W+$', word)
 
@@ -555,30 +558,71 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             else:
                 return mat
 
+    def get_pretrained_embedding(self, architecture: str, do_sents: bool):
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as ie:
+            console.print(
+                ("Error in importing sentence_transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            return ie
+
+        model_name = __transformer_model_mapper__.get(architecture)
+        if model_name is None:
+            raise ArchitectureNotFound(f"'{architecture}' is not a supported architecture type. "
+                                       f"Try any among list of implemented architectures {list(__transformer_model_mapper__.keys())}")
+
+        if DocBuilder.transformer_model is None:
+            console.print(f"Loading \"{model_name}\"...")
+            DocBuilder.transformer_model = TransformerModel(model_name, SentenceTransformer(model_name))
+        elif DocBuilder.transformer_model.name != model_name:
+            console.print(f"Changing configured transformer model of "
+                          f"Doc from {DocBuilder.transformer_model.name} to {model_name}")
+            DocBuilder.transformer_model = None
+            self.get_pretrained_embedding(architecture=architecture, do_sents=do_sents)
+
+        if do_sents:
+            embeddings = DocBuilder.transformer_model.model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
+        else:
+            embeddings = DocBuilder.transformer_model.model.encode([self.raw], show_progress_bar=False)
+
+        return embeddings
+
     @cached_property
     def bert_embeddings(self):
         try:
-            import torch
-            from transformers import BertModel
-        except ImportError:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as ie:
             console.print(
-                ("Error in importing transformers module. "
-                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
-            sys.exit(1)
-
-        inp, mask = self.padded_matrix()
+                ("Error in importing sentence_transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            return ie
 
         if DocBuilder.bert_model is None:
-            DocBuilder.bert_model = BertModel.from_pretrained("dbmdz/bert-base-turkish-cased",
-                                                              output_hidden_states=True)
-            DocBuilder.bert_model.eval()
+            console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
 
-        with torch.no_grad():
-            outputs = DocBuilder.bert_model(inp, mask)
+        embeddings = DocBuilder.bert_model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
 
-        twelve_layers = outputs[2][1:]
+        return embeddings
 
-        return select_layer(twelve_layers, [11], return_cls=False)
+    @cached_property
+    def bert_document_embedding(self):
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as ie:
+            console.print(
+                ("Error in importing sentence_transformers module. "
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
+            return ie
+
+        if DocBuilder.bert_model is None:
+            console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
+            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
+
+        embedding = DocBuilder.bert_model.encode([self.raw], show_progress_bar=False, batch_size=4)
+
+        return embedding
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
@@ -618,6 +662,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
 
 class DocBuilder:
+    transformer_model = None
     bert_model = None
 
     def __init__(self, **kwargs):
