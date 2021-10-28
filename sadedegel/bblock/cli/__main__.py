@@ -50,12 +50,11 @@ def tok_eval(tokenizer, limit=None) -> Tuple[str, float, float]:
         try:
             import torch
             from transformers import AutoTokenizer
-        except ImportError:
+        except ImportError as ie:
             console.print(
                 ("Error in importing transformers module. "
-                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."),
-                file=sys.stderr)
-            sys.exit(1)
+                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT features."))
+            return ie
 
         toker = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased").tokenize
 
