@@ -11,7 +11,7 @@ from cached_property import cached_property
 from rich.console import Console
 
 from sadedegel.bblock.word_tokenizer_helper import ICUTokenizerHelper
-from .util import normalize_tokenizer_name
+from .util import normalize_tokenizer_name, repetition_correct
 from .vocabulary import Vocabulary
 from .token import Token
 from .word_tokenizer_helper import word_tokenize
@@ -38,7 +38,7 @@ console = Console()
 class WordTokenizer(ABC):
     __instances = {}
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
+    def __init__(self, mention=False, hashtag=False, emoji=False, correct_repeats=False):
         """
 
         @param mention: Handle mention in tweet texts.
@@ -49,8 +49,10 @@ class WordTokenizer(ABC):
         self.mention = mention
         self.hashtag = hashtag
         self.emoji = emoji
+        self.correct_repeats = correct_repeats
 
         self.regexes = []
+
 
         if self.hashtag:
             console.print("Handling hashtags")
@@ -79,6 +81,9 @@ class WordTokenizer(ABC):
 
     def __call__(self, sentence: str) -> List[Token]:
         text = str(sentence)
+
+        if self.correct_repeats:
+            text = repetition_correct(text)
 
         if len(self.regexes) == 0:
             return [Token(t) for t in self._tokenize(text)]
@@ -130,20 +135,20 @@ class WordTokenizer(ABC):
             return tokens
 
     @staticmethod
-    def factory(tokenizer_name: str, mention=False, hashtag=False, emoji=False):
-        console.log(f"mention={mention}, hashtag={hashtag}, emoji={emoji}")
+    def factory(tokenizer_name: str, mention=False, hashtag=False, emoji=False, correct_repeats=False):
+        console.log(f"mention={mention}, hashtag={hashtag}, emoji={emoji}, correct_repeats={correct_repeats}")
         normalized_name = normalize_tokenizer_name(tokenizer_name)
         if normalized_name not in WordTokenizer.__instances:
             if normalized_name == "bert":
-                return BertTokenizer(mention, hashtag, emoji)
+                return BertTokenizer(mention, hashtag, emoji, correct_repeats)
             elif normalized_name == "simple":
                 warnings.warn(
                     ("Note that SimpleTokenizer is pretty new in sadedeGel. "
                      "If you experience any problems, open up a issue "
                      "(https://github.com/GlobalMaksimum/sadedegel/issues/new)"))
-                return SimpleTokenizer(mention, hashtag, emoji)
+                return SimpleTokenizer(mention, hashtag, emoji, correct_repeats)
             elif normalized_name == "icu":
-                return ICUTokenizer(mention, hashtag, emoji)
+                return ICUTokenizer(mention, hashtag, emoji, correct_repeats)
             else:
                 raise Exception(
                     (f"No word tokenizer type match with name {tokenizer_name}."
@@ -158,8 +163,8 @@ class BertTokenizer(WordTokenizer):
     def convert_tokens_to_ids(self, tokens: List[Token]) -> List[int]:
         return self.tokenizer.convert_tokens_to_ids([t.word for t in tokens])
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
-        super(BertTokenizer, self).__init__(mention, hashtag, emoji)
+    def __init__(self, mention=False, hashtag=False, emoji=False, correct_repeats=False):
+        super(BertTokenizer, self).__init__(mention, hashtag, emoji, correct_repeats)
 
         self.tokenizer = None
 
@@ -190,8 +195,8 @@ class BertTokenizer(WordTokenizer):
 class SimpleTokenizer(WordTokenizer):
     __name__ = "SimpleTokenizer"
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
-        super(SimpleTokenizer, self).__init__(mention, hashtag, emoji)
+    def __init__(self, mention=False, hashtag=False, emoji=False, correct_repeats=False):
+        super(SimpleTokenizer, self).__init__(mention, hashtag, emoji, correct_repeats)
         self.tokenizer = word_tokenize
 
     def _tokenize(self, text: str) -> List[str]:
@@ -213,8 +218,8 @@ class SimpleTokenizer(WordTokenizer):
 class ICUTokenizer(WordTokenizer):
     __name__ = "ICUTokenizer"
 
-    def __init__(self, mention=False, hashtag=False, emoji=False):
-        super(ICUTokenizer, self).__init__(mention, hashtag, emoji)
+    def __init__(self, mention=False, hashtag=False, emoji=False, correct_repeats=False):
+        super(ICUTokenizer, self).__init__(mention, hashtag, emoji, correct_repeats)
         self.tokenizer = ICUTokenizerHelper()
 
     def _tokenize(self, text: str) -> List[str]:

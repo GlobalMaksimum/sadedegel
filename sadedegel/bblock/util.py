@@ -7,6 +7,7 @@ from typing import List
 
 import numpy as np
 from rich.console import Console
+import re
 
 from ..about import __version__
 
@@ -35,6 +36,10 @@ def tr_lower(s: str) -> str:
 
 def tr_upper(s: str) -> str:
     return s.replace("i", "İ").upper()
+
+def repetition_correct(s):
+    pattern = re.compile(r"(.)\1{2,}", re.DOTALL)
+    return pattern.sub(r"\1", s)
 
 
 def space_pad(token):
