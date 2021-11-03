@@ -10,10 +10,12 @@ from scipy.sparse import csr_matrix
 from cached_property import cached_property
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
-from .util import tr_lower, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name, __transformer_model_mapper__, ArchitectureNotFound, TransformerModel
+from .util import tr_lower, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name, __transformer_model_mapper__, \
+    ArchitectureNotFound, TransformerModel
 from .word_tokenizer import WordTokenizer
 from ..config import load_config
 from ..metrics import rouge1_score
@@ -91,7 +93,7 @@ class Span:
         # In parenthesis feature
         if word[0] == '(' and word[-1] == ')':
             features["IN_PARENTHESIS"] = True
-        #this is test comment
+        # this is test comment
         # Suffix features
         m = re.search(r'\W+$', word)
 
@@ -479,11 +481,13 @@ class Document(TFImpl, IDFImpl, BM25Impl):
                     if i == 0:
                         self._sentences.append(Sentences(i, self.raw[:eos].strip(), self, self.builder.config))
                     else:
-                        self._sentences.append(Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self, self.builder.config))
+                        self._sentences.append(
+                            Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self, self.builder.config))
 
                 if eos_list[-1] != len(self.raw):
-                    self._sentences.append(Sentences(len(self._sentences), self.raw[eos_list[-1] + 1:len(self.raw)], self,
-                                                     self.builder.config))
+                    self._sentences.append(
+                        Sentences(len(self._sentences), self.raw[eos_list[-1] + 1:len(self.raw)], self,
+                                  self.builder.config))
             else:
                 self._sentences.append(Sentences(0, self.raw.strip(), self, self.builder.config))
 
@@ -565,7 +569,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             console.print(
                 ("Error in importing sentence_transformers module. "
                  "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
-            return ie
+            sys.exit(1)
 
         model_name = __transformer_model_mapper__.get(architecture)
         if model_name is None:
@@ -582,7 +586,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             self.get_pretrained_embedding(architecture=architecture, do_sents=do_sents)
 
         if do_sents:
-            embeddings = DocBuilder.transformer_model.model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
+            embeddings = DocBuilder.transformer_model.model.encode([s.text for s in self], show_progress_bar=False,
+                                                                   batch_size=4)
         else:
             embeddings = DocBuilder.transformer_model.model.encode([self.raw], show_progress_bar=False)
 
