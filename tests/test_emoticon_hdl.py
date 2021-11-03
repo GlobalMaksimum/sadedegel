@@ -44,12 +44,10 @@ def test_tokenizer_emoji_f(text, tokens_true, toker):
 
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize('toker, text, tokens_true', [
-    (ICUTokenizer, "komik:)",
-     ["komik", ":", ")"]),
-    (SimpleTokenizer, "komik:)",
-     ["komik"]),
+    (BertTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
+     ["komik", ":)", ":(", ";)", "<3", ":/", ":p", ":P", ":d", ":D", ":-)", ":-(", "xd", "xD", ":))))", "^_^"]),
 ])
-def test_tokenizer_emoji_f(text, tokens_true, toker):
+def test_bert_tokenizer_emoji_f(text, tokens_true, toker):
     tokenizer = toker(emoticon=False)
     tokens_pred = tokenizer(text)
     assert tokens_pred == tokens_true
