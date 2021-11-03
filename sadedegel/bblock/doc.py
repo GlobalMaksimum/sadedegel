@@ -9,6 +9,10 @@ from rich.console import Console
 from scipy.sparse import csr_matrix
 from cached_property import cached_property
 
+import warnings
+
+warnings.filterwarnings("ignore")
+
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from .util import tr_lower, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name, __transformer_model_mapper__, \
     ArchitectureNotFound, TransformerModel
@@ -531,7 +535,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             console.print(
                 ("Error in importing sentence_transformers module. "
                  "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
-            return ie
+            sys.exit(1)
 
         model_name = __transformer_model_mapper__.get(architecture)
         if model_name is None:

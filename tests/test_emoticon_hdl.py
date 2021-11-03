@@ -33,8 +33,6 @@ def test_bert_tokenizer_emoji(text, tokens_true, toker):
      ["komik", ":", ")"]),
     (SimpleTokenizer, "komik:)",
      ["komik"]),
-    (BertTokenizer, "komik:)",
-     ["komik", ":", ")"]),
 ])
 def test_tokenizer_emoji_f(text, tokens_true, toker):
     tokenizer = toker(emoticon=False)
