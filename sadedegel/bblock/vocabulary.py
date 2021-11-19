@@ -8,7 +8,7 @@ import numpy as np
 from cached_property import cached_property
 from rich.console import Console
 
-from .util import tr_lower, normalize_tokenizer_name
+from .util import tr_lower, normalize_tokenizer_name, NotATokenError
 
 console = Console()
 
@@ -25,7 +25,7 @@ def vocabulary_file(tokenizer: str, verify_exists=True):
             (f"Currently only valid tokenizers are BERT, ICU Tokenizer for vocabulary generation."
              " {normalized_name} found"))
 
-    vocab_file = Path(dirname(__file__)) / 'data' / normalized_name / 'vocabulary.hdf5'
+    vocab_file = Path(dirname(__file__)) / 'data' / normalized_name / 'vocabulary_new.hdf5'
 
     if not vocab_file.exists() and verify_exists:
         raise FileNotFoundError(f"Vocabulary file for {tokenizer} ({normalized_name}) tokenizer not found.")
@@ -47,6 +47,12 @@ class VocabularyCounter:
         self.case_sensitive = case_sensitive
 
     def inc(self, word: str, document_id: int, count: int = 1):
+        if not isinstance(word, str):
+            try:
+                word = word.word
+            except Exception as e:
+                raise NotATokenError
+
         if self.case_sensitive:
             w = word
         else:
