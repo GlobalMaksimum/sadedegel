@@ -25,7 +25,7 @@ def vocabulary_file(tokenizer: str, verify_exists=True):
             (f"Currently only valid tokenizers are BERT, ICU Tokenizer for vocabulary generation."
              " {normalized_name} found"))
 
-    vocab_file = Path(dirname(__file__)) / 'data' / normalized_name / 'vocabulary_new.hdf5'
+    vocab_file = Path(dirname(__file__)) / 'data' / normalized_name / 'vocabulary.hdf5'
 
     if not vocab_file.exists() and verify_exists:
         raise FileNotFoundError(f"Vocabulary file for {tokenizer} ({normalized_name}) tokenizer not found.")
@@ -123,11 +123,11 @@ class VocabularyCounter:
                 group.attrs['vector_size'] = w2v.vector_size
 
                 group.create_dataset("vector", data=np.array(
-                    [w2v[w] if w in w2v else np.zeros(w2v.vector_size) for w in words]).astype(
+                    [w2v.wv[w] if w2v.wv.has_index_for(w) else np.zeros(w2v.vector_size) for w in words]).astype(
                     np.float32),
                                      compression="gzip",
                                      compression_opts=9)
-                group.create_dataset("has_vector", data=np.array([w in w2v in w2v for w in words]),
+                group.create_dataset("has_vector", data=np.array([w.encode("utf-8") for w in words if w2v.wv.has_index_for(w)], dtype="S"),
                                      compression="gzip",
                                      compression_opts=9)
 
@@ -153,6 +153,7 @@ class Vocabulary:
 
         self.dword_cs = None
         self.dword = None
+        self.dword_has_vector = None
 
     @cached_property
     def size_cs(self) -> int:
@@ -174,12 +175,29 @@ class Vocabulary:
             return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
 
     @cached_property
+    def feature_to_id_has_vector(self) -> Dict[str, int]:
+        """Dictionary of feature -> id
+
+        @return: dict of feature -> id
+        """
+        with h5py.File(self.file_name, "r") as fp:
+            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['has_vector'])))
+
+    @cached_property
     def id_to_feature(self) -> Dict[int, str]:
         """Dictionary of id -> feature
 
         @return: dict of id -> feature
         """
         return dict((i, s) for s, i in self.feature_to_id.items())
+
+    @cached_property
+    def id_to_feature_has_vector(self) -> Dict[int, str]:
+        """Dictionary of id -> feature
+
+        @return: dict of id -> feature
+        """
+        return dict((i, s) for s, i in self.feature_to_id_has_vector.items())
 
     @cached_property
     def feature_cs_to_id(self) -> Dict[str, int]:
@@ -215,6 +233,12 @@ class Vocabulary:
 
         return self.dword.get(tr_lower(word), default)
 
+    def id_has_vector(self,  word: str, default: int = -1):
+        if self.dword_has_vector is None:
+            self.dword_has_vector = self.feature_to_id_has_vector
+
+        return self.dword_has_vector.get(tr_lower(word), default)
+
     def df(self, word: str):
 
         i = self.id(word)
@@ -244,7 +268,7 @@ class Vocabulary:
     def has_vector(self, word: str):
         with h5py.File(self.file_name, "r") as fp:
             if "has_vector" in fp['lower_']:
-                i = self.id(word)
+                i = self.id_has_vector(word)
 
                 if i == -1:
                     return False
