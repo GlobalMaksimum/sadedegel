@@ -6,7 +6,7 @@ SadedeGel is initially designed to be a library for unsupervised extraction-base
 
 Development of the library started as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/) in which SadedeGel was the **2nd place winner**.
 
-We keeping on adding features with the goal of becoming a general purpose open source NLP library for Turkish language.
+We are keeping on adding features with the goal of becoming a general purpose open source NLP library for Turkish language.
 
 
 💫 **Version 0.20 out now!**
