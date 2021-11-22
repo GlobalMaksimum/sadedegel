@@ -198,7 +198,7 @@ def deprecate(message: str, eol_version: tuple, post_message: str = None):
 def h5py_decode(token):
     try:
         return token.decode("utf-8")
-    except:
+    except AttributeError:
         return token
 
 
