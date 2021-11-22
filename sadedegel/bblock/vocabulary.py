@@ -8,7 +8,7 @@ import numpy as np
 from cached_property import cached_property
 from rich.console import Console
 
-from .util import tr_lower, normalize_tokenizer_name, NotATokenError
+from .util import tr_lower, normalize_tokenizer_name, NotATokenError, h5py_decode
 
 console = Console()
 
@@ -172,7 +172,7 @@ class Vocabulary:
         @return: dict of feature -> id
         """
         with h5py.File(self.file_name, "r") as fp:
-            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
+            return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['lower_']['word'])))
 
     @cached_property
     def feature_to_id_has_vector(self) -> Dict[str, int]:
@@ -181,7 +181,7 @@ class Vocabulary:
         @return: dict of feature -> id
         """
         with h5py.File(self.file_name, "r") as fp:
-            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['has_vector'])))
+            return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['lower_']['has_vector'])))
 
     @cached_property
     def id_to_feature(self) -> Dict[int, str]:
@@ -206,7 +206,7 @@ class Vocabulary:
         @return: dict of feature -> id
         """
         with h5py.File(self.file_name, "r") as fp:
-            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
+            return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['form_']['word'])))
 
     @cached_property
     def id_to_feature_cs(self) -> Dict[int, str]:

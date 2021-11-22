@@ -195,6 +195,13 @@ def deprecate(message: str, eol_version: tuple, post_message: str = None):
             f"{message}, will be [magenta]dropped[/magenta] by {'.'.join(map(str, eol_version))}. {post_message}")
 
 
+def h5py_decode(token):
+    try:
+        return token.decode("utf-8")
+    except:
+        return token
+
+
 TransformerModel = namedtuple("TransformerModel", "name model")
 
 class ArchitectureNotFound(NotImplementedError):
