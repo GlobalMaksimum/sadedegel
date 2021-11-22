@@ -107,8 +107,12 @@ class VocabularyCounter:
     def to_hdf5(self, w2v=None):
         with h5py.File(vocabulary_file(self.tokenizer, verify_exists=False), "a") as fp:
             if self.case_sensitive:
+                if "form_" in fp.keys():
+                    del fp["form_"]
                 group = fp.create_group("form_")
             else:
+                if "lower_" in fp.keys():
+                    del fp["lower_"]
                 group = fp.create_group("lower_")
 
             words = sorted(list(self.term_freq.keys()), key=lambda w: tr_lower(w))
