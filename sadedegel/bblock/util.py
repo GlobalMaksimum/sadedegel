@@ -3,7 +3,8 @@ import warnings
 from collections import defaultdict, namedtuple
 from os.path import dirname
 from pathlib import Path
-from typing import List
+from typing import List, Optional
+
 
 import numpy as np
 from rich.console import Console
@@ -26,14 +27,26 @@ __transformer_model_mapper__ = {"bert_32k_cased": "dbmdz/bert-base-turkish-cased
                                 "distilbert": "dbmdz/distilbert-base-turkish-cased"}
 
 
-def tr_lower(s: str) -> str:
+def tr_lower(s: Optional[str]) -> str:
+    if not isinstance(s, str):
+        try:
+            s = s.word
+        except Exception as e:
+            raise NotATokenError
+
     if "I" in s or "İ" in s:
         return s.replace("I", "ı").replace("İ", "i").lower()
     else:
         return s.lower()
 
 
-def tr_upper(s: str) -> str:
+def tr_upper(s: Optional[str]) -> str:
+    if not isinstance(s, str):
+        try:
+            s = s.word
+        except Exception as e:
+            raise NotATokenError
+
     return s.replace("i", "İ").upper()
 
 
@@ -182,11 +195,20 @@ def deprecate(message: str, eol_version: tuple, post_message: str = None):
             f"{message}, will be [magenta]dropped[/magenta] by {'.'.join(map(str, eol_version))}. {post_message}")
 
 
+def h5py_decode(token):
+    try:
+        return token.decode("utf-8")
+    except AttributeError:
+        return token
+
+
 TransformerModel = namedtuple("TransformerModel", "name model")
 
 class ArchitectureNotFound(NotImplementedError):
     """Used when a user specified transformer architecture is not supported"""
 
+class NotATokenError(Exception):
+    """Raised when a received element is not a str or Token object"""
 
 class ConfigNotSet(Exception):
     """Used when configuration is not set although it is expected"""
