@@ -565,6 +565,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     def get_pretrained_embedding(self, architecture: str, do_sents: bool):
         try:
             from sentence_transformers import SentenceTransformer
+            import transformers
+            transformers.logging.set_verbosity_error()
         except ImportError as ie:
             console.print(
                 ("Error in importing sentence_transformers module. "
