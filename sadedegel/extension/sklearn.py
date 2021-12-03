@@ -264,4 +264,4 @@ class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
                 n_total += 1
         vector_shape = vecs[0].shape[1]
 
-        return csr_matrix(np.vstack(vecs), dtype=np.float16, shape=(n_total, vector_shape))
+        return csr_matrix(np.vstack(vecs), dtype=np.float32, shape=(n_total, vector_shape))
