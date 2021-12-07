@@ -133,8 +133,7 @@ Comparable [benchmark](https://ieeexplore.ieee.org/document/8554037/) models has
 * `0.6925` **accuracy** score (convolutional neural networks fed with char ngrams)
 * `0.66` **accuracy** score (classical ML approach fed with bag-of-words)
 on the hold-out set.
-
-
+  
 ### Turkish Customer Reviews Classification
 
 Classifier assigns each Turkish customer review text into 32 classes by using sadedegel built-in pipeline.
@@ -168,3 +167,18 @@ Current prebuilt customer review classification model has a macro-F1 score of `0
 
 If you want to compare benchmark results:
 > The model on [Kaggle](https://www.kaggle.com/savasy/multiclass-classification-data-for-turkish-tc32) where we got dataset from has F1 score of `0.84`.
+
+### Turkish Product Sentiment Classification
+Classifier assigns each Turkish product review texts into one of 3 classes ('NEUTRAL','NEGATIVE','POSITIVE') by using sadedegel built-in pipeline.
+#### Loading and Predicting with the Model:
+```python
+ from sadedegel.prebuilt import product_sentiment
+ # We load our prebuilt model:
+ model = product_sentiment.load()
+ # Here we enter our text to get sentiment predictions.
+ y_pred = model.predict([])
+```
+#### Accuracy
+Current prebuilt model has 
+* 3-fold cross validation F1 macro score of `mean 0.6494, std 0.0045)`.
+* 5-fold cross validation F1 macro score of `mean 0.655, std 0.0083)`

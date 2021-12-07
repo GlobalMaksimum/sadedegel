@@ -315,6 +315,31 @@ test = load_hotel_sentiment_test()
 test_label = load_hotel_sentiment_test_label()
 ```
 
+## `product_sentiment`
+
+This corpus contains 11426 instance of product reviews annotated by a sentiment label from set of `['POSITIVE', 'NEGATIVE', 'NEUTRAL']` sentiments. Dataset [source](https://www.kaggle.com/burhanbilenn/duygu-analizi-icin-urun-yorumlari/version/1)
+
+### Using corpus
+```python
+from sadedegel.dataset.product_sentiment import load_product_sentiment_train
+from sadedegel.dataset.product_sentiment import CLASS_VALUES
+
+import pandas as pd
+
+raw = load_product_sentiment_train()
+
+next(raw)
+
+# Out [0]: {text: "ses kalitesi ve ergonomisi rezalet, sony olduğu için aldım ama 4'de 1 fiyatına çin replika ürün alsaydım çok çok daha iyiydi, kesinlikle tavsiye etmiyorum."
+#            sentiment_class: 0}
+
+df = pd.DataFrame().from_records(raw)
+
+CLASS_VALUES[df.sentiment_class.iloc[0]]
+
+# Out [1]: 'NEGATIVE'
+```
+
 ## `categorized_product_sentiment`
 
 This corpus contains 5600 instances of customer product reviews from E-commerce sites. Reviews contain two sets of class labels. First label is `sentiment_class` which contains `[POSITIVE, NEGATIVE]` sentiment of the review. Second label is `product_category` which contains `["Kitchen", "DVD", "Books", "Electronics"]` as the category of the product being reviewed. Each product category contains 1400 instances. The dataset is material to the research [paper](https://sentic.net/wisdom2013pechenizkiy.pdf) by Demirtaş and Pechenizkiy.
