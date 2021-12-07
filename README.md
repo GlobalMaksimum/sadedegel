@@ -73,8 +73,9 @@ Other community maintainers
   * TsCorpus(`sadedegel.dataset.tscorpus`)
       * Thanks to [Taner Sezer](https://github.com/tanerim), over 300K documents from tscorpus is also a part of sadedegel. Allowing us to
         * [Evaluate](sadedegel/bblock/TOKENIZER.md) our tokenizers (word tokenizers)
-        * Build our [prebuilt news category classifier](sadedegel/prebuilt/README.md)  
-* ML based sentence boundary detector (**SBD**) trained for Turkish language (`sadedegel.dataset`)
+        * Build our [prebuilt news category classifier](sadedegel/prebuilt/README.md) 
+  * Various domain specific [datasets](https://github.com/GlobalMaksimum/sadedegel/tree/develop/sadedegel/dataset) (e-commerce, social media, tourism etc.) 
+* ML based sentence boundary detector (**SBD**) trained for Turkish language
 * Sadedegel Extractive Summarizers
   * Various baseline summarizers
     * Position Summarizer
@@ -95,7 +96,7 @@ Other community maintainers
   * Simple Tokenizer - Regex Based
   * IcU Tokenizer (default by `0.19`)
   
-* Various Embeddings Implementation
+* Various Sparse and Dense Embeddings implemented for `Sentences` and `Document` objects.
   * BERT Embeddings (`pip install sadedegel[bert]`)
   * TfIdf Embeddings
  
