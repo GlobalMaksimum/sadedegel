@@ -4,9 +4,9 @@
 
 SadedeGel is initially designed to be a library for unsupervised extraction-based news summarization using several old and new NLP techniques.
 
-Development of the library started as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/)
+Development of the library started as a part of [Açık Kaynak Hackathon Programı 2020](https://www.acikhack.com/) in which SadedeGel was the **2nd place winner**.
 
-We keep adding lots to become a general purpose open source NLP library for Turkish langauge.
+We are keeping on adding features with the goal of becoming a general purpose open source NLP library for Turkish language.
 
 
 💫 **Version 0.20 out now!**
@@ -73,8 +73,9 @@ Other community maintainers
   * TsCorpus(`sadedegel.dataset.tscorpus`)
       * Thanks to [Taner Sezer](https://github.com/tanerim), over 300K documents from tscorpus is also a part of sadedegel. Allowing us to
         * [Evaluate](sadedegel/bblock/TOKENIZER.md) our tokenizers (word tokenizers)
-        * Build our [prebuilt news category classifier](sadedegel/prebuilt/README.md)  
-* ML based sentence boundary detector (**SBD**) trained for Turkish language (`sadedegel.dataset`)
+        * Build our [prebuilt news category classifier](sadedegel/prebuilt/README.md) 
+  * Various domain specific [datasets](https://github.com/GlobalMaksimum/sadedegel/tree/develop/sadedegel/dataset) (e-commerce, social media, tourism etc.) 
+* ML based sentence boundary detector (**SBD**) trained for Turkish language
 * Sadedegel Extractive Summarizers
   * Various baseline summarizers
     * Position Summarizer
@@ -95,9 +96,13 @@ Other community maintainers
   * Simple Tokenizer - Regex Based
   * IcU Tokenizer (default by `0.19`)
   
-* Various Embeddings Implementation
+* Various Sparse and Dense Embeddings implemented for `Sentences` and `Document` objects.
   * BERT Embeddings (`pip install sadedegel[bert]`)
   * TfIdf Embeddings
+ 
+* Word Vectors for your tokens (`pip install sadedegel[w2v]`)
+
+* A `sklearn` compatible [Feature Extraction API](https://github.com/GlobalMaksimum/sadedegel/tree/develop/sadedegel/extension) 
   
 * [**Experimental**] Prebuilt models for several common NLP tasks ([`sadedegel.prebuilt`](sadedegel/prebuilt/README.md)).
 
@@ -147,6 +152,22 @@ source .env/bin/activate
 pip install sadedegel
 ```
 
+#### Vocabulary Dump
+
+Certaing attributes of SadedeGel's NLP objects are dependent on shipped vocabulary dumps that are created over `sadedegel.dataset.extened_corpus` via each of the existing SadedeGel tokenizers. Those tokenizers are listed above. If you want to re-train a specific tokenizer's vocabulary with custom settings:
+
+```bash
+python -m sadedegel.bblock.cli build-vocabulary -t [bert|icu|simple] 
+```
+
+This will create a vocabulary dump using `sadedegel.dataset.extended_corpus` based on custom user settings.
+
+For all options to customize your vocab dump refer to:
+
+```bash
+python -m sadedegel.bblock.cli build-vocabulary --help 
+```
+
 #### Optional
 
 To keep core sadedegel as light as possible we decomposed our initial monolitic design.
@@ -157,13 +178,15 @@ To enable BERT embeddings and related capabilities use
 pip install sadedegel[bert]
 ```
 
-We ship 100-dimension word vectors with the library. If you need to retrain those embeddings you can use
+We ship 100-dimension word vectors with the library. If you need to re-train those word embeddings you can use
 
 ```bash
-python -m sadedegel.bblock.cli build-vocabulary
+python -m sadedegel.bblock.cli build-vocabulary -t [bert|icu|simple] --w2v
 ```
-
 `--w2v` option requires `w2v` option to be installed. To install option use
+
+This will create a vocabulary dump with keyed vectors of arbitrary size using `sadedegel.dataset.extended_corpus` based on custom user settings.
+
 
 ```bash
 pip install sadedegel[w2v]

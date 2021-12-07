@@ -57,6 +57,6 @@ setup(
     ''',
     extras_require={
         'w2v': ['gensim'],
-        'bert': ['torch==1.5.1', 'transformers==3.0.0']
+        'bert': ['sentence-transformers']
     }
 )

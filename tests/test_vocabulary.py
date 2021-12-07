@@ -5,6 +5,15 @@ from pytest import approx
 from .context import tokenizer_context, Token, Vocabulary
 
 
+def test_icu_feature():
+    v = Vocabulary("icu")
+
+    assert isinstance(v.id_to_feature, dict)
+    assert isinstance(v.feature_to_id, dict)
+    assert isinstance(v.id_to_feature_cs, dict)
+    assert isinstance(v.feature_cs_to_id, dict)
+
+
 def test_icu_tf():
     with tokenizer_context("icu") as Doc:
         d = Doc("Bir berber bir berbere bire berber gel beraber bir berber dükkanı açalım demiş")

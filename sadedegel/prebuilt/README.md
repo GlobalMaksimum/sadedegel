@@ -6,6 +6,13 @@ point by training sklearn based limited memory (`partial_fit` using micro batche
 
 If you need access for our state of the art models, please reach us at info@sadedegel.ai
 
+### Maintainers
+* [@husnusensoy](https://github.com/husnusensoy) contributes **Turkish News Text Classification**
+* [@dafajon](https://github.com/dafajon) contributes **Telco Sentiment Classification**, **Tweet Sentiment Classification**
+* [@askarbozcan](https://github.com/askarbozcan) contributes **Tweet Profanity Classification**
+* [@ertugruldemir](https://github.com/ertugrul-dmr) contributes **Turkish Movie Review Sentiment Classification**, **Turkish Customer Reviews Classification**
+* [@irmakyucel](https://github.com/irmakyucel) contributes **Product Sentiment Classification**
+
 ### Turkish News Text Classification
 
 Classifier assigns each Turkish text into one of 12 categories (`sadedegel.dataset.tscorpus.CATEGORIES`)
@@ -96,6 +103,9 @@ y_pred = model.predict(['süper aksiyon, tavsiye ederim'])
 # You can check original test results on holdout set:
 movie_reviews.evaluate()
 ```
+#### Accuracy
+
+Current prebuilt movie review model has a **macro-F1** score of `0.8258` on holdout test set model never seen before.
 
 ### Telco Brand Tweet Sentiment Classification
 

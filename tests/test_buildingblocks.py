@@ -2,7 +2,6 @@ import pkgutil  # noqa: F401 # pylint: disable=unused-import
 
 import numpy as np
 import pytest
-from pytest import raises
 from scipy.sparse import isspmatrix_csr
 
 from .context import Doc, BertTokenizer, SimpleTokenizer, ICUTokenizer, tokenizer_context, tf_context, config_context
@@ -46,12 +45,42 @@ def test_bert_embedding_generation(tokenizer):
     with tokenizer_context(tokenizer) as Doc2:
 
         d = Doc2("Ali topu tut. Ömer ılık süt iç.")
+        assert d.bert_embeddings.shape == (2, 768)
 
-        if tokenizer in [SimpleTokenizer.__name__, ICUTokenizer.__name__]:
-            with raises(NotImplementedError):
-                assert d.bert_embeddings.shape == (2, 768)
-        else:
-            assert d.bert_embeddings.shape == (2, 768)
+
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__, ICUTokenizer.__name__])
+def test_bert_document_embedding_generation(tokenizer):
+    with tokenizer_context(tokenizer) as Doc2:
+        d = Doc2("Ali topu tut. Ömer ılık süt iç.")
+        assert d.bert_document_embedding.shape == (1, 768)
+
+
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+@pytest.mark.parametrize("tokenizer", [BertTokenizer.__name__, SimpleTokenizer.__name__, ICUTokenizer.__name__])
+def test_bert_document_embedding_generation_long(tokenizer):
+    with tokenizer_context(tokenizer) as Doc2:
+        d = Doc2("Ali " * 1024)
+        assert d.bert_document_embedding.shape == (1, 768)
+
+
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+def test_pretrained_embedding_generation():
+    d = Doc("Merhaba dünya. Biz dostuz. Barış için geldik. Sizi lazerlerimizle eritmeyeceğiz.")
+    doc_embs = d.get_pretrained_embedding(architecture="distilbert", do_sents=False)
+    sent_embs = d.get_pretrained_embedding(architecture="distilbert", do_sents=True)
+
+    assert doc_embs.shape[0] == 1
+    assert sent_embs.shape[0] == 4
+
+
+@pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
+def test_pretrained_embedding_generation_fail():
+    with pytest.raises(NotImplementedError, match=r".*is not a supported architecture type.*"):
+        d = Doc("Merhaba dünya. Biz dostuz. Barış için geldik. Sizi lazerlerimizle eritmeyeceğiz.")
+        doc_embs = d.get_pretrained_embedding(architecture="electra", do_sents=False)
+    doc_embs = None
+    assert doc_embs is None
 
 
 @pytest.mark.parametrize('tf_type', ['binary', 'raw', 'freq', 'log_norm', 'double_norm'])
