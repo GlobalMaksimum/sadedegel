@@ -100,6 +100,8 @@ Other community maintainers
   * TfIdf Embeddings
  
 * Word Vectors for your tokens (`pip install sadedegel[w2v]`)
+
+* A `sklearn` compatible [Feature Extraction API](https://github.com/GlobalMaksimum/sadedegel/tree/develop/sadedegel/extension) 
   
 * [**Experimental**] Prebuilt models for several common NLP tasks ([`sadedegel.prebuilt`](sadedegel/prebuilt/README.md)).
 
