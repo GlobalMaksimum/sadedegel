@@ -73,3 +73,5 @@ joblib.dump(pipeline, "sg_bert_pipeline.joblib")
 If `sentence-transformers` dependency is satisfied via `sadedegel[bert]` installation, the transformer based model will be downloaded to the relevant cache directory which is the default download path. As long as the model weights are available on the download path of host machine, download will be only iterated once. 
 
 Dumped pipeline will not store transformer model weights but will contain model name. Thus whole transformer model weights are not needed to be stored and shipped. Required model for vectorization will be downloaded from [`HuggingFace Hub`](https://huggingface.co/dbmdz/bert-base-turkish-cased) on the target host machine. Hence internet connection is vital for the loaded pipeline.
+
+Next stop on the roadmap is to incorporate access to custom fine-tuned models of users that are uploaded to HF Hub. Any pre-trained and fine-tuned pipeline will be avaliable to extract features for your `scikit-learn` models.
