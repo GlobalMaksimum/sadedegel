@@ -227,7 +227,7 @@ y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
 #### Accuracy
 Current prebuilt food review classification model has a macro-F1 score of `0.896` on holdout test set model never seen before.
 
-###Multi-label Review Food Delivery Review Sentiment Classification
+### Multi-label Review Food Delivery Review Sentiment Classification
 
 If you want to get separate sentiment for each category (['speed', 'service', 'flavour']), you can use `multilabel` version instead:
 ```python
