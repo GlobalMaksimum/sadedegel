@@ -57,3 +57,19 @@ pipeline = Pipeline([("text2doc", Text2Doc(tokenizer="icu", emoticon=True, emoji
 #### `PreTrainedVectorizer` for HuggingFace Hub models
 
 With the help of `sentence-transformers` dependency, `sadedegel.bblock.Doc` object has the ability to encode sentences and documents into dense embeddings. These are produced by a single forward pass throuhg pre-trained transformer based architecture. Currently `sadedegel` supports `bert_32k_cased`, `bert_128k_cased`, `bert_32k_uncased`, `bert_128k_uncased`, `distilbert` 
+
+```python
+from sadedegel.extension.sklearn import PreTrainedVectorizer
+
+pipeline = Pipeline([("bert_embedings", PreTrainedVectorizer(model="bert_32k_cased")),
+                     ("model", LogisticRegression(C=0.123, max_iter=5000))])
+                     
+pipeline.fit(X, y)
+
+joblib.dump(pipeline, "sg_bert_pipeline.joblib")      
+
+```
+
+If `sentence-transformers` dependency is satisfied via `sadedegel[bert]` installation, the transformer based model will be downloaded to the relevant cache directory which is the default download path. As long as the model weights are available on the download path of host machine, download will be only iterated once. 
+
+Dumped pipeline will not store transformer model weights but will contain model name. Thus whole transformer model weights are not needed to be stored and shipped. Required model for vectorization will be downloaded from [`HuggingFace Hub`](https://huggingface.co/dbmdz/bert-base-turkish-cased) on the target host machine. Hence internet connection is vital for the loaded pipeline.
