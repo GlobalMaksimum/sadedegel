@@ -370,7 +370,7 @@ scoring fields (Speed, Service and Flavor) and if it's lower than predefined thr
 Another way to use this dataset is the "Multilabel version". Instead of taking minimum out of three
 you can use scores by field or all together.
 
-For both methods sadedegel has pretrained models available...
+For both methods sadedegel has pretrained models under `sadedegel.prebuilt`.
 
 ### Using Corpus
 #### To Get the Data
