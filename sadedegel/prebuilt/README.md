@@ -201,3 +201,50 @@ y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
 #### Accuracy
 Current prebuilt hotel sentiment classification model has an accuracy of `0.863` on holdout test set. Comparable
 benchmark results can be found [here](https://ieeexplore.ieee.org/document/7907484) where they obtained an Accuracy score of 0.797 with SVM.
+
+
+
+### Online Food Delivery Review Sentiment Classification
+Classifier assigns each Turkish review texts into two classes ('NEGATIVE', 'POSITIVE') by using sadedegel built-in pipeline.
+
+#### Loading and Predicting with the Model:
+```python
+from sadedegel.prebuilt import food_reviews
+# We load our prebuilt model:
+model = food_reviews.load()
+# Here we enter our text to get sentiment predictions.
+y_pred = model.predict(['sıradan bir yemek yorumu'])
+# You can also get probabilities with:
+y_probs = model.predict_proba(['sıradan bir yemek yorumu'])
+# You can check original test results on holdout set:
+food_reviews.evaluate()
+# You can conver class id's back to labels by importing:
+from sadedegel.dataset.food_review import CLASS_VALUES
+# And simply map them to get converted string list:
+y_pred_label = [CLASS_VALUES[idx] for idx in y_pred]
+```
+
+#### Accuracy
+Current prebuilt food review classification model has a macro-F1 score of `0.896` on holdout test set model never seen before.
+
+### Multi-label Review Food Delivery Review Sentiment Classification
+
+If you want to get separate sentiment for each category (['speed', 'service', 'flavour']), you can use `multilabel` version instead:
+```python
+from sadedegel.prebuilt import food_reviews_multilabel
+# We load our prebuilt model:
+model = food_reviews_multilabel.load()
+# Here we enter our text to get sentiment predictions.
+y_pred = model.predict(['sıradan bir yemek yorumu'])
+# Code above will return Mxn array where M is n_samples,
+# n is n_outputs, ['speed', 'service', 'flavour'] in our case.
+# You can also get probabilities with:
+y_probs = model.predict_proba(['sıradan bir yemek yorumu'])
+# Code above will return list of arrays;
+# where the length of list is n_outputs;
+# and each array is (M, n_classes) for that particular output.
+# You can check original test results on holdout set:
+food_reviews_multilabel.evaluate()
+```
+#### Accuracy for Multilabel
+Current prebuilt multilabel food review classification model has a macro-F1 score of `0.865` on holdout test set model never seen before.
