@@ -6,6 +6,10 @@ from sklearn.feature_extraction import DictVectorizer  # type: ignore
 from sklearn.pipeline import Pipeline  # type: ignore
 from joblib import dump, load  # type: ignore
 
+from skl2onnx import convert_sklearn
+from skl2onnx.common.data_types import BooleanTensorType, DictionaryType, StringType, StringTensorType
+
+
 from loguru import logger
 
 
@@ -42,10 +46,17 @@ def create_model():
     return SentenceBoundaryDetector.from_pipeline(pipeline)
 
 
-def save_model(model: SentenceBoundaryDetector, name="sbd.pickle"):
+def save_model(pipeline: SentenceBoundaryDetector, name="sbd.onnx"):
     model_file = (Path(dirname(__file__)) / 'model' / name).absolute()
 
-    dump(model.pipeline, model_file)
+    logger.info("Converting sklearn pipeline to ONNX format")
+
+    initial_type = [('boolean_input', DictionaryType(StringTensorType([]), BooleanTensorType([])))]
+    onx = convert_sklearn(pipeline.pipeline, initial_types=initial_type)
+    with open(model_file, "wb") as f:
+        f.write(onx.SerializeToString())
+
+    #dump(pipeline.pipeline, model_file)
 
 
 def load_model(name="sbd.pickle"):
