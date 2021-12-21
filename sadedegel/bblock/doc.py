@@ -495,7 +495,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def spans(self):
-        _ = self._sents
+        _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
+        self._spans = [Span(i, span, self) for i, span in enumerate(_spans)]
         return self._spans
 
     @cached_property
