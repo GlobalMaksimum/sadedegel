@@ -448,6 +448,26 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
 
 class Document(TFImpl, IDFImpl, BM25Impl):
+    """
+    Document class is a sequence of Sentences objects. Access Sentences and Tokens that constitute the Document.
+    Generate BoW, W2V or PreTrainedTransformer model based embeddings.
+
+    Parameters
+    ----------
+    raw: str
+        Raw string to be initialized as a Document object.
+    builder: sadedegel.bblock.DocBuilder
+        Builder class for lazy loading of models, initalization of configs and tokenizers. See `builder` attribute.
+
+    Attributes
+    ----------
+
+    raw: str
+        This is where raw document string is stored.
+    builder: sadedegel.bblock.DocBuilder
+        Sentence Boundary detection model (sbd), tokenizer and config are attributes of DocBuilder class. sadedegel.Doc object is an instance of sadedegel.bblock.DocBuilder.
+        Importing sadedegel.Doc will instantiate such attributes once. Call of Doc will return an instance of sadedegel.bblock.Document that is initialized by referring above attributes.
+    """
     def __init__(self, raw, builder):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
@@ -494,20 +514,44 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return self._sentences
 
     @cached_property
-    def spans(self):
+    def spans(self) -> List[Span]:
+        """
+        Span objects that constitute the Document
+        Returns
+        -------
+        spans: List[sadedegel.bblock.Span]
+        """
         _ = self._sents
         return self._spans
 
     @cached_property
     def tokens(self) -> List[Token]:
+        """
+        Token objects that constitute the Document
+        Returns
+        -------
+        tokens: List[sadedegel.bblock.Token]
+        """
         return [t for t in self.builder.tokenizer(self.raw)]
 
     @property
     def vocabulary(self):
+        """
+        Vocabulary that is used as reference for BoW based vector generation.
+        Returns
+        -------
+        vocabulary: sadedegel.bblock.vocabulary.Vocabulary
+        """
         return self.tokenizer.vocabulary
 
     @property
     def tokenizer(self):
+        """
+        Word tokenizer used to obtain Token objects that constitute the Document object.
+        Returns
+        -------
+        tokenizer: sadedegel.bblock.WordTokenizer
+        """
         return self.builder.tokenizer
 
     def __getitem__(self, key):
@@ -530,12 +574,21 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return max(len(s.tokens_with_special_symbols) for s in self._sents)
 
     def padded_matrix(self, return_numpy=False, return_mask=True):
-        """Returns a 0 padded numpy.array or torch.tensor
-              One row for each sentence
-              One column for each token (pad 0 if length of sentence is shorter than the max length)
-        :param return_numpy: Whether to return numpy.array or torch.tensor
-        :param return_mask: Whether to return padding mask
-        :return:
+        """
+        A zero-padded numpy.array or torch.tensor formed by sadedegel.tokenizer.BertTokenizer. Can be used for lower-level development of BERT pipelines with torch.
+        One row for each sentence.
+        One column for each token (pad 0 if length of sentence is shorter than the max length)
+
+        Parameters
+        -------
+        return_numpy: bool
+            Whether to return numpy.array or torch.tensor
+        return_mask: BOOL
+            Whether to return padding mask
+
+        Returns
+        -------
+
         """
         max_len = self.max_length()
 
@@ -563,6 +616,23 @@ class Document(TFImpl, IDFImpl, BM25Impl):
                 return mat
 
     def get_pretrained_embedding(self, architecture: str, do_sents: bool):
+        """
+        Get dense document (or sentence) embeddings from a Transformer based pre-trained model hosted on HuggingFace Hub.
+        The model will be downloaded to a local .cache directory if not locally available and used upon every call.
+        GPU availiability is adviced for better speed.
+
+        Parameters
+        ----------
+        architecture: str
+            Transformer architecture to obtain embeddings from. Supported architectures are "bert_32k_cased", "bert_128k_cased", "bert_32k_uncased", "bert_128k_uncased", "distilbert"
+        do_sents: bool
+            If True, a matrix of sentence embeddings are returned. Defaults to False.
+
+        Returns
+        -------
+        embeddings: numpy.ndarray
+            Document (or sentence) embeddings. (1, emb_dim) for document. (n_sents, emb_dim) if do_sents=True.
+        """
         try:
             from sentence_transformers import SentenceTransformer
             import transformers
@@ -597,6 +667,16 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def bert_embeddings(self):
+        """
+        Get dense sentence embeddings from a BERT base cased model hosted on HuggingFace Hub.
+        The model will be downloaded to a local .cache directory if not locally available and used upon every call.
+        GPU availiability is adviced for better speed.
+
+        Returns
+        -------
+        embeddings: numpy.ndarray
+            Sentence embeddings. (n_sents, emb_dim)
+        """
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as ie:
@@ -615,6 +695,16 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def bert_document_embedding(self):
+        """
+        Get dense document embedding from a BERT base cased model hosted on HuggingFace Hub.
+        The model will be downloaded to a local .cache directory if not locally available and used upon every call.
+        GPU availiability is adviced for better speed.
+
+        Returns
+        -------
+        embeddings: numpy.ndarray
+        Sentence embeddings. (n_sents, emb_dim)
+        """
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as ie:
@@ -631,15 +721,45 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
         return embedding
 
-    def get_tfidf(self, tf_method, idf_method, **kwargs):
+    def get_tfidf(self, tf_method: str, idf_method: str, **kwargs):
+        """
+        Calculates and returns the tf-idf vector for the Document based on provided tf and idf methods.
+
+        Parameters
+        ----------
+        tf_method: str
+            Term Frequency calculation method.
+        idf_method: str
+            Inverse Document Frequency Calculation method.
+        kwargs:
+
+        Returns
+        -------
+            tfidf: numpy.ndarray
+        """
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
     @property
     def tfidf(self):
+        """
+        Calculates and returns the tf-idf vector for the Document based on configured tf and idf methods.
+
+        Returns
+        -------
+            tfidf: numpy.ndarray (1, vocab_size)
+        """
         return self.tf * self.idf
 
     @property
     def tfidf_matrix(self):
+        """
+        Calculates and returns the tf-idf vector for the Sentences of the Document based on configured tf and idf methods.
+
+        Returns
+        -------
+        tfidf_matrix: scipy.sparse.csr_matrix (n_sents, vocab_size)
+        """
+
         indptr = [0]
         indices = []
         data = []
