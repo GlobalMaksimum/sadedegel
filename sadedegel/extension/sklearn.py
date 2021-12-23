@@ -17,10 +17,25 @@ def check_type_all(X, expected_type=str):
 
 
 def check_type(v, expected_type, error_msg: str) -> None:
-    """Check variable type
-    @param v: Variable to be checked
-    @param expected_type: Expected type of variable
-    @param error_msg: Error message
+    """Checks and compares of variable types of given variables.
+
+    Parameters
+    ----------
+    v: Any
+        Variable to be checked.
+    expected_type: Any
+        Expected type of variable.
+    error_msg: str
+        Error message.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+        If the given and expected variables don't match.
     """
     if not isinstance(v, expected_type):
         raise ValueError(error_msg)
@@ -28,6 +43,23 @@ def check_type(v, expected_type, error_msg: str) -> None:
 
 class OnlinePipeline(Pipeline):
     def partial_fit(self, X, y=None, **kwargs):
+        """Implements minibatch type of training for given estimator.
+
+        Parameters
+        ----------
+        X: array-like
+            {array-like, sparse matrix} of shape (n_shape, n_features).
+        y: array-like, default=None
+            array-like of shape (n_samples,).
+        kwargs: type
+            Remaining arguments for current estimator.
+
+        Returns
+        -------
+        self: object
+            Fitted estimator.
+
+        """
         for i, step in enumerate(self.steps):
             name, est = step
             est.partial_fit(X, y, **kwargs)
@@ -37,6 +69,23 @@ class OnlinePipeline(Pipeline):
 
 
 class Text2Doc(BaseEstimator, TransformerMixin):
+    """Creates text2doc converter for given tokenizer.
+
+    Parameters
+    ----------
+    tokenizer: str, default='icu'
+        Which tokenizer to be used.
+    hashtag: bool, default=False
+        Whether to tokenize hashtags alone or with related tokens.
+    mention: bool, default=False
+        Whether to tokenize mentions alone or with related tokens.
+    emoji: bool, default=False
+        Whether to tokenize emojis by symbols or all together.
+    emoticon: bool, default=False
+        Whether to tokenize emoticons by symbols or all together.
+    progress_tracking: bool, default=True
+    """
+
     Doc = None
 
     def __init__(self, tokenizer="icu", hashtag=False, mention=False, emoji=False, emoticon=False,
@@ -70,6 +119,23 @@ class Text2Doc(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
+        """Transforms given list of strings into list of sadedegel's Doc objects which can be tokenized.
+
+        Parameters
+        ----------
+        X: array-like
+            List of strings to be transformed.
+
+        Returns
+        -------
+        docs: array-like
+            List of sadedegel.bblock.doc.Document objects.
+
+        Raises
+        ------
+        ValueError
+            If the X contains no valid documents.
+        """
         if isinstance(X, list):
             check_type_all(X)
             n_total = len(X)
@@ -101,6 +167,19 @@ class SadedegelVectorizer(BaseEstimator, TransformerMixin):
 
 
 class HashVectorizer(BaseEstimator, TransformerMixin):
+    """Coverts a collection of text documents to a matrix of occurrences.
+
+    Parameters
+    ----------
+    n_features: int, default=1048576
+        The number of features(columns) in output matrices.
+        Small numbers can cause hash collisions.
+    prefix_range: tuple (min_n, max_n), default=(3,5)
+        The lower and upper boundary of the range of n-values for prefixes (Characters).
+    alternate_sign: bool, default=True
+        When True, an alternating sign is added to features as to
+        approximately converse the linear product in the hashed space.
+    """
     def __init__(self, n_features: int = 1048576, prefix_range: tuple = (3, 5), *, alternate_sign: bool = True):
         check_type(prefix_range, tuple, f"prefix_range should be of tuple type. {type(prefix_range)} found.")
         self.n_features = n_features
@@ -115,6 +194,17 @@ class HashVectorizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, docs):
+        """Takes sadedegel doc objects and returns matrix of hashed features.
+
+        Parameters
+        ----------
+        docs: sadedegel.bblock.doc.Document or list
+            List of sadedegel.bblock.doc.Document objects or single Doc object.
+        Returns
+        -------
+        csr_matrix: array-like
+            scipy.sparse.csr of shape (n_samples, n_features)
+        """
         def feature_iter():
             if hasattr(self, 'prefix_range'):
                 for d in docs:
@@ -130,9 +220,30 @@ class HashVectorizer(BaseEstimator, TransformerMixin):
 
 
 class TfidfVectorizer(SadedegelVectorizer):
+    """Transforms a count matrix to a normalized tf or tf-idf representation.
+    Parameters
+    ----------
+    tf_method: str, default='raw'
+        Type of term frequency method. Can be one of:
+        ['raw', 'binary', 'freq', 'log_norm', 'double_norm']
+    idf_method: str, default='probabilistic'
+        Type of inverse document frequency method. Can be one of:
+        ['smooth', 'probabilistic', 'unary']
+    drop_stopwords: bool, default=True
+        Whether to drop or keep stopwords.
+    lowercase: bool, default=True
+        Whether to lowercase or keep original cases of given text.
+    drop_suffix: bool, default=True
+        Whether to drop suffixes or keep original version of the text.
+    drop_punct: bool, default=True
+        Whether to drop or keep punctuations.
+    show_progress: bool, default=True
+        Whether to keep track of progress or not.
+    """
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True,
                  lowercase=True,
                  drop_suffix=True, drop_punct=True, show_progress=True):
+
         super().__init__()
 
         self.tf_method = tf_method
@@ -144,6 +255,22 @@ class TfidfVectorizer(SadedegelVectorizer):
         self.show_progress = show_progress
 
     def transform(self, X, y=None):
+        """Takes list of sadedegel documents and returns matrix of tf-idf features which is pretrained.
+
+        Parameters
+        ----------
+        X: array-like
+            List of sadedegel.bblock.doc.Document objects.
+        Returns
+        -------
+        csr_matrix: array-like
+            scipy.sparse.csr of shape (n_samples, n_features)
+
+        Raises
+        ------
+        ValueError
+            If the X contains no valid documents.
+        """
         if isinstance(X, list):
             check_type_all(X, Document)
             n_total = len(X)
@@ -181,10 +308,36 @@ class TfidfVectorizer(SadedegelVectorizer):
 
 
 class BM25Vectorizer(SadedegelVectorizer):
+    """sadedegel's 'Best Match 25' implementation.
+
+    Parameters
+    ----------
+    tf_method: str, default='raw'
+        Type of term frequency method. Can be one of:
+        ['raw', 'binary', 'freq', 'log_norm', 'double_norm']
+    idf_method: str, default='probabilistic'
+        Type of inverse document frequency method. Can be one of:
+        ['smooth', 'probabilistic', 'unary']
+    k1: float, default=1.25
+        Determines the term frequency saturation.
+    b: float, default=0.75
+        Ratio of the document length to be multiplied.
+    delta: float, default=0
+        A constant value for lower bounding.
+    drop_stopwords: bool, default=True
+        Whether to drop or keep stopwords.
+    lowercase: bool, default=True
+        Whether to lowercase or keep original cases of given text.
+    drop_suffix: bool, default=True
+        Whether to drop suffixes or keep original version of the text.
+    drop_punct: bool, default=True
+        Whether to drop or keep punctuations.
+    show_progress: bool, default=True
+        Whether to keep track of progress or not.
+    """
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0,
                  drop_stopwords=True,
                  lowercase=True, drop_suffix=True, drop_punct=True, show_progress=True):
-
         super().__init__()
 
         self.tf_method = tf_method
@@ -199,6 +352,21 @@ class BM25Vectorizer(SadedegelVectorizer):
         self.delta = delta
 
     def transform(self, X, y=None):
+        """Takes list of sadedegel documents and returns matrix of features which is pretrained.
+
+        Parameters
+        ----------
+        X: array-like
+            List of sadedegel.bblock.doc.Document objects.
+        Returns
+        -------
+        csr_matrix: array-like
+            scipy.sparse.csr of shape (n_samples, n_features)
+        Raises
+        ------
+        ValueError
+            If the X contains no valid documents.
+        """
         if isinstance(X, list):
             check_type_all(X, Document)
             n_total = len(X)
@@ -238,9 +406,21 @@ class BM25Vectorizer(SadedegelVectorizer):
 
 
 class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
+    """Pretrained vectorizer using transformer based embeddings.
+
+    Parameters
+    ----------
+    model: str
+        Name of the huggingface pretrained model.
+    do_sents: bool, default=False
+        Whether to get sentence or raw document embeddings.
+    show_progress: bool, default=True
+        Whether to keep track of progress or not.
+    """
     Doc = None
 
     def __init__(self, model: str, do_sents = False, progress_tracking = True):
+
         super().__init__()
         self.model = model
         self.do_sents = do_sents
@@ -250,6 +430,17 @@ class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
+        """Takes list of sadedegel documents consists of sentences and returns matrix of features which is pretrained.
+
+        Parameters
+        ----------
+        X: array-like
+            List of sadedegel.bblock.doc.Document objects.
+        Returns
+        -------
+        csr_matrix: array-like
+            scipy.sparse.csr
+        """
         if PreTrainedVectorizer.Doc is None:
             PreTrainedVectorizer.Doc = DocBuilder()
 

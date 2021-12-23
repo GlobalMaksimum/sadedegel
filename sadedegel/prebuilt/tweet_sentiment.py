@@ -23,6 +23,14 @@ console = Console()
 
 
 def empty_model():
+    """Creates a sadedegel compatible sklearn pipeline which can
+    tokenize, vectorize and train a model of a given text.
+
+    Returns
+    -------
+    Pipeline: object
+        sklearn.pipeline.Pipeline object.
+    """
     return Pipeline(
         [('text2doc', Text2Doc("icu")),
          ('hash', HashVectorizer(n_features=932380, alternate_sign=True)),
@@ -32,6 +40,24 @@ def empty_model():
 
 
 def cv(k=3, max_instances=-1):
+    """Trains and evaluates the given dataset using 'K-Fold'.
+
+    Parameters
+    ----------
+    k: int, default=3
+        Number of folds to train and evaluate.
+    max_instances: int, default=-1
+        Number of instances to use in training.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -74,6 +100,24 @@ def cv(k=3, max_instances=-1):
 
 
 def build(max_instances=-1, save=True):
+    """Function to train and save a model pipeline.
+
+    Parameters
+    ----------
+    max_instances: int, default=-1
+        Number of instances to be sampled for training the model.
+    save: bool, default=True
+        Whether to save the model or not.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -114,6 +158,18 @@ def build(max_instances=-1, save=True):
 
 
 def load(model_name="tweet_sentiment"):
+    """Loads the prebuilt model.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of the model .joblib file to be loaded.
+
+    Returns
+    -------
+    load_model: object
+        sklearn.pipeline.Pipeline object.
+    """
     return load_model(model_name)
 
 

@@ -17,6 +17,14 @@ console = Console()
 
 
 def empty_model():
+    """Creates a sadedegel compatible sklearn pipeline which can
+    tokenize, vectorize and train a model of a given text.
+
+    Returns
+    -------
+    Pipeline: object
+        sklearn.pipeline.Pipeline object.
+    """
     return Pipeline(
         [('text2doc', Text2Doc("icu")),
          ('hash', HashVectorizer(n_features=413833, alternate_sign=False)),
@@ -25,6 +33,22 @@ def empty_model():
 
 
 def build(save=True):
+    """Function to train and save a model pipeline.
+
+    Parameters
+    ----------
+    save: bool, default=True
+        Whether to save model or not.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -58,10 +82,37 @@ def build(save=True):
 
 
 def load(model_name="tweet_profanity_classification"):
+    """Loads the prebuilt model.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of the model .joblib file to be loaded.
+
+    Returns
+    -------
+    load_model: object
+        sklearn.pipeline.Pipeline object.
+    """
     return load_model(model_name)
 
 
 def evaluate(model=None):
+    """Evaluates the pretrained model on test data and gives results.
+    Parameters
+    ----------
+    model: str, default=None
+        Model name to be evaluated.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
