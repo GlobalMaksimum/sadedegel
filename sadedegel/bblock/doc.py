@@ -448,8 +448,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
 
 class Document(TFImpl, IDFImpl, BM25Impl):
-    """
-    Document class is a sequence of Sentences objects. Access Sentences and Tokens that constitute the Document.
+    """Document class is a sequence of Sentences objects. Access Sentences and Tokens that constitute the Document.
     Generate BoW, W2V or PreTrainedTransformer model based embeddings.
 
     Parameters
@@ -461,7 +460,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     Attributes
     ----------
-
     raw: str
         This is where raw document string is stored.
     builder: sadedegel.bblock.DocBuilder
@@ -515,8 +513,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def spans(self) -> List[Span]:
-        """
-        Span objects that constitute the Document
+        """Span objects that constitute the Document
+
         Returns
         -------
         spans: List[sadedegel.bblock.Span]
@@ -526,8 +524,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def tokens(self) -> List[Token]:
-        """
-        Token objects that constitute the Document
+        """Token objects that constitute the Document
+
         Returns
         -------
         tokens: List[sadedegel.bblock.Token]
@@ -536,8 +534,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def vocabulary(self):
-        """
-        Vocabulary that is used as reference for BoW based vector generation.
+        """Vocabulary that is used as reference for BoW based vector generation.
+
         Returns
         -------
         vocabulary: sadedegel.bblock.vocabulary.Vocabulary
@@ -546,8 +544,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def tokenizer(self):
-        """
-        Word tokenizer used to obtain Token objects that constitute the Document object.
+        """Word tokenizer used to obtain Token objects that constitute the Document object.
+
         Returns
         -------
         tokenizer: sadedegel.bblock.WordTokenizer
@@ -574,8 +572,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return max(len(s.tokens_with_special_symbols) for s in self._sents)
 
     def padded_matrix(self, return_numpy=False, return_mask=True):
-        """
-        A zero-padded numpy.array or torch.tensor formed by sadedegel.tokenizer.BertTokenizer. Can be used for lower-level development of BERT pipelines with torch.
+        """A zero-padded numpy.array or torch.tensor formed by sadedegel.tokenizer.BertTokenizer. Can be used for lower-level development of BERT pipelines with torch.
         One row for each sentence.
         One column for each token (pad 0 if length of sentence is shorter than the max length)
 
@@ -583,12 +580,18 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         -------
         return_numpy: bool
             Whether to return numpy.array or torch.tensor
-        return_mask: BOOL
+        return_mask: bool
             Whether to return padding mask
 
         Returns
         -------
+        padded_matrix: numpy.ndarray or torch.tensor
+            Zero-padded tensor with type_ids of tokens encoded by sadedegel.tokenizer.BertTokenizer. (n_sequences, MAX_LEN)
 
+        Raises
+        ------
+        ImportError
+            If `transformers` module is not present in the environment.
         """
         max_len = self.max_length()
 
@@ -616,8 +619,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
                 return mat
 
     def get_pretrained_embedding(self, architecture: str, do_sents: bool):
-        """
-        Get dense document (or sentence) embeddings from a Transformer based pre-trained model hosted on HuggingFace Hub.
+        """Get dense document (or sentence) embeddings from a Transformer based pre-trained model hosted on HuggingFace Hub.
         The model will be downloaded to a local .cache directory if not locally available and used upon every call.
         GPU availiability is adviced for better speed.
 
@@ -632,6 +634,11 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         -------
         embeddings: numpy.ndarray
             Document (or sentence) embeddings. (1, emb_dim) for document. (n_sents, emb_dim) if do_sents=True.
+
+        Raises
+        ------
+        ImportError
+            If `sentence_transformers` module is not present in the environment.
         """
         try:
             from sentence_transformers import SentenceTransformer
@@ -667,8 +674,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def bert_embeddings(self):
-        """
-        Get dense sentence embeddings from a BERT base cased model hosted on HuggingFace Hub.
+        """Get dense sentence embeddings from a BERT base cased model hosted on HuggingFace Hub.
         The model will be downloaded to a local .cache directory if not locally available and used upon every call.
         GPU availiability is adviced for better speed.
 
@@ -676,6 +682,11 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         -------
         embeddings: numpy.ndarray
             Sentence embeddings. (n_sents, emb_dim)
+
+        Raises
+        ------
+        ImportError
+            If `sentence_transformers` module is not present in the environment.
         """
         try:
             from sentence_transformers import SentenceTransformer
@@ -695,15 +706,19 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def bert_document_embedding(self):
-        """
-        Get dense document embedding from a BERT base cased model hosted on HuggingFace Hub.
+        """Get dense document embedding from a BERT base cased model hosted on HuggingFace Hub.
         The model will be downloaded to a local .cache directory if not locally available and used upon every call.
         GPU availiability is adviced for better speed.
 
         Returns
         -------
         embeddings: numpy.ndarray
-        Sentence embeddings. (n_sents, emb_dim)
+            Sentence embeddings. (n_sents, emb_dim)
+
+        Raises
+        ------
+        ImportError
+            If `sentence_transformers` module is not present in the environment.
         """
         try:
             from sentence_transformers import SentenceTransformer
@@ -722,8 +737,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return embedding
 
     def get_tfidf(self, tf_method: str, idf_method: str, **kwargs):
-        """
-        Calculates and returns the tf-idf vector for the Document based on provided tf and idf methods.
+        """Calculates and returns the tf-idf vector for the Document based on provided tf and idf methods.
 
         Parameters
         ----------
@@ -741,8 +755,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def tfidf(self):
-        """
-        Calculates and returns the tf-idf vector for the Document based on configured tf and idf methods.
+        """Calculates and returns the tf-idf vector for the Document based on configured tf and idf methods.
 
         Returns
         -------
@@ -752,8 +765,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def tfidf_matrix(self):
-        """
-        Calculates and returns the tf-idf vector for the Sentences of the Document based on configured tf and idf methods.
+        """Calculates and returns the tf-idf vector for the Sentences of the Document based on configured tf and idf methods.
 
         Returns
         -------
