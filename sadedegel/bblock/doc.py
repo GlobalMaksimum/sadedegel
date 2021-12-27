@@ -168,10 +168,41 @@ TF_METHOD_VALUES = [TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM]
 
 
 class TFImpl:
+    """Base implementation of Term Frequency. Includes various TF calculation methods for inheritance of sadedegel.bblock.Sentences and sadedegel.bblock.Document.
+
+    ...
+    Methods
+    -------
+    raw_tf: numpy.ndarray
+    binary_tf: numpy.ndarray
+    freq_tf: numpy.ndarray
+    log_norm_tf: numpy.ndarray
+    double_norm_tf: numpy.ndarray
+    get_tf: numpy.ndarray
+    """
     def __init__(self):
         pass
 
     def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with raw token counts.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         if lowercase:
             v = np.zeros(self.vocabulary.size)
         else:
@@ -198,9 +229,47 @@ class TFImpl:
         return v
 
     def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with binary occurence. i.e. One-hot representation.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
     def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with normalized token counts i.e. frequency.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
         normalization = tf.sum()
@@ -211,10 +280,54 @@ class TFImpl:
             return tf
 
     def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with log normalized token counts.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
     def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False,
                        k=0.5) -> np.ndarray:
+        """Calculate TF with normalized token counts i.e. frequency.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+        k: float
+            Weighting parameter.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        Raises
+        ------
+        ValueError
+            If k is not in range (0, 1).
+        """
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
@@ -254,8 +367,7 @@ class TFImpl:
 
 class BM25Impl:
     """Base Implementation for BM25 relevance score. Calculate BM25 ant other variants (BM11, BM15) based on user defined configuration parameters.
-
-    For more information on BM25 implementatin refer to: https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
+    For more information on BM25 implementation refer to: https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
 
     ...
     Methods
