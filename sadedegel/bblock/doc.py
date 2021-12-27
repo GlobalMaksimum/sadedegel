@@ -1070,6 +1070,9 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
 
 class DocBuilder:
+    """Builder class for forming a sadedegel Document object.
+    Handles lazy loading of models and initializes config that will be inherited by sadedegel Doc instances.
+    """
     transformer_model = None
     bert_model = None
 
@@ -1099,6 +1102,22 @@ class DocBuilder:
             raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {IDF_METHOD_VALUES}")
 
     def __call__(self, raw):
+        """Build a sadedegel Doc object via a raw string.
+
+        Parameters
+        ----------
+        raw: str
+            Raw string input to build the document upon.
+
+        Returns
+        -------
+        doc: sadedegel.bblock.Doc
+            A sadedegel Doc object.
+
+        Usage
+        -----
+         `Doc("Merhaba dünya. Biz dostuz. Barış için geldik.")`
+        """
 
         if raw is not None:
             raw_stripped = raw.strip()
@@ -1111,6 +1130,16 @@ class DocBuilder:
         return d
 
     def from_sentences(self, sentences: List[str]):
+        """Build a sadedegel Doc object from a list of raw strings.
+
+        Parameters
+        ----------
+        sentences: List(str)
+
+        Returns
+        -------
+
+        """
         raw = "\n".join(sentences)
 
         d = Document(raw, self)
