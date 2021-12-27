@@ -260,22 +260,6 @@ class BM25Impl:
                  lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
-        """Return bm25 embedding
-
-        Refer to https://en.wikipedia.org/wiki/Okapi_BM25 for details
-
-        :param tf_method:
-        :param idf_method:
-        :param k1:
-        :param b:
-        :param delta:
-        :param drop_stopwords:
-        :param lowercase:
-        :param drop_suffix:
-        :param drop_punct:
-        :param kwargs:
-        :return:
-        """
 
         tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
         idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
@@ -300,6 +284,28 @@ class BM25Impl:
 
 
 class Sentences(TFImpl, IDFImpl, BM25Impl):
+    """Sentences class is a sequence of Token objects. Access tokens that constitute the sentence.
+    Generate BoW or PreTrainedTransformer model based embeddings.
+
+    ...
+    Attributes
+    ----------
+    id: int
+        ID of the sentence. i.e. order in the Document that it is present.
+    text: str
+        Raw string of the sentence.
+    document: sadedegel.Doc
+        Document object that the Sentences instance is part of. Parent document node of the child sentence.
+    config: dict
+        Configuration that attribute calculations depend on.
+    tf_method: str
+        Term Frequency calculation method for term frequency of a token within a sentence.
+
+    Methods
+    -------
+    get_tfidf
+        Returns sparse tfidf representation of the sentence calculated over extended news corpus vocabulary dump.
+    """
 
     def __init__(self, id_: int, text: str, doc, config: dict = {}):
         TFImpl.__init__(self)
@@ -337,15 +343,32 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def avgdl(self) -> float:
-        """Average number of tokens per sentence"""
+        """Average number of tokens per sentence in the extended news corpus.
+
+        Returns
+        -------
+        avg_sentence_length: int
+        """
         return self.config['default'].getfloat('avg_sentence_length')
 
     @property
     def tokenizer(self):
+        """Configured tokenizer to tokenize the sentence.
+
+        Returns
+        -------
+        tokenizer: sadedegel.bblock.WordTokenizer
+        """
         return self.document.tokenizer
 
     @property
     def vocabulary(self):
+        """Vocabulary dump built on extended news corpus.
+
+        Returns
+        -------
+        vocabulary: sadedegel.bblock.vocabulary.Vocabulary
+        """
         return self.tokenizer.vocabulary
 
     @classmethod
@@ -373,12 +396,29 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return [Token('[CLS]')] + self.tokens + [Token('[SEP]')]
 
     def rouge1(self, metric) -> float:
+        """ROUGE1 Relevance score of sentence wrt document
+
+        Parameters
+        ----------
+        metric: str
+            ROUGE1 metric type.
+
+        Returns
+        -------
+            rouge1: float
+        """
         return rouge1_score(
             flatten([[t.lower_ for t in sent] for sent in self.document if sent.id != self.id]),
             [t.lower_ for t in self], metric)
 
     @property
     def bm25(self) -> np.float32:
+        """BM25 Relevance score of sentence wrt to document calculated based on configured arguments, tf and idf methods
+
+        Returns
+        -------
+        bm25: float
+        """
 
         tf = self.config['tf']['method']
         idf = self.config['idf']['method']
@@ -397,6 +437,12 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def tfidf(self):
+        """Sparse Tf-Idf vector representation calculated based on configured tf and idf methods
+
+        Returns
+        -------
+        tfidf: numpy.ndarray (1, vocab_size)
+        """
         tf = self.config['tf']['method']
         idf = self.config['idf']['method']
         drop_stopwords = self.config['default'].getboolean('drop_stopwords')
@@ -411,15 +457,49 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs) -> np.ndarray:
+        """Sparse Tf-Idf vector representation calculated based on user provided tf and idf methods
+
+        Parameters
+        ----------
+        tf_method: str
+            Term Frequency calculation method.
+        idf_method: str
+            Inverse Document Frequency calculation method.
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        tfidf: numpy.ndarray (1, vocab_size)
+        """
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
             idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
     @property
     def tf(self):
+        """Sparse Term Frequency Vector
+
+        Returns
+        -------
+        tf: numpy.ndarray (1, vocab_size)
+        """
         return self.f_tf()
 
     @property
     def idf(self):
+        """Sparse Inverse Document Frequency Vector calculated over vocabulary dump.
+
+        Returns
+        -------
+        idf: numpy.ndarray (1, vocab_size)
+        """
         v = np.zeros(len(self.vocabulary))
 
         for t in self.tokens:
@@ -449,7 +529,7 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
 class Document(TFImpl, IDFImpl, BM25Impl):
     """Document class is a sequence of Sentences objects. Access Sentences and Tokens that constitute the Document.
-    Generate BoW, W2V or PreTrainedTransformer model based embeddings.
+    Generate BoW or PreTrainedTransformer model based embeddings.
 
     Parameters
     ----------
