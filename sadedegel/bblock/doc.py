@@ -253,6 +253,20 @@ class TFImpl:
 
 
 class BM25Impl:
+    """Base Implementation for BM25 relevance score. Calculate BM25 ant other variants (BM11, BM15) based on user defined configuration parameters.
+
+    For more information on BM25 implementatin refer to: https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
+
+    ...
+    Methods
+    -------
+    get_bm25: float
+        Retrieve BM25 relevance score of the sentence w.r.t. its document.
+    get_bm11: float
+        Retrieve BM11 relevance score of the sentence w.r.t. its document.
+    get_bm15: float
+        Retrieve BM15 relevance score of the sentence w.r.t. its document.
+    """
     def __init__(self):
         pass
 
@@ -260,7 +274,34 @@ class BM25Impl:
                  lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
+        """Retrieve BM25 relevance score of the sentence w.r.t. its document.
 
+        Parameters
+        ----------
+        tf_method: str
+            Term Frequency calculation method.
+        idf_method: str
+            Inverse Document Frequency calculation method.
+        k1: int
+            Smoothing term for weighting in set.
+        b: int
+            Weighting for sentence_len to document_len ratio.
+        delta: float
+            Normalization term for lower bounding de-weighting for very long documents.
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        bm25: float
+        """
         tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
         idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
@@ -271,6 +312,16 @@ class BM25Impl:
     def get_bm11(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
+        """Retrieve BM11 relevance score of the sentence w.r.t. its document.
+
+        Parameters
+        ----------
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        bm11: float
+        """
         return self.get_bm25(tf_method, idf_method, k1, 1, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
                              drop_punct,
                              kwargs)
@@ -278,6 +329,16 @@ class BM25Impl:
     def get_bm15(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
+        """Retrieve BM15 relevance score of the sentence w.r.t. its document.
+
+        Parameters
+        ----------
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        bm15: float
+        """
         return self.get_bm25(tf_method, idf_method, k1, 0, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
                              drop_punct,
                              kwargs)
