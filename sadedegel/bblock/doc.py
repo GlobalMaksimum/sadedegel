@@ -25,6 +25,10 @@ console = Console()
 
 
 class Span:
+    """Span class to store raw string as the smallest unit within sadedegel object hiearchy.
+    Attributes of this class store rule based user-defined features of a span for training a sentence boundary detection model.
+
+    """
     def __init__(self, i: int, span, doc):
         self.doc = doc
         self.i = i
@@ -38,9 +42,21 @@ class Span:
 
     @property
     def text(self):
+        """Raw string that constitute the Span instance.
+
+        Returns
+        -------
+        raw: str
+        """
         return self.doc.raw[slice(*self.value)]
 
     def span_features(self):
+        """Features of the span.
+
+        Returns
+        -------
+        features: dict
+        """
         is_first_span = self.i == 0
         is_last_span = self.i == len(self.doc._spans) - 1
         word = self.doc.raw[slice(*self.value)]
