@@ -4,7 +4,7 @@ from collections import defaultdict, namedtuple
 from os.path import dirname
 from pathlib import Path
 from typing import List, Optional
-
+import hashlib
 
 import numpy as np
 from rich.console import Console
@@ -200,6 +200,24 @@ def h5py_decode(token):
         return token.decode("utf-8")
     except AttributeError:
         return token
+
+
+def hash_suffix(suffix: str) -> int:
+    """Hash the suffix of a span to encode it into an unique integer feature.
+
+    Parameters
+    ----------
+    suffix: str
+        Prefix to be hashed.
+
+    Returns
+    -------
+    hashed: int
+        unique integer value that suffix is mapped into
+    """
+
+    hashed = int(hashlib.sha1(suffix.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
+    return hashed
 
 
 TransformerModel = namedtuple("TransformerModel", "name model")
