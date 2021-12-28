@@ -3,7 +3,6 @@ import sys
 from collections import Counter
 from functools import partial
 from typing import List
-import ctypes
 
 import numpy as np  # type:ignore
 from rich.console import Console
