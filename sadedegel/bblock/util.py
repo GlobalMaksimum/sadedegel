@@ -216,7 +216,7 @@ def hash_suffix(suffix: str) -> int:
         unique integer value that suffix is mapped into
     """
 
-    hashed = int(hashlib.sha1(suffix.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
+    hashed = int(hashlib.sha512(suffix.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
     return hashed
 
 
