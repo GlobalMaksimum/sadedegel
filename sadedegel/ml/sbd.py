@@ -58,14 +58,16 @@ def create_model():
 def save_model(pipeline: SentenceBoundaryDetector, name="sbd.onnx"):
     model_file = (Path(dirname(__file__)) / 'model' / name).absolute()
 
-    logger.info("Converting sklearn pipeline to ONNX format")
+    if ".pickle" in str(model_file):
+        logger.info("Dump sklearn pipeline in pickle format")
+        dump(pipeline.pipeline, model_file)
+    elif ".onnx" in str(model_file):
+        logger.info("Converting sklearn pipeline to ONNX format")
 
-    initial_type = [('boolean_input', DictionaryType(StringType(), FloatTensorType()))]
-    onx = convert_sklearn(pipeline.pipeline, initial_types=initial_type)
-    with open(model_file, "wb") as f:
-        f.write(onx.SerializeToString())
-
-    #dump(pipeline.pipeline, model_file)
+        initial_type = [('boolean_input', DictionaryType(StringType(), FloatTensorType()))]
+        onx = convert_sklearn(pipeline.pipeline, initial_types=initial_type)
+        with open(model_file, "wb") as f:
+            f.write(onx.SerializeToString())
 
 
 def load_model(name="sbd.onnx"):
