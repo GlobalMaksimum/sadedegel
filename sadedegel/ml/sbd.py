@@ -6,6 +6,10 @@ from sklearn.feature_extraction import DictVectorizer  # type: ignore
 from sklearn.pipeline import Pipeline  # type: ignore
 from joblib import dump, load  # type: ignore
 
+from skl2onnx import convert_sklearn
+from skl2onnx.common.data_types import DictionaryType, StringType, Int64TensorType, FloatTensorType, StringTensorType
+import onnxruntime as rt
+
 from loguru import logger
 
 
@@ -20,9 +24,18 @@ class SentenceBoundaryDetector:
     def predict(self, spans):
         if self.pipeline is None:
             logger.info(f"Loading sbd model from {self.model_file}")
-            self.pipeline = load(self.model_file)
 
-        return self.pipeline.predict(spans)
+            if ".pickle" in str(self.model_file):
+                self.pipeline = load(self.model_file)
+            elif ".onnx" in str(self.model_file):
+                self.pipeline = rt.InferenceSession("sadedegel/ml/model/sbd.onnx", providers=rt.get_available_providers())
+
+        if ".pickle" in str(self.model_file):
+            return self.pipeline.predict(spans)
+        elif ".onnx" in str(self.model_file):
+            inp, out = self.pipeline.get_inputs()[0], self.pipeline.get_outputs()[0]
+            preds = [self.pipeline.run([out.name], {inp.name: feats})[0][0] for feats in spans if feats]
+            return preds
 
     def fit(self, features, y):
         self.pipeline.fit(features, y)
@@ -42,11 +55,20 @@ def create_model():
     return SentenceBoundaryDetector.from_pipeline(pipeline)
 
 
-def save_model(model: SentenceBoundaryDetector, name="sbd.pickle"):
+def save_model(pipeline: SentenceBoundaryDetector, name="sbd.onnx"):
     model_file = (Path(dirname(__file__)) / 'model' / name).absolute()
 
-    dump(model.pipeline, model_file)
+    if ".pickle" in str(model_file):
+        logger.info("Dump sklearn pipeline in pickle format")
+        dump(pipeline.pipeline, model_file)
+    elif ".onnx" in str(model_file):
+        logger.info("Converting sklearn pipeline to ONNX format")
+
+        initial_type = [('boolean_input', DictionaryType(StringType(), FloatTensorType()))]
+        onx = convert_sklearn(pipeline.pipeline, initial_types=initial_type)
+        with open(model_file, "wb") as f:
+            f.write(onx.SerializeToString())
 
 
-def load_model(name="sbd.pickle"):
+def load_model(name="sbd.onnx"):
     return SentenceBoundaryDetector(name)

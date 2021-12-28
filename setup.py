@@ -51,7 +51,7 @@ setup(
         sadedegel-dataset-tscorpus=sadedegel.dataset.tscorpus.__main__:cli
         sadedegel-bblock=sadedegel.bblock.cli.__main__:cli
         sadedegel-summarize=sadedegel.summarize.evaluate.__main__:cli
-        sadedegel-sbd=sadedegel.tokenize.__main__:cli
+        sadedegel-sbd=sadedegel.tokenize.__main__:tokenize
         sadedegel-server=sadedegel.server.__main__:server
         sadedegel-build-vocabulary=sadedegel.bblock.cli.__main__:build_vocabulary
     ''',

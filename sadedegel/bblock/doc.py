@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 from .token import Token, IDF_METHOD_VALUES, IDFImpl
 from .util import tr_lower, __tr_lower_abbrv__, flatten, pad, normalize_tokenizer_name, __transformer_model_mapper__, \
-    ArchitectureNotFound, TransformerModel
+    ArchitectureNotFound, TransformerModel, hash_suffix
 from .word_tokenizer import WordTokenizer
 from ..config import load_config
 from ..metrics import rouge1_score
@@ -59,40 +59,40 @@ class Span:
 
         # All upper features
         if word_m1.isupper() and not is_first_span:
-            features["PREV_ALL_CAPS"] = True
+            features["PREV_ALL_CAPS"] = True * 1
 
         if word.isupper():
-            features["ALL_CAPS"] = True
+            features["ALL_CAPS"] = True * 1
 
         if word_p1.isupper() and not is_last_span:
-            features["NEXT_ALL_CAPS"] = True
+            features["NEXT_ALL_CAPS"] = True * 1
 
         # All lower features
         if word_m1.islower() and not is_first_span:
-            features["PREV_ALL_LOWER"] = True
+            features["PREV_ALL_LOWER"] = True * 1
 
         if word.islower():
-            features["ALL_LOWER"] = True
+            features["ALL_LOWER"] = True * 1
 
         if word_p1.islower() and not is_last_span:
-            features["NEXT_ALL_LOWER"] = True
+            features["NEXT_ALL_LOWER"] = True * 1
 
         # Century
         if tr_lower(word_p1).startswith("yüzyıl") and not is_last_span:
-            features["NEXT_WORD_CENTURY"] = True
+            features["NEXT_WORD_CENTURY"] = True * 1
 
         # Number
         if (tr_lower(word_p1).startswith("milyar") or tr_lower(word_p1).startswith("milyon") or tr_lower(
                 word_p1).startswith("bin")) and not is_last_span:
-            features["NEXT_WORD_NUMBER"] = True
+            features["NEXT_WORD_NUMBER"] = True * 1
 
         # Percentage
         if tr_lower(word_m1).startswith("yüzde") and not is_first_span:
-            features["PREV_WORD_PERCENTAGE"] = True
+            features["PREV_WORD_PERCENTAGE"] = True * 1
 
         # In parenthesis feature
         if word[0] == '(' and word[-1] == ')':
-            features["IN_PARENTHESIS"] = True
+            features["IN_PARENTHESIS"] = True * 1
         # this is test comment
         # Suffix features
         m = re.search(r'\W+$', word)
@@ -102,10 +102,10 @@ class Span:
             suff2 = word[slice(*subspan)][:2]
 
             if all((c in '!\').?’”":;…') for c in suff2):
-                features['NON-ALNUM SUFFIX2'] = suff2
+                features['NON-ALNUM SUFFIX2'] = hash_suffix(suff2)
 
         if word_p1[0] in '-*◊' and not is_last_span:
-            features["NEXT_BULLETIN"] = True
+            features["NEXT_BULLETIN"] = True * 1
 
         # title features
         # if word_m1.istitle() and not is_first_span:
@@ -117,7 +117,7 @@ class Span:
         if m:
             subspan = m.span()
             if word[slice(*subspan)].istitle():
-                features["TITLE"] = True
+                features["TITLE"] = True * 1
 
         m = re.search(r'\w+', word_p1)
 
@@ -125,13 +125,13 @@ class Span:
             subspan = m.span()
 
             if word_p1[slice(*subspan)].istitle() and not is_last_span:
-                features["NEXT_TITLE"] = True
+                features["NEXT_TITLE"] = True * 1
 
         # suffix features
         for name, symbol in zip(['DOT', 'ELLIPSES', 'ELLIPSES', 'EXCLAMATION', 'QUESTION'],
                                 ['.', '...', '…', '?', '!']):
             if word.endswith(symbol):
-                features[f"ENDS_WITH_{name}"] = True
+                features[f"ENDS_WITH_{name}"] = True * 1
 
         # prefix abbreviation features
         if '.' in word:
@@ -142,7 +142,7 @@ class Span:
                 features["SUFFIX_IS_ABBRV"] = True
             else:
                 prefix = word.split('.', maxsplit=1)[0]
-                features["PREFIX_IS_DIGIT"] = prefix.isdigit()
+                features["PREFIX_IS_DIGIT"] = prefix.isdigit() * 1
 
         # if '.' in word_m1:
         #     prefix_m1 = word_m1.split('.', maxsplit=1)[0]
@@ -495,7 +495,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def spans(self):
-        _ = self._sents
+        _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
+        self._spans = [Span(i, span, self) for i, span in enumerate(_spans)]
         return self._spans
 
     @cached_property
