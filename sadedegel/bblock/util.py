@@ -28,6 +28,18 @@ __transformer_model_mapper__ = {"bert_32k_cased": "dbmdz/bert-base-turkish-cased
 
 
 def tr_lower(s: Optional[str]) -> str:
+    """Lowerize characters of an input term, being mindful of Turkish characters.
+
+    Parameters
+    ----------
+    s: Optional[str, sadedegel.bblock.Token]
+        Term.
+
+    Returns
+    -------
+    s_lower: str, sadedegel.bblock.Token
+        Lowerized Term
+    """
     if not isinstance(s, str):
         try:
             s = s.word
@@ -41,6 +53,18 @@ def tr_lower(s: Optional[str]) -> str:
 
 
 def tr_upper(s: Optional[str]) -> str:
+    """Uppercase characters of an input term, being mindful of Turkish characters.
+
+    Parameters
+    ----------
+    s: Optional[str, sadedegel.bblock.Token]
+        Term.
+
+    Returns
+    -------
+    s_upper: str, sadedegel.bblock.Token
+        Uppercased Term
+    """
     if not isinstance(s, str):
         try:
             s = s.word
@@ -51,6 +75,16 @@ def tr_upper(s: Optional[str]) -> str:
 
 
 def space_pad(token):
+    """Add whitespace padding around the input token.
+
+    Parameters
+    ----------
+    token: str
+
+    Returns
+    -------
+    padded_token: str
+    """
     return " " + token + " "
 
 
@@ -59,6 +93,7 @@ def pad(l, padded_length):
 
 
 def flatten(l2: List[List]):
+    """Flatten a list of lists."""
     flat = []
     for l in l2:
         for e in l:
@@ -68,6 +103,7 @@ def flatten(l2: List[List]):
 
 
 def is_eos(span, sentences: List[str]) -> int:
+    """Return True is a span is an end of sentence token within a given sequence of Sentences of a Document"""
     start = 0
     eos = []
     for s in sentences:
@@ -144,10 +180,27 @@ def select_layer(bert_out: tuple, layers: List[int], return_cls: bool) -> np.nda
 
 
 def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
+    """Normalize the class name of the tokenizer to a simple form to be used as a key or argument.
+
+    Parameters
+    ----------
+    tokenizer_name: str
+        Long class name of the tokenizer obejct. i.e. BertTokenizer, SimpleTokenizer, IcuTokenizer
+    raise_on_error: bool
+        If True raise error message for invalid tokenizer name. Defaults to False
+    Returns
+    -------
+        normalized: str
+            Normalized name of the tokenizer.
+    Raises
+    ------
+    ValueError
+        If the provided tokenizer name is invalid or not implemented.
+    """
     normalized = tokenizer_name.lower().replace(' ', '').replace('-', '').replace('tokenizer', '')
 
     if normalized not in ['bert', 'simple', 'icu']:
-        msg = f"Invalid tokenizer {tokenizer_name} ({normalized}). Valid values are bert, simple"
+        msg = f"Invalid tokenizer {tokenizer_name} ({normalized}). Valid values are bert, simple, icu"
         if raise_on_error:
             raise ValueError(msg)
         else:
@@ -157,6 +210,7 @@ def normalize_tokenizer_name(tokenizer_name, raise_on_error=False):
 
 
 def to_config_dict(kw: dict):
+    """Convert input dictionary to sadedegel.config acceptable dictionary."""
     d = defaultdict(lambda: dict())
     for k, v in kw.items():
         if '__' not in k:  # default section
@@ -185,6 +239,7 @@ def load_stopwords(base_path=None):
 
 
 def deprecate(message: str, eol_version: tuple, post_message: str = None):
+    """Template for depracation notice message"""
     current = tuple([int(v) for v in __version__.split('.')])
 
     if current >= eol_version:
@@ -196,6 +251,7 @@ def deprecate(message: str, eol_version: tuple, post_message: str = None):
 
 
 def h5py_decode(token):
+    """Decode a token read from an h5py file. Handle possible versions."""
     try:
         return token.decode("utf-8")
     except AttributeError:
