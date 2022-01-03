@@ -52,7 +52,7 @@ class OnlinePipeline(Pipeline):
         y: array-like, default=None
             array-like of shape (n_samples,).
         kwargs: type
-            Remaining arguments for current estimator.
+            Remaining keyword arguments for current estimator.
 
         Returns
         -------
@@ -84,6 +84,15 @@ class Text2Doc(BaseEstimator, TransformerMixin):
     emoticon: bool, default=False
         Whether to tokenize emoticons by symbols or all together.
     progress_tracking: bool, default=True
+
+    Methods
+    -------
+    fit()
+        Placeholder. Don't use.
+    partial_fit()
+        Placeholder. Don't use.
+    transform()
+        Transforms given list of strings into list of sadedegel's Doc objects which can be tokenized.
     """
 
     Doc = None
@@ -179,6 +188,15 @@ class HashVectorizer(BaseEstimator, TransformerMixin):
     alternate_sign: bool, default=True
         When True, an alternating sign is added to features as to
         approximately converse the linear product in the hashed space.
+
+    Methods
+    -------
+    fit()
+        Placeholder. Don't use.
+    partial_fit()
+        Placeholder. Don't use.
+    transform()
+        Takes sadedegel doc objects and returns matrix of hashed features.
     """
     def __init__(self, n_features: int = 1048576, prefix_range: tuple = (3, 5), *, alternate_sign: bool = True):
         check_type(prefix_range, tuple, f"prefix_range should be of tuple type. {type(prefix_range)} found.")
@@ -239,6 +257,11 @@ class TfidfVectorizer(SadedegelVectorizer):
         Whether to drop or keep punctuations.
     show_progress: bool, default=True
         Whether to keep track of progress or not.
+
+    Methods
+    -------
+    transform()
+        Takes list of sadedegel documents and returns matrix of tf-idf features which is pretrained.
     """
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', drop_stopwords=True,
                  lowercase=True,
@@ -334,6 +357,11 @@ class BM25Vectorizer(SadedegelVectorizer):
         Whether to drop or keep punctuations.
     show_progress: bool, default=True
         Whether to keep track of progress or not.
+
+    Methods
+    -------
+    transform()
+        Takes list of sadedegel documents and returns matrix of features using BM25.
     """
     def __init__(self, *, tf_method='raw', idf_method='probabilistic', k1=1.25, b=0.75, delta=0,
                  drop_stopwords=True,
@@ -352,7 +380,7 @@ class BM25Vectorizer(SadedegelVectorizer):
         self.delta = delta
 
     def transform(self, X, y=None):
-        """Takes list of sadedegel documents and returns matrix of features which is pretrained.
+        """Takes list of sadedegel documents and returns matrix of features using BM25.
 
         Parameters
         ----------
@@ -416,6 +444,12 @@ class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
         Whether to get sentence or raw document embeddings.
     show_progress: bool, default=True
         Whether to keep track of progress or not.
+
+    Methods
+    -------
+    transform()
+        Takes list of sadedegel documents consists of sentences and returns matrix of features which is pretrained.
+
     """
     Doc = None
 
@@ -435,11 +469,11 @@ class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
         Parameters
         ----------
         X: array-like
-            List of sadedegel.bblock.doc.Document objects.
+            List of strings.
         Returns
         -------
         csr_matrix: array-like
-            scipy.sparse.csr
+            scipy.sparse.csr of shape (n_samples, n_features)
         """
         if PreTrainedVectorizer.Doc is None:
             PreTrainedVectorizer.Doc = DocBuilder()
