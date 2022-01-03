@@ -34,6 +34,26 @@ def vocabulary_file(tokenizer: str, verify_exists=True):
 
 
 class VocabularyCounter:
+    """Counter class to iterate over sequence of tokens and build vocabulary from corpus
+
+    Attributes
+    ----------
+    tokenizer: sadedegel.bblock.WordTokenizer
+    min_tf: int
+    min_df: int
+    case_sensitive: bool
+
+    Methods
+    -------
+    inc: None
+        Increment over counted unique tokens and their respective document counts.
+    prune: None
+        Prune tokens from vocabulary if they are under an term frequency upper bound.
+    tf: float
+        Term frequency of a token among the vocabulary.
+    df: float
+        Document frequency of a token.
+    """
     def __init__(self, tokenizer, case_sensitive=True, min_tf=1, min_df=1):
         self.tokenizer = tokenizer
 
@@ -145,6 +165,7 @@ class VocabularyCounter:
 
 
 class Vocabulary:
+    """Vocabulary class for access to tokenizers' vocabulary dump."""
 
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
