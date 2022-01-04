@@ -120,6 +120,11 @@ class Text2Doc(BaseEstimator, TransformerMixin):
                 Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=False,
                                           tokenizer__mention=False, tokenizer__emoji=False,
                                           tokenizer__emoticon=False)
+        else:
+            if Text2Doc.Doc.tokenizer.hashtag != self.hashtag or Text2Doc.Doc.tokenizer.mention != self.mention or Text2Doc.Doc.tokenizer.emoji != self.emoji or Text2Doc.Doc.tokenizer.emoticon != self.emoticon:
+                Text2Doc.Doc = DocBuilder(tokenizer=self.tokenizer, tokenizer__hashtag=self.hashtag,
+                                          tokenizer__mention=self.mention, tokenizer__emoji=self.emoji,
+                                          tokenizer__emoticon=self.emoticon)
 
     def fit(self, X, y=None):
         return self
