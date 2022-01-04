@@ -449,16 +449,14 @@ class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
     -------
     transform()
         Takes list of sadedegel documents consists of sentences and returns matrix of features which is pretrained.
-
     """
-    Doc = None
 
-    def __init__(self, model: str, do_sents = False, progress_tracking = True):
+    def __init__(self, model: str, do_sents = False, show_progress = True):
 
         super().__init__()
         self.model = model
         self.do_sents = do_sents
-        self.progress_tracking = progress_tracking
+        self.show_progress = show_progress
 
     def fit(self, X, y=None):
         return self
@@ -475,16 +473,22 @@ class PreTrainedVectorizer(BaseEstimator, TransformerMixin):
         csr_matrix: array-like
             scipy.sparse.csr of shape (n_samples, n_features)
         """
-        if PreTrainedVectorizer.Doc is None:
-            PreTrainedVectorizer.Doc = DocBuilder()
+        if isinstance(X, list):
+            check_type_all(X, Document)
+            n_total = len(X)
+        else:
+            X1, X2, X = tee(X, 3)
+
+            check_type_all(X1, Document)
+            n_total = sum((1 for _ in X2))
 
         vecs = []
         n_total = 0
-        for text in tqdm(X, disable=not hasattr(self, 'progress_tracking') or not self.progress_tracking, unit="doc"):
-            d = PreTrainedVectorizer.Doc(text)
-            vecs.append(d.get_pretrained_embedding(architecture=self.model, do_sents=self.do_sents))
+        for doc in track(X, description="Vectorizing document(s)", update_period=1,
+                         disable=not self.show_progress):
+            vecs.append(doc.get_pretrained_embedding(architecture=self.model, do_sents=self.do_sents))
             if self.do_sents:
-                n_total += len(d)
+                n_total += len(doc)
             else:
                 n_total += 1
         vector_shape = vecs[0].shape[1]
