@@ -937,7 +937,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             embeddings = DocBuilder.transformer_model.model.encode([s.text for s in self], show_progress_bar=False,
                                                                    batch_size=4)
         else:
-            embeddings = DocBuilder.transformer_model.model.encode([self.raw], show_progress_bar=False)
+            embeddings = DocBuilder.transformer_model.model.encode([' '.join([token.word for token in self.tokens])], show_progress_bar=False)
 
         return embeddings
 
