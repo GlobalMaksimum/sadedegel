@@ -194,16 +194,22 @@ class Vocabulary:
     def feature_to_id(self) -> Dict[str, int]:
         """Dictionary of feature -> id
 
-        @return: dict of feature -> id
+        Returns
+        -------
+        feature2id: dict
+            uncased token to id mapping
         """
         with h5py.File(self.file_name, "r") as fp:
             return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['lower_']['word'])))
 
     @cached_property
     def feature_to_id_has_vector(self) -> Dict[str, int]:
-        """Dictionary of feature -> id
+        """Dictionary of feature with a vector -> id
 
-        @return: dict of feature -> id
+        Returns
+        -------
+        feature2id: dict
+            vectored uncased token to id mapping
         """
         with h5py.File(self.file_name, "r") as fp:
             return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['lower_']['has_vector'])))
@@ -212,15 +218,21 @@ class Vocabulary:
     def id_to_feature(self) -> Dict[int, str]:
         """Dictionary of id -> feature
 
-        @return: dict of id -> feature
+        Returns
+        -------
+        id2feature: dict
+            id to uncased token mapping
         """
         return dict((i, s) for s, i in self.feature_to_id.items())
 
     @cached_property
     def id_to_feature_has_vector(self) -> Dict[int, str]:
-        """Dictionary of id -> feature
+        """Dictionary of id -> feature with a vector
 
-        @return: dict of id -> feature
+        Returns
+        -------
+        id2vectored_feature: dict
+            id to vectored uncased token mapping
         """
         return dict((i, s) for s, i in self.feature_to_id_has_vector.items())
 
@@ -228,7 +240,10 @@ class Vocabulary:
     def feature_cs_to_id(self) -> Dict[str, int]:
         """Dictionary of feature -> id (case sensitive)
 
-        @return: dict of feature -> id
+        Returns
+        -------
+        feature2id: dict
+            cased token to id mapping
         """
         with h5py.File(self.file_name, "r") as fp:
             return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['form_']['word'])))
@@ -237,7 +252,10 @@ class Vocabulary:
     def id_to_feature_cs(self) -> Dict[int, str]:
         """Dictionary of id -> feature (case sensitive)
 
-        @return: dict of id -> feature
+        Returns
+        -------
+        id2feature: dict
+            id to cased token mapping
         """
         return dict((i, s) for s, i in self.feature_cs_to_id.items())
 
@@ -245,6 +263,7 @@ class Vocabulary:
         return self.size
 
     def id_cs(self, word: str, default: int = -1):
+        """Id of a cesed token"""
         if self.dword_cs is None:
             self.dword = self.feature_to_id
             self.dword_cs = self.feature_cs_to_id
@@ -252,6 +271,7 @@ class Vocabulary:
         return self.dword_cs.get(word, default)
 
     def id(self, word: str, default: int = -1):
+        """Id of an uncased token"""
         if self.dword is None:
             self.dword = self.feature_to_id
             self.dword_cs = self.feature_cs_to_id
@@ -259,6 +279,7 @@ class Vocabulary:
         return self.dword.get(tr_lower(word), default)
 
     def id_has_vector(self,  word: str, default: int = -1):
+        """Id of a vectored uncased token"""
         if self.dword_has_vector is None:
             self.dword_has_vector = self.feature_to_id_has_vector
 
