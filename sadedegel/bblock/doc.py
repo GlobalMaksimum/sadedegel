@@ -1001,7 +1001,7 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
             DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
 
-        embedding = DocBuilder.bert_model.encode([self.raw], show_progress_bar=False, batch_size=4)
+        embedding = DocBuilder.bert_model.encode([' '.join([token.word for token in self.tokens])], show_progress_bar=False, batch_size=4)
 
         return embedding
 
