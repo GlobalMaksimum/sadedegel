@@ -21,6 +21,14 @@ console = Console()
 
 
 def empty_model():
+    """Creates a sadedegel compatible sklearn pipeline which can
+    tokenize, vectorize and train a model of a given text.
+
+    Returns
+    -------
+    OnlinePipeline: object
+        sadedegel's on the fly pipeline.
+    """
     return OnlinePipeline(
         [('text2doc', Text2Doc("icu")),
          ('tfidf', TfidfVectorizer(tf_method='log_norm', idf_method='smooth', drop_punct=True, drop_stopwords=False,
@@ -30,6 +38,24 @@ def empty_model():
 
 
 def build(max_rows=-1, batch_size=10000):
+    """Function to train and save a model pipeline.
+
+    Parameters
+    ----------
+    max_rows: int, default=-1
+        Number of instances to be sampled for training the model.
+    batch_size: int, default=10000
+        Number of instances to be trained per mini-batch.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -76,6 +102,18 @@ def build(max_rows=-1, batch_size=10000):
 
 
 def load(model_name="news_classification"):
+    """Loads the prebuilt model.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of the model .joblib file to be loaded.
+
+    Returns
+    -------
+    load_model: object
+        sklearn.pipeline.Pipeline object.
+    """
     return load_model(model_name)
 
 

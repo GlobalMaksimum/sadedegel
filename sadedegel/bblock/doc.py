@@ -25,6 +25,10 @@ console = Console()
 
 
 class Span:
+    """Span class to store raw string as the smallest unit within sadedegel object hiearchy.
+    Attributes of this class store rule based user-defined features of a span for training a sentence boundary detection model.
+
+    """
     def __init__(self, i: int, span, doc):
         self.doc = doc
         self.i = i
@@ -38,9 +42,21 @@ class Span:
 
     @property
     def text(self):
+        """Raw string that constitute the Span instance.
+
+        Returns
+        -------
+        raw: str
+        """
         return self.doc.raw[slice(*self.value)]
 
     def span_features(self):
+        """Features of the span.
+
+        Returns
+        -------
+        features: dict
+        """
         is_first_span = self.i == 0
         is_last_span = self.i == len(self.doc._spans) - 1
         word = self.doc.raw[slice(*self.value)]
@@ -168,10 +184,41 @@ TF_METHOD_VALUES = [TF_BINARY, TF_RAW, TF_FREQ, TF_LOG_NORM, TF_DOUBLE_NORM]
 
 
 class TFImpl:
+    """Base implementation of Term Frequency. Includes various TF calculation methods for inheritance of sadedegel.bblock.Sentences and sadedegel.bblock.Document.
+
+    ...
+    Methods
+    -------
+    raw_tf: numpy.ndarray
+    binary_tf: numpy.ndarray
+    freq_tf: numpy.ndarray
+    log_norm_tf: numpy.ndarray
+    double_norm_tf: numpy.ndarray
+    get_tf: numpy.ndarray
+    """
     def __init__(self):
         pass
 
     def raw_tf(self, drop_stopwords=False, lowercase=False, drop_suffix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with raw token counts.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         if lowercase:
             v = np.zeros(self.vocabulary.size)
         else:
@@ -198,9 +245,47 @@ class TFImpl:
         return v
 
     def binary_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with binary occurence. i.e. One-hot representation.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         return self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct).clip(max=1)
 
     def freq_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with normalized token counts i.e. frequency.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         tf = self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct)
 
         normalization = tf.sum()
@@ -211,10 +296,54 @@ class TFImpl:
             return tf
 
     def log_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False) -> np.ndarray:
+        """Calculate TF with log normalized token counts.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        """
         return np.log1p(self.raw_tf(drop_stopwords, lowercase, drop_prefix, drop_punct))
 
     def double_norm_tf(self, drop_stopwords=False, lowercase=False, drop_prefix=False, drop_punct=False,
                        k=0.5) -> np.ndarray:
+        """Calculate TF with normalized token counts i.e. frequency.
+
+        Parameters
+        ----------
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+        k: float
+            Weighting parameter.
+
+        Returns
+        -------
+        tf: numpy.ndarray
+            Sparse TF vector representation
+
+        Raises
+        ------
+        ValueError
+            If k is not in range (0, 1).
+        """
         if not (0 < k < 1):
             raise ValueError(f"Ensure that 0 < k < 1 for double normalization term frequency calculation ({k} given)")
 
@@ -253,6 +382,19 @@ class TFImpl:
 
 
 class BM25Impl:
+    """Base Implementation for BM25 relevance score. Calculate BM25 ant other variants (BM11, BM15) based on user defined configuration parameters.
+    For more information on BM25 implementation refer to: https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf
+
+    ...
+    Methods
+    -------
+    get_bm25: float
+        Retrieve BM25 relevance score of the sentence w.r.t. its document.
+    get_bm11: float
+        Retrieve BM11 relevance score of the sentence w.r.t. its document.
+    get_bm15: float
+        Retrieve BM15 relevance score of the sentence w.r.t. its document.
+    """
     def __init__(self):
         pass
 
@@ -260,23 +402,34 @@ class BM25Impl:
                  lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
-        """Return bm25 embedding
+        """Retrieve BM25 relevance score of the sentence w.r.t. its document.
 
-        Refer to https://en.wikipedia.org/wiki/Okapi_BM25 for details
+        Parameters
+        ----------
+        tf_method: str
+            Term Frequency calculation method.
+        idf_method: str
+            Inverse Document Frequency calculation method.
+        k1: int
+            Smoothing term for weighting in set.
+        b: int
+            Weighting for sentence_len to document_len ratio.
+        delta: float
+            Normalization term for lower bounding de-weighting for very long documents.
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+        **kwargs: dict, optional
 
-        :param tf_method:
-        :param idf_method:
-        :param k1:
-        :param b:
-        :param delta:
-        :param drop_stopwords:
-        :param lowercase:
-        :param drop_suffix:
-        :param drop_punct:
-        :param kwargs:
-        :return:
+        Returns
+        -------
+        bm25: float
         """
-
         tf = self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
         idf = self.get_idf(idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
@@ -287,6 +440,16 @@ class BM25Impl:
     def get_bm11(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
+        """Retrieve BM11 relevance score of the sentence w.r.t. its document.
+
+        Parameters
+        ----------
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        bm11: float
+        """
         return self.get_bm25(tf_method, idf_method, k1, 1, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
                              drop_punct,
                              kwargs)
@@ -294,12 +457,44 @@ class BM25Impl:
     def get_bm15(self, tf_method, idf_method, k1, avgdl, delta=0, drop_stopwords=False, lowercase=False,
                  drop_suffix=False,
                  drop_punct=False, **kwargs):
+        """Retrieve BM15 relevance score of the sentence w.r.t. its document.
+
+        Parameters
+        ----------
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        bm15: float
+        """
         return self.get_bm25(tf_method, idf_method, k1, 0, avgdl, delta, drop_stopwords, lowercase, drop_suffix,
                              drop_punct,
                              kwargs)
 
 
 class Sentences(TFImpl, IDFImpl, BM25Impl):
+    """Sentences class is a sequence of Token objects. Access tokens that constitute the sentence.
+    Generate BoW or PreTrainedTransformer model based embeddings.
+
+    ...
+    Attributes
+    ----------
+    id: int
+        ID of the sentence. i.e. order in the Document that it is present.
+    text: str
+        Raw string of the sentence.
+    document: sadedegel.Doc
+        Document object that the Sentences instance is part of. Parent document node of the child sentence.
+    config: dict
+        Configuration that attribute calculations depend on.
+    tf_method: str
+        Term Frequency calculation method for term frequency of a token within a sentence.
+
+    Methods
+    -------
+    get_tfidf
+        Returns sparse tfidf representation of the sentence calculated over extended news corpus vocabulary dump.
+    """
 
     def __init__(self, id_: int, text: str, doc, config: dict = {}):
         TFImpl.__init__(self)
@@ -337,15 +532,32 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def avgdl(self) -> float:
-        """Average number of tokens per sentence"""
+        """Average number of tokens per sentence in the extended news corpus.
+
+        Returns
+        -------
+        avg_sentence_length: int
+        """
         return self.config['default'].getfloat('avg_sentence_length')
 
     @property
     def tokenizer(self):
+        """Configured tokenizer to tokenize the sentence.
+
+        Returns
+        -------
+        tokenizer: sadedegel.bblock.WordTokenizer
+        """
         return self.document.tokenizer
 
     @property
     def vocabulary(self):
+        """Vocabulary dump built on extended news corpus.
+
+        Returns
+        -------
+        vocabulary: sadedegel.bblock.vocabulary.Vocabulary
+        """
         return self.tokenizer.vocabulary
 
     @classmethod
@@ -373,12 +585,29 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
         return [Token('[CLS]')] + self.tokens + [Token('[SEP]')]
 
     def rouge1(self, metric) -> float:
+        """ROUGE1 Relevance score of sentence wrt document
+
+        Parameters
+        ----------
+        metric: str
+            ROUGE1 metric type.
+
+        Returns
+        -------
+            rouge1: float
+        """
         return rouge1_score(
             flatten([[t.lower_ for t in sent] for sent in self.document if sent.id != self.id]),
             [t.lower_ for t in self], metric)
 
     @property
     def bm25(self) -> np.float32:
+        """BM25 Relevance score of sentence wrt to document calculated based on configured arguments, tf and idf methods
+
+        Returns
+        -------
+        bm25: float
+        """
 
         tf = self.config['tf']['method']
         idf = self.config['idf']['method']
@@ -397,6 +626,12 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     @property
     def tfidf(self):
+        """Sparse Tf-Idf vector representation calculated based on configured tf and idf methods
+
+        Returns
+        -------
+        tfidf: numpy.ndarray (1, vocab_size)
+        """
         tf = self.config['tf']['method']
         idf = self.config['idf']['method']
         drop_stopwords = self.config['default'].getboolean('drop_stopwords')
@@ -411,15 +646,49 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
     def get_tfidf(self, tf_method, idf_method, drop_stopwords=False, lowercase=False, drop_suffix=False,
                   drop_punct=False, **kwargs) -> np.ndarray:
+        """Sparse Tf-Idf vector representation calculated based on user provided tf and idf methods
+
+        Parameters
+        ----------
+        tf_method: str
+            Term Frequency calculation method.
+        idf_method: str
+            Inverse Document Frequency calculation method.
+        drop_stopwords: bool
+            Drop stopwords from the sequence.
+        lowercase: bool
+            Lowerize all tokens in sequence.
+        drop_suffix: bool
+            Drop suffixes from sequence that is tokenized by sadedegel.bblock.BertTokenizer.
+        drop_punct: bool
+            Drop punctuation from the sequence.
+        **kwargs: dict, optional
+
+        Returns
+        -------
+        tfidf: numpy.ndarray (1, vocab_size)
+        """
         return self.get_tf(tf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs) * self.get_idf(
             idf_method, drop_stopwords, lowercase, drop_suffix, drop_punct, **kwargs)
 
     @property
     def tf(self):
+        """Sparse Term Frequency Vector
+
+        Returns
+        -------
+        tf: numpy.ndarray (1, vocab_size)
+        """
         return self.f_tf()
 
     @property
     def idf(self):
+        """Sparse Inverse Document Frequency Vector calculated over vocabulary dump.
+
+        Returns
+        -------
+        idf: numpy.ndarray (1, vocab_size)
+        """
         v = np.zeros(len(self.vocabulary))
 
         for t in self.tokens:
@@ -448,6 +717,24 @@ class Sentences(TFImpl, IDFImpl, BM25Impl):
 
 
 class Document(TFImpl, IDFImpl, BM25Impl):
+    """Document class is a sequence of Sentences objects. Access Sentences and Tokens that constitute the Document.
+    Generate BoW or PreTrainedTransformer model based embeddings.
+
+    Parameters
+    ----------
+    raw: str
+        Raw string to be initialized as a Document object.
+    builder: sadedegel.bblock.DocBuilder
+        Builder class for lazy loading of models, initalization of configs and tokenizers. See `builder` attribute.
+
+    Attributes
+    ----------
+    raw: str
+        This is where raw document string is stored.
+    builder: sadedegel.bblock.DocBuilder
+        Sentence Boundary detection model (sbd), tokenizer and config are attributes of DocBuilder class. sadedegel.Doc object is an instance of sadedegel.bblock.DocBuilder.
+        Importing sadedegel.Doc will instantiate such attributes once. Call of Doc will return an instance of sadedegel.bblock.Document that is initialized by referring above attributes.
+    """
     def __init__(self, raw, builder):
         TFImpl.__init__(self)
         IDFImpl.__init__(self)
@@ -494,20 +781,44 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return self._sentences
 
     @cached_property
-    def spans(self):
+    def spans(self) -> List[Span]:
+        """Span objects that constitute the Document
+
+        Returns
+        -------
+        spans: List[sadedegel.bblock.Span]
+        """
         _ = self._sents
         return self._spans
 
     @cached_property
     def tokens(self) -> List[Token]:
+        """Token objects that constitute the Document
+
+        Returns
+        -------
+        tokens: List[sadedegel.bblock.Token]
+        """
         return [t for t in self.builder.tokenizer(self.raw)]
 
     @property
     def vocabulary(self):
+        """Vocabulary that is used as reference for BoW based vector generation.
+
+        Returns
+        -------
+        vocabulary: sadedegel.bblock.vocabulary.Vocabulary
+        """
         return self.tokenizer.vocabulary
 
     @property
     def tokenizer(self):
+        """Word tokenizer used to obtain Token objects that constitute the Document object.
+
+        Returns
+        -------
+        tokenizer: sadedegel.bblock.WordTokenizer
+        """
         return self.builder.tokenizer
 
     def __getitem__(self, key):
@@ -530,12 +841,26 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         return max(len(s.tokens_with_special_symbols) for s in self._sents)
 
     def padded_matrix(self, return_numpy=False, return_mask=True):
-        """Returns a 0 padded numpy.array or torch.tensor
-              One row for each sentence
-              One column for each token (pad 0 if length of sentence is shorter than the max length)
-        :param return_numpy: Whether to return numpy.array or torch.tensor
-        :param return_mask: Whether to return padding mask
-        :return:
+        """A zero-padded numpy.array or torch.tensor formed by sadedegel.tokenizer.BertTokenizer. Can be used for lower-level development of BERT pipelines with torch.
+        One row for each sentence.
+        One column for each token (pad 0 if length of sentence is shorter than the max length)
+
+        Parameters
+        -------
+        return_numpy: bool
+            Whether to return numpy.array or torch.tensor
+        return_mask: bool
+            Whether to return padding mask
+
+        Returns
+        -------
+        padded_matrix: numpy.ndarray or torch.tensor
+            Zero-padded tensor with type_ids of tokens encoded by sadedegel.tokenizer.BertTokenizer. (n_sequences, MAX_LEN)
+
+        Raises
+        ------
+        ImportError
+            If `transformers` module is not present in the environment.
         """
         max_len = self.max_length()
 
@@ -563,6 +888,27 @@ class Document(TFImpl, IDFImpl, BM25Impl):
                 return mat
 
     def get_pretrained_embedding(self, architecture: str, do_sents: bool):
+        """Get dense document (or sentence) embeddings from a Transformer based pre-trained model hosted on HuggingFace Hub.
+        The model will be downloaded to a local .cache directory if not locally available and used upon every call.
+        GPU availiability is adviced for better speed.
+
+        Parameters
+        ----------
+        architecture: str
+            Transformer architecture to obtain embeddings from. Supported architectures are "bert_32k_cased", "bert_128k_cased", "bert_32k_uncased", "bert_128k_uncased", "distilbert"
+        do_sents: bool
+            If True, a matrix of sentence embeddings are returned. Defaults to False.
+
+        Returns
+        -------
+        embeddings: numpy.ndarray
+            Document (or sentence) embeddings. (1, emb_dim) for document. (n_sents, emb_dim) if do_sents=True.
+
+        Raises
+        ------
+        ImportError
+            If `sentence_transformers` module is not present in the environment.
+        """
         try:
             from sentence_transformers import SentenceTransformer
             import transformers
@@ -591,12 +937,26 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             embeddings = DocBuilder.transformer_model.model.encode([s.text for s in self], show_progress_bar=False,
                                                                    batch_size=4)
         else:
-            embeddings = DocBuilder.transformer_model.model.encode([self.raw], show_progress_bar=False)
+            embeddings = DocBuilder.transformer_model.model.encode([' '.join([token.word for token in self.tokens])], show_progress_bar=False)
 
         return embeddings
 
     @cached_property
     def bert_embeddings(self):
+        """Get dense sentence embeddings from a BERT base cased model hosted on HuggingFace Hub.
+        The model will be downloaded to a local .cache directory if not locally available and used upon every call.
+        GPU availiability is adviced for better speed.
+
+        Returns
+        -------
+        embeddings: numpy.ndarray
+            Sentence embeddings. (n_sents, emb_dim)
+
+        Raises
+        ------
+        ImportError
+            If `sentence_transformers` module is not present in the environment.
+        """
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as ie:
@@ -615,6 +975,20 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
     @cached_property
     def bert_document_embedding(self):
+        """Get dense document embedding from a BERT base cased model hosted on HuggingFace Hub.
+        The model will be downloaded to a local .cache directory if not locally available and used upon every call.
+        GPU availiability is adviced for better speed.
+
+        Returns
+        -------
+        embeddings: numpy.ndarray
+            Sentence embeddings. (n_sents, emb_dim)
+
+        Raises
+        ------
+        ImportError
+            If `sentence_transformers` module is not present in the environment.
+        """
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as ie:
@@ -627,19 +1001,46 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
             DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
 
-        embedding = DocBuilder.bert_model.encode([self.raw], show_progress_bar=False, batch_size=4)
+        embedding = DocBuilder.bert_model.encode([' '.join([token.word for token in self.tokens])], show_progress_bar=False, batch_size=4)
 
         return embedding
 
-    def get_tfidf(self, tf_method, idf_method, **kwargs):
+    def get_tfidf(self, tf_method: str, idf_method: str, **kwargs):
+        """Calculates and returns the tf-idf vector for the Document based on provided tf and idf methods.
+
+        Parameters
+        ----------
+        tf_method: str
+            Term Frequency calculation method.
+        idf_method: str
+            Inverse Document Frequency Calculation method.
+        kwargs:
+
+        Returns
+        -------
+            tfidf: numpy.ndarray
+        """
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
 
     @property
     def tfidf(self):
+        """Calculates and returns the tf-idf vector for the Document based on configured tf and idf methods.
+
+        Returns
+        -------
+            tfidf: numpy.ndarray (1, vocab_size)
+        """
         return self.tf * self.idf
 
     @property
     def tfidf_matrix(self):
+        """Calculates and returns the tf-idf vector for the Sentences of the Document based on configured tf and idf methods.
+
+        Returns
+        -------
+        tfidf_matrix: scipy.sparse.csr_matrix (n_sents, vocab_size)
+        """
+
         indptr = [0]
         indices = []
         data = []
@@ -669,6 +1070,9 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
 
 class DocBuilder:
+    """Builder class for forming a sadedegel Document object.
+    Handles lazy loading of models and initializes config that will be inherited by sadedegel Doc instances.
+    """
     transformer_model = None
     bert_model = None
 
@@ -698,6 +1102,22 @@ class DocBuilder:
             raise ValueError(f"Unknown term frequency method {idf_method}. Choose on of {IDF_METHOD_VALUES}")
 
     def __call__(self, raw):
+        """Build a sadedegel Doc object via a raw string.
+
+        Parameters
+        ----------
+        raw: str
+            Raw string input to build the document upon.
+
+        Returns
+        -------
+        doc: sadedegel.bblock.Doc
+            A sadedegel Doc object.
+
+        Usage
+        -----
+         `Doc("Merhaba dünya. Biz dostuz. Barış için geldik.")`
+        """
 
         if raw is not None:
             raw_stripped = raw.strip()
@@ -710,6 +1130,16 @@ class DocBuilder:
         return d
 
     def from_sentences(self, sentences: List[str]):
+        """Build a sadedegel Doc object from a list of raw strings.
+
+        Parameters
+        ----------
+        sentences: List(str)
+
+        Returns
+        -------
+
+        """
         raw = "\n".join(sentences)
 
         d = Document(raw, self)

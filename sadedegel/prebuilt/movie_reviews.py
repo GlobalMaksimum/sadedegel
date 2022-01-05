@@ -17,6 +17,14 @@ console = Console()
 
 
 def empty_model():
+    """Creates a sadedegel compatible sklearn pipeline which can
+    tokenize, vectorize and train a model of a given text.
+
+    Returns
+    -------
+    Pipeline: object
+        sklearn.pipeline.Pipeline object.
+    """
     return Pipeline(
         [('text2doc', Text2Doc('icu')),
          ('tfidf', TfidfVectorizer(tf_method='log_norm', idf_method='smooth', drop_punct=True,
@@ -27,6 +35,24 @@ def empty_model():
 
 
 def build(max_rows=-1, save=True):
+    """Function to build and save a model pipeline.
+
+    Parameters
+    ----------
+    max_rows: int, default=-1
+        Number of instances to be sampled for training the model.
+    save: bool, default=True
+        Whether to save model or not.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -60,12 +86,35 @@ def build(max_rows=-1, save=True):
 
 
 def load(model_name="movie_sentiment"):
+    """Loads the prebuilt model.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of the model .joblib file to be loaded.
+
+    Returns
+    -------
+    load_model: object
+        sklearn.pipeline.Pipeline object.
+    """
     return load_model(model_name)
 
     return pipeline
 
 
 def evaluate():
+    """Evaluates the pretrained model on test data and gives results.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:

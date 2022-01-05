@@ -19,6 +19,14 @@ from ..dataset.customer_review import load_train, \
 console = Console()
 
 def empty_model():
+    """Creates a sadedegel compatible sklearn pipeline which can
+    tokenize, vectorize and train a model of a given text.
+
+    Returns
+    -------
+    Pipeline: object
+        sklearn.pipeline.Pipeline object.
+    """
     return Pipeline(
         [('text2doc', Text2Doc('icu')),
          ('tfidf', TfidfVectorizer(tf_method='log_norm', idf_method='probabilistic', drop_punct=True,
@@ -27,7 +35,26 @@ def empty_model():
          ]
     )
 
+
 def build(max_rows=-1, save=True):
+    """Function to train and save a model pipeline.
+
+    Parameters
+    ----------
+    max_rows: int, default=-1
+        Number of instances to be sampled for training the model.
+    save: bool, default=True
+        Whether to save the model or not.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -62,9 +89,40 @@ def build(max_rows=-1, save=True):
     console.log('Model build [green]DONE[/green]')
 
 def load(model_name='customer_review_classification'):
+    """Loads the prebuilt model.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of the model .joblib file to be loaded.
+
+    Returns
+    -------
+    load_model: object
+        sklearn.pipeline.Pipeline object.
+    """
     return load_model(model_name)
 
-def evaluate(model=None, scoring='f1', max_rows=-1):
+def evaluate(scoring='f1', max_rows=-1):
+    """Evaluates the pretrained model on test set by given metric.
+
+    Parameters
+    ----------
+    scoring: str, default='f1'
+        Scoring metric for evaluation. Can be 'f1' for f-1 macro score or
+        'auc' for roc-auc score.
+    max_rows: int, default=-1
+        Number of test instances to be sampled for evaluating the model.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ImportError
+        If 'pandas' is not installed.
+    """
     try:
         import pandas as pd
     except ImportError:
