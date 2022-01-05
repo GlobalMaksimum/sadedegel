@@ -3,7 +3,7 @@ import pkgutil  # noqa: F401 # pylint: disable=unused-import
 import pytest
 import numpy as np
 
-from .context import PreTrainedVectorizer, load_tweet_sentiment_train
+from .context import PreTrainedVectorizer, load_tweet_sentiment_train, Text2Doc
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
@@ -14,8 +14,9 @@ mini_corpus = ['Sabah bir tweet', 'Öğlen bir başka tweet', 'Akşam bir tweet'
 
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_vectorizer_pipeline():
-    vecpipe = Pipeline([("bert_doc_embeddings",
-                         PreTrainedVectorizer(model="distilbert", do_sents=False, progress_tracking=False))])
+    vecpipe = Pipeline([("text2doc", Text2Doc()),
+                        ("bert_doc_embeddings",
+                         PreTrainedVectorizer(model="distilbert", do_sents=False, show_progress=False))])
     embs = vecpipe.fit_transform(mini_corpus)
 
     assert embs.shape[0] == len(mini_corpus)
@@ -24,8 +25,9 @@ def test_vectorizer_pipeline():
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize("do_sents", [True, False])
 def test_vectorizer_sparse_to_array(do_sents):
-    vecpipe = Pipeline([("bert_doc_embeddings",
-                         PreTrainedVectorizer(model="distilbert", do_sents=do_sents, progress_tracking=False))])
+    vecpipe = Pipeline([("text2doc", Text2Doc()),
+                        ("bert_doc_embeddings",
+                         PreTrainedVectorizer(model="distilbert", do_sents=do_sents, show_progress=False))])
     embs = vecpipe.fit_transform(mini_corpus)
     embs_npy = embs.toarray()
 
@@ -36,10 +38,11 @@ def test_vectorizer_sparse_to_array(do_sents):
 
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 def test_pipeline_fit():
-    vec = PreTrainedVectorizer(model="distilbert", do_sents=False, progress_tracking=False)
+    vec = PreTrainedVectorizer(model="distilbert", do_sents=False, show_progress=False)
     lr = LogisticRegression(C=0.123)
 
-    vecpipe = Pipeline([("distilbert_embeddings", vec),
+    vecpipe = Pipeline([("text2doc", Text2Doc()),
+                        ("distilbert_embeddings", vec),
                         ("logreg", lr)])
     X = ["harika bir ürün. kargo da çabuk ulaştı.", "kahve makinam diyarbakıra gitmiş. yapacağınız işi sikeyim."] * 5
     y = [1.0, 0.0] * 5
