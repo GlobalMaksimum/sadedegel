@@ -5,3 +5,4 @@ sadedegel/prebuilt/model/*.joblib filter=lfs diff=lfs merge=lfs -text
 sadedegel/bblock/data/bert/vocabulary.hdf5 filter=lfs diff=lfs merge=lfs -text
 sadedegel/bblock/data/icu/vocabulary.hdf5 filter=lfs diff=lfs merge=lfs -text
 sadedegel/bblock/data/simple/vocabulary.hdf5 filter=lfs diff=lfs merge=lfs -text
+sadedegel/summarize/model/*.joblib filter=lfs diff=lfs merge=lfs -text
