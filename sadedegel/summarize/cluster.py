@@ -60,7 +60,7 @@ class DecomposedKMeansSummarizer(ExtractiveSummarizer):
     """BERT embeddings are high in dimension and potentially carry redundant information that can cause
         overfitting or curse of dimensionality effecting in clustering embeddings.
 
-        DecomposedKMeansSummarizer adds a PCA step (or any othe lsinear/non-linear dimensionality reduction technique)
+        DecomposedKMeansSummarizer adds a PCA step (or any othe linear/non-linear dimensionality reduction technique)
          before clustering to obtain highest variance in vector fed into clustering
     """
 
