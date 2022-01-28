@@ -1,16 +1,19 @@
 from os.path import dirname
 from pathlib import Path
+from itertools import tee
+import pandas as pd
 
 import numpy as np
 from typing import List
 import joblib
 from rich.console import Console
+from rich.progress import track
 
 from ._base import ExtractiveSummarizer
 from ..bblock.util import __transformer_model_mapper__
 from ..bblock import Sentences
 from ..bblock.doc import DocBuilder
-from ..config import load_config
+from .util.supervised_tuning import ranker_objective, optuna_handler, create_and_save_model
 
 
 __vector_types__ = list(__transformer_model_mapper__.keys()) + ["tfidf", "bm25"]
@@ -74,22 +77,59 @@ class SupervisedSentenceRanker(ExtractiveSummarizer):
         pass
 
 
-class RankerOptimizer:
-    def __init__(self, vector_type: str, summarization_perc: float,**kwargs):
+class RankerOptimizer(SupervisedSentenceRanker):
+    def __init__(self, n_trials: int, vector_type: str, summarization_perc: float,**kwargs):
+        self.n_trials = n_trials
         self.vector_type = vector_type
         self.summarization_perc = summarization_perc
 
-
-    @property
     def optimize(self):
         """Optimize the ranker model for a custom summarization percentage. Optimize and dump a new model.
-
-        Parameters
-        ----------
-        summarization_perc: float
-            Percentage of summary to optimize for. Range: [0, 1]
         """
-        pass
+        from functools import partial
+
+        df, vecs = self._prepare_dataset()
+        objective = partial(ranker_objective, vectors=vecs, metadata=df)
+
+        run_id = optuna_handler(objective)
+
+        create_and_save_model(run_id)
+
 
     def _prepare_dataset(self):
-        pass
+        try:
+            from sadedegel.dataset import load_raw_corpus, load_annotated_corpus
+        except Exception as e:
+            raise ValueError("Cannot import raw and annotated corpi.")
+
+        annot = load_annotated_corpus()
+        annot_, annot = tee(annot)
+
+        embs = []
+        metadata = []
+        Doc = DocBuilder()
+        for doc_id, doc in track(enumerate(annot), description="Processing documents", total=len(list(annot_))):
+
+            relevance_scores = doc["relevance"]
+            d = Doc.from_sentences(doc["sentences"])
+            sents = list(d)
+
+            for sent_id, sent in enumerate(sents):
+                instance = dict()
+                instance["doc_id"] = doc_id
+                instance["sent_id"] = sent_id
+                instance["relevance"] = relevance_scores[sent_id]
+
+                metadata.append(instance)
+
+            if self.vector_type not in ["tfidf", "bm25"]:
+                doc_sent_embeddings = self._get_pretrained_embeddings(sents)
+            else:
+                raise NotImplementedError("BoW interface for SupervisedSentenceRanker is not yet implemented.")
+
+            embs.append(doc_sent_embeddings)
+
+        df = pd.DataFrame().from_records(metadata)
+        vecs = np.vstack(embs)
+
+        return df, vecs
