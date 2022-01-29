@@ -529,8 +529,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             else:
                 return mat
 
-    @cached_property
-    def bert_embeddings(self):
+    @staticmethod
+    def _bert_embedding(texts: List):
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as ie:
@@ -543,9 +543,17 @@ class Document(TFImpl, IDFImpl, BM25Impl):
             console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
             DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
 
-        embeddings = DocBuilder.bert_model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
+        embeddings = DocBuilder.bert_model.encode(texts, show_progress_bar=False, batch_size=4)
 
         return embeddings
+
+    @cached_property
+    def bert_embeddings(self):
+        return Document._bert_embedding([s.text for s in self])
+
+    @cached_property
+    def bert_document_embedding(self):
+        return Document._bert_embedding([self.raw])
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
