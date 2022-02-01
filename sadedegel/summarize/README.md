@@ -10,6 +10,64 @@ by recoding the **Round** of each sentences in which it is eliminated.
 
 Later a sentence is eliminated, higher its relative score is within a given news document. 
 
+## Summarizer Usage
+
+SadedeGel summarizers share same interface. 
+
+First a `sadedegel.summarize.ExtractiveSummarizer` instance is constructed. 
+```python
+from sadedegel.summarize import LengthSummarizer, TFIDFSummarizer, DecomposedKMeansSummarizer
+
+lsum = LengthSummarizer(normalize=True)
+tfidf_sum = TFIDFSummarizer(normalize=True)
+kmsum = DecomposedKMeansSummarizer(n_components=200, n_clusters=10)
+```
+
+Create a `sadedegel.Document` instance from the single document to be summarized.
+```python
+from sadedegel import Doc
+
+d = Doc("ABD'li yayın organı New York Times, yaklaşık 3 ay içinde kullanıcı sayısını sıfırdan milyonlara çıkaran kelime oyunu Wordle’ı satın aldığını duyurdu. New York Times kısa bir süre önce de spor haberleri sitesi The Athletic'i satın almak için 550 milyon doları gözden çıkarmış ve bu satın alma ile birlikte 1.2 milyon abone kazanmıştı. ...")
+```
+
+For obtaining a summary of k sentences where k < n_sentences. Call the instance with a `Document` object or `List[Sentences]`
+
+```python
+summary1 = lsum(d, k=2)
+summary2 = tfidf_sum(d, k=4)
+summary3 = kmsum(d, k=5)
+```
+Alternatively you can obtain the relevance score of all sentences that is used to rank them to before selecting top k sentences.
+
+```python
+relevance_scores = kmsum.predict(d)
+```
+
+#### Supervised Ranker
+All sadedegel summarizers work either with unsupervised or rule based methods to rank sentences before extracting top k as the summary. In the new release we are providing a ranker model that is trained on **SadedeGel Annotated Corpus** that has documents where each sentence has relevance label assigned by human annotators through a process of repetitive elimination.
+
+Ranker uses document-sentence embedding pairs from transformer based pre-trained models as features. Future releases will accomodate BoW based and decomposition based embeddings as well. 
+For possible pre-trained embedding types supported by sadedegel are `bert_32k_cased`, `bert_128k_cased`, `bert_32k_uncased`, `bert_128k_uncased`, `distilbert`.
+
+```python
+from sadedegel.summarize import SupervisedSentenceRanker
+
+ranker = SupervisedSentenceRanker(vector_type="bert_32k_cased")
+```
+
+Supervised Ranker can be tuned for optimal performance over an embedding type and summarization percentage. Current ranker is optimized with `bert_128k_based` for average summarization performance over 10%, 50% and 80% of full document length.
+
+**Example**: Specific fine-tuning for short summaries with a smaller embedding extraction model.
+```python
+from sadedegel.summarize.supervised import RankerOptimizer
+
+fine_tuner = RankerOptimizer(vector_type="distilbert",
+                             summarization_perc=0.1,
+                             n_trials=20)
+
+fine_tuner.optimize()
+``` 
+
 ## Summarizer Performance 
 
 Given this [Model Definition](#sadedegel-model), 
@@ -27,6 +85,11 @@ ground truth human annotation (Best possible total `relevance` score that can be
 
 
 ### Performance Table
+
+#### Release 0.21.1
+| Method           | Parameter                                                                                                                                |   ndcg(optimized for k=0.1) |   ndcg(optimized for k=0.5) |   ndcg(optimized for k=0.8) |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------|---------------|---------------|
+| SupervisedSentenceRanker | `{"vector_type": "bert_128k_cased"}`                                                                                                                         |        0.7620 |        0.7269 |        0.8163 |
 
 #### Release 0.18
 
