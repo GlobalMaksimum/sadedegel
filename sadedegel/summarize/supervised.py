@@ -2,6 +2,7 @@ from os.path import dirname
 from pathlib import Path
 from itertools import tee
 import pandas as pd
+import randomname
 
 import numpy as np
 from typing import List
@@ -13,7 +14,7 @@ from ._base import ExtractiveSummarizer
 from ..bblock.util import __transformer_model_mapper__
 from ..bblock import Sentences
 from ..bblock.doc import DocBuilder
-from .util.supervised_tuning import ranker_objective, optuna_handler, create_and_save_model
+from .util.supervised_tuning import optuna_handler, create_empty_model, fit_ranker, save_ranker
 
 
 __vector_types__ = list(__transformer_model_mapper__.keys()) + ["tfidf", "bm25"]
@@ -22,14 +23,18 @@ console = Console()
 
 def load_model(vector_type):
     name = f"ranker_{vector_type}.joblib"
-    path = (Path(dirname(__file__)) / 'model' / name).absolute()
-    console.log(f"Initializing ranker model ranker_{vector_type}...", style="blue")
+
+    if vector_type == "bert_128k_cased":
+        path = (Path(dirname(__file__)) / 'model' / name).absolute()
+    else:
+        path = Path(f"~/.sadedegel_data/models/{name}").expanduser()
 
     try:
         model = joblib.load(path)
+        console.log(f"Initializing ranker model ranker_{vector_type}...", style="blue")
     except Exception as e:
         raise FileNotFoundError(f"A model trained for {vector_type} is not found. Please optimize one with "
-                                f"sadedegel.summarize.RankerOptimizer.")
+                                f"sadedegel.summarize.RankerOptimizer. {e}")
     return model
 
 
@@ -86,15 +91,15 @@ class RankerOptimizer(SupervisedSentenceRanker):
     def optimize(self):
         """Optimize the ranker model for a custom summarization percentage. Optimize and dump a new model.
         """
-        from functools import partial
-
+        run_name = randomname.get_name()
         df, vecs = self._prepare_dataset()
-        objective = partial(ranker_objective, vectors=vecs, metadata=df)
 
-        run_id = optuna_handler(objective)
+        optuna_handler(n_trials=self.n_trials, run_name=run_name,
+                       metadata=df, vectors=vecs, k=self.summarization_perc)
 
-        create_and_save_model(run_id)
-
+        model = create_empty_model(run_name)
+        ranker = fit_ranker(ranker=model, vectors=vecs, metadata=df)
+        save_ranker(ranker, name=self.vector_type)
 
     def _prepare_dataset(self):
         try:
