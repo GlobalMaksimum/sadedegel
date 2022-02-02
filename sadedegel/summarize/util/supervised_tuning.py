@@ -9,6 +9,7 @@ from functools import partial
 import warnings
 import joblib
 from rich.console import Console
+from rich.live import Live
 
 optuna.logging.set_verbosity(optuna.logging.WARN)
 warnings.filterwarnings("ignore")
@@ -49,6 +50,8 @@ def log_best_params(study, run_name):
     best_trial_dict["score"] = study.best_value
     best_trial_dict["trial"] = study.best_trial.number
 
+    console.log(f"Optimization DONE. Best Score so far: {study.best_value}. Saving parameter space to ~/.sadedegel_data/logs")
+
     with open(path, "w") as jfile:
         json.dump(best_trial_dict, jfile)
 
@@ -68,9 +71,11 @@ def parse_best_trial(run_name):
     return best_params_dict["params"], best_params_dict["trial"]
 
 
-def ranker_objective(trial, vectors, metadata, k, run_name):
+def ranker_objective(trial, vectors, metadata, k, run_name, live):
 
-    console.print(f"Trial {trial.number}", style="Red")
+    if trial.number == 0:
+        live.update("Optuna tuning has started. Trial results will be reported live...", refresh=True)
+
     param_grid = {
         "n_estimators": trial.suggest_int("n_estimators", 100, 1000),
         "learning_rate": trial.suggest_loguniform("learning_rate", 0.01, 0.9),
@@ -90,7 +95,6 @@ def ranker_objective(trial, vectors, metadata, k, run_name):
 
     # Leave-one-out cross validation over documents.
     for doc_id in uniq_docs:
-        print(f"Validating on doc {doc_id} with summarization perc: {k}", flush=True, end="\r")
         train_docs = metadata.loc[metadata.doc_id != doc_id]
         valid_docs = metadata.loc[metadata.doc_id == doc_id]
 
@@ -132,10 +136,16 @@ def ranker_objective(trial, vectors, metadata, k, run_name):
     return np.mean(summarization_perf)
 
 
+def live_update_callback(study, trial, total_trials, live):
+    live.update(f"Trial: {trial.number + 1}/{total_trials} - Trial Score: {trial.value} - Best Score So Far: {study.best_value}", refresh=True)
+
+
 def optuna_handler(n_trials, run_name, metadata, vectors, k):
-    objective = partial(ranker_objective, run_name=run_name, metadata=metadata, vectors=vectors, k=k)
-    study = optuna.create_study(direction="maximize", study_name="LGBM Ranker")
-    study.optimize(objective, n_trials=n_trials)
+    with Live(console=console, screen=True, auto_refresh=False) as live:
+        objective = partial(ranker_objective, run_name=run_name, metadata=metadata, vectors=vectors, k=k, live=live)
+        live_update = partial(live_update_callback, total_trials=n_trials, live=live)
+        study = optuna.create_study(direction="maximize", study_name="LGBM Ranker")
+        study.optimize(objective, n_trials=n_trials, callbacks=[live_update])
 
     log_best_params(study, run_name=run_name)
 
@@ -151,6 +161,8 @@ def create_empty_model(run_name: str):
 
 
 def fit_ranker(ranker: lgb.LGBMRanker, vectors: np.ndarray, metadata: pd.DataFrame):
+    console.log("Fitting model with optimal parameter space.", style="cyan")
+
     train_X, train_y = vectors, metadata.relevance.values
     qids_train = metadata.groupby("doc_id")["doc_id"].count().to_numpy()
     ranker.fit(train_X, train_y, group=qids_train)
@@ -164,3 +176,5 @@ def save_ranker(ranker: lgb.LGBMRanker, name: str):
         makedirs(basepath)
     path = Path(f"{basepath}/ranker_{name}.joblib").expanduser()
     joblib.dump(ranker, path)
+
+    console.log(f"Model saved to ~/.sadedegel_data/models with name ranker_{name}")
