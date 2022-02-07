@@ -214,6 +214,11 @@ where their results with different classifiers are given below.
 | Lexicon |        | 78.88% |
 
 
+#### Relevant Links
+* [SentiWordNet for New Language: Automatic Translation Approach](https://ieeexplore.ieee.org/document/7907484)
+* [Turkish Sentiment Analysis Dataset](http://humirapps.cs.hacettepe.edu.tr/tsad.aspx)
+* [A hybrid sentiment analysis method for Turkish](https://journals.tubitak.gov.tr/elektrik/issues/elk-19-27-3/elk-27-3-16-1808-189.pdf)
+
 ### Online Food Delivery Review Sentiment Classification
 Classifier assigns each Turkish review texts into two classes ('NEGATIVE', 'POSITIVE') by using sadedegel buil-in pipeline.
 
