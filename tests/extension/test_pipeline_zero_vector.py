@@ -47,6 +47,7 @@ def test_zero_vector_edge_cases(tf_type, text):
         assert vectorizer.fit_transform([Doc(text)]).sum() == 0
 
 
+@pytest.mark.skip()
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.parametrize('tf_type, text', product(['freq', 'double_norm'], ['😗😗😗😗😗😗😗😗😗😗']))
 def test_zero_vector_edge_case_emoji(tf_type, text):

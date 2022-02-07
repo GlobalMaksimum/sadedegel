@@ -27,11 +27,11 @@ def get_w2v_model(size: int = 100, min_count=3, skip_gram=True, workers: int = c
     except ImportError:
         print(
             ("Error in importing gensim module. "
-             "Ensure that you run 'pip install sadedegel[gensim]' to enable word2vec training"),
+             "Ensure that you run 'pip install sadedegel[w2v]' to enable word2vec training"),
             file=sys.stderr)
         sys.exit(1)
 
-    return Word2Vec(size=size, workers=workers, sg=skip_gram, min_count=min_count, iter=iter, seed=seed)
+    return Word2Vec(vector_size=size, workers=workers, sg=skip_gram, min_count=min_count, seed=seed)
 
 
 console = Console()
@@ -167,7 +167,7 @@ def sentence_iter(word_tokenizer, max_doc=None):
 @click.option('--word-tokenizer', "-t", type=click.Choice(['bert', "icu", "simple"], case_sensitive=False),
               help="Word tokenizer to be used in building vocabulary.", default='bert')
 @click.option('--w2v/--no-w2v', default=True, help="Train word embeddings")
-@click.option('--w2v-num-epoch', type=int, help="Number of epochs in word2vec training", default=10)
+@click.option('--w2v-num-epoch', type=int, help="Number of epochs in word2vec training", default=1)
 @click.option('--w2v-skip-gram', type=int, help='Skip Gram or CBOW. Defaults to True for Skip Gram', default=True)
 @click.option('--w2v-size', type=int, help='Dimension of word vectors', default=100)
 def build_vocabulary(max_doc, min_df, min_freq, word_tokenizer, w2v, w2v_num_epoch, w2v_skip_gram, w2v_size):
@@ -175,16 +175,18 @@ def build_vocabulary(max_doc, min_df, min_freq, word_tokenizer, w2v, w2v_num_epo
 
     total = sum(1 for _ in sentence_iter(word_tokenizer, max_doc))
 
+    console.log(f"Corpus size: {total} sentences")
+
     counter_cs = VocabularyCounter(word_tokenizer, case_sensitive=True, min_tf=min_freq, min_df=min_df)
     counter = VocabularyCounter(word_tokenizer, case_sensitive=False, min_tf=min_freq, min_df=min_df)
 
     if w2v:
         model = get_w2v_model(w2v_size, min_freq, w2v_skip_gram)
         console.log("Building vocabulary...")
-        model.build_vocab(sentence_iter(word_tokenizer, max_doc))
+        model.build_vocab(corpus_iterable=sentence_iter(word_tokenizer, max_doc))
 
         for _ in track(range(w2v_num_epoch), total=w2v_num_epoch, description="Building word vectors..."):
-            model.train(sentences=sentence_iter(word_tokenizer, max_doc),
+            model.train(corpus_iterable=sentence_iter(word_tokenizer, max_doc),
                         epochs=1,
                         total_examples=total,
                         report_delay=1)
