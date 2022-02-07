@@ -357,6 +357,29 @@ PRODUCT_CATEGORIES[0]
 # Out [0]: 'Kitchen'
 ```
 
+## `Food Reviews`
+
+*Food Reviews* dataset contains over 500k food service reviews. It is a combination of two datasets
+* [Yemek Sepeti](https://www.kaggle.com/berkaycokuner/yemek-sepeti-comments)
+* [Yorum Sepeti](https://www.kaggle.com/dgknrsln/yorumsepeti).
+
+Instances contain reviews for food services and ratings made by users. Review points are mapped into `POSITIVE` and `NEGATIVE` classes by taking minimum of three
+scoring fields (`Speed`, `Service` and `Flavor`) and if it's lower than a predefined threshold
+(which is 7) then it gets labelled as `NEGATIVE` (`POSITIVE` otherwise)
+
+Clearly `Speed`, `Service` and `Flavor` scores can be used to build multi output classification models.
+
+For both models, sadedegel provides a prebuilt model.
+
+### Using Corpus
+```python
+from sadedegel.dataset.food_review import load_food_review_train
+from sadedegel.dataset.food_review import load_food_review_test
+
+train = load_food_review_train()
+test = load_food_review_test()
+```
+
 
 [scraper]: https://github.com/GlobalMaksimum/sadedegel-scraper
 

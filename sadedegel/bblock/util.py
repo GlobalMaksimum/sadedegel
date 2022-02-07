@@ -1,6 +1,6 @@
 import sys
 import warnings
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from os.path import dirname
 from pathlib import Path
 from typing import List
@@ -17,6 +17,13 @@ __tr_lower__ = "abcçdefgğhıijklmnoöprsştuüvyz"
 
 __tr_lower_abbrv__ = ['hz.', 'dr.', 'prof.', 'doç.', 'org.', 'sn.', 'st.', 'mah.', 'mh.', 'sok.', 'sk.', 'alb.', 'gen.',
                       'av.', 'ist.', 'ank.', 'izm.', 'm.ö.', 'k.k.t.c.']
+
+
+__transformer_model_mapper__ = {"bert_32k_cased": "dbmdz/bert-base-turkish-cased",
+                                "bert_128k_cased": "dbmdz/bert-base-turkish-128k-cased",
+                                "bert_32k_uncased": "dbmdz/bert-base-turkish-uncased",
+                                "bert_128k_uncased": "dbmdz/bert-base-turkish-128k-uncased",
+                                "distilbert": "dbmdz/distilbert-base-turkish-cased"}
 
 
 def tr_lower(s: str) -> str:
@@ -173,6 +180,12 @@ def deprecate(message: str, eol_version: tuple, post_message: str = None):
     else:
         console.print(
             f"{message}, will be [magenta]dropped[/magenta] by {'.'.join(map(str, eol_version))}. {post_message}")
+
+
+TransformerModel = namedtuple("TransformerModel", "name model")
+
+class ArchitectureNotFound(NotImplementedError):
+    """Used when a user specified transformer architecture is not supported"""
 
 
 class ConfigNotSet(Exception):
