@@ -42,16 +42,16 @@ class Span:
 
     def span_features(self):
         is_first_span = self.i == 0
-        is_last_span = self.i == len(self.doc._spans) - 1
+        is_last_span = self.i == len(self.doc.spans) - 1
         word = self.doc.raw[slice(*self.value)]
 
         if not is_first_span:
-            word_m1 = self.doc.raw[slice(*self.doc._spans[self.i - 1].value)]
+            word_m1 = self.doc.raw[slice(*self.doc.spans[self.i - 1].value)]
         else:
             word_m1 = '<D>'
 
         if not is_last_span:
-            word_p1 = self.doc.raw[slice(*self.doc._spans[self.i + 1].value)]
+            word_p1 = self.doc.raw[slice(*self.doc.spans[self.i + 1].value)]
         else:
             word_p1 = '</D>'
 
@@ -93,7 +93,7 @@ class Span:
         # In parenthesis feature
         if word[0] == '(' and word[-1] == ')':
             features["IN_PARENTHESIS"] = True
-        # this is test comment
+
         # Suffix features
         m = re.search(r'\W+$', word)
 
@@ -454,8 +454,8 @@ class Document(TFImpl, IDFImpl, BM25Impl):
         BM25Impl.__init__(self)
 
         self.raw = raw
-        self._spans = []
-        self._sentences = []
+        self.spans = []
+        self._sents = []
         self.builder = builder
         self.config = self.builder.config
 
@@ -463,40 +463,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     def avgdl(self) -> float:
         """Average number of tokens per document"""
         return self.config['default'].getfloat('avg_document_length')
-
-    @cached_property
-    def _sents(self):
-        if not self._sentences:
-            _spans = [match.span() for match in re.finditer(r"\S+", self.raw)]
-            self._spans = [Span(i, span, self) for i, span in enumerate(_spans)]
-
-            if len(self._spans) > 0:
-                y_pred = self.builder.sbd.predict((span.span_features() for span in self._spans))
-            else:
-                y_pred = []
-
-            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
-            if len(eos_list) > 0:
-                for i, eos in enumerate(eos_list):
-                    if i == 0:
-                        self._sentences.append(Sentences(i, self.raw[:eos].strip(), self, self.builder.config))
-                    else:
-                        self._sentences.append(
-                            Sentences(i, self.raw[eos_list[i - 1] + 1:eos].strip(), self, self.builder.config))
-
-                if eos_list[-1] != len(self.raw):
-                    self._sentences.append(
-                        Sentences(len(self._sentences), self.raw[eos_list[-1] + 1:len(self.raw)], self,
-                                  self.builder.config))
-            else:
-                self._sentences.append(Sentences(0, self.raw.strip(), self, self.builder.config))
-
-        return self._sentences
-
-    @cached_property
-    def spans(self):
-        _ = self._sents
-        return self._spans
 
     @cached_property
     def tokens(self) -> List[Token]:
@@ -565,8 +531,6 @@ class Document(TFImpl, IDFImpl, BM25Impl):
     def get_pretrained_embedding(self, architecture: str, do_sents: bool):
         try:
             from sentence_transformers import SentenceTransformer
-            import transformers
-            transformers.logging.set_verbosity_error()
         except ImportError as ie:
             console.print(
                 ("Error in importing sentence_transformers module. "
@@ -595,41 +559,31 @@ class Document(TFImpl, IDFImpl, BM25Impl):
 
         return embeddings
 
-    @cached_property
-    def bert_embeddings(self):
+    @staticmethod
+    def _bert_embedding(texts: List):
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as ie:
             console.print(
-                ("Error in importing sentence_transformers module. "
+                ("Error in importing transformers module. "
                  "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
-            return ie
+            raise
 
         if DocBuilder.bert_model is None:
             console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
             DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
 
-        embeddings = DocBuilder.bert_model.encode([s.text for s in self], show_progress_bar=False, batch_size=4)
+        embeddings = DocBuilder.bert_model.encode(texts, show_progress_bar=False, batch_size=4)
 
         return embeddings
 
     @cached_property
+    def bert_embeddings(self):
+        return Document._bert_embedding([s.text for s in self])
+
+    @cached_property
     def bert_document_embedding(self):
-        try:
-            from sentence_transformers import SentenceTransformer
-        except ImportError as ie:
-            console.print(
-                ("Error in importing sentence_transformers module. "
-                 "Ensure that you run 'pip install sadedegel[bert]' to use BERT and other transformer model features."))
-            return ie
-
-        if DocBuilder.bert_model is None:
-            console.print("Loading \"dbmdz/bert-base-turkish-cased\"...")
-            DocBuilder.bert_model = SentenceTransformer("dbmdz/bert-base-turkish-cased")
-
-        embedding = DocBuilder.bert_model.encode([self.raw], show_progress_bar=False, batch_size=4)
-
-        return embedding
+        return Document._bert_embedding([self.raw])
 
     def get_tfidf(self, tf_method, idf_method, **kwargs):
         return self.get_tf(tf_method, **kwargs) * self.get_idf(idf_method, **kwargs)
@@ -701,8 +655,30 @@ class DocBuilder:
 
         if raw is not None:
             raw_stripped = raw.strip()
-            d = Document(raw_stripped, self)
+            _spans = [match.span() for match in re.finditer(r"\S+", raw_stripped)]
 
+            d = Document(raw_stripped, self)
+            d.spans = [Span(i, span, d) for i, span in enumerate(_spans)]
+
+            if len(d.spans) > 0:
+                y_pred = self.sbd.predict((span.span_features() for span in d.spans))
+            else:
+                y_pred = []
+
+            eos_list = [end for (start, end), y in zip(_spans, y_pred) if y == 1]
+
+            if len(eos_list) > 0:
+                for i, eos in enumerate(eos_list):
+                    if i == 0:
+                        d._sents.append(Sentences(i, d.raw[:eos].strip(), d, self.config))
+                    else:
+                        d._sents.append(Sentences(i, d.raw[eos_list[i - 1] + 1:eos].strip(), d, self.config))
+
+                if eos_list[-1] != len(raw_stripped):
+                    d._sents.append(Sentences(len(d._sents), d.raw[eos_list[-1] + 1:len(raw_stripped)], d,
+                                              self.config))
+            else:
+                d._sents.append(Sentences(0, d.raw.strip(), d, self.config))
 
         else:
             raise Exception(f"{raw} document text can't be None")
@@ -714,6 +690,6 @@ class DocBuilder:
 
         d = Document(raw, self)
         for i, s in enumerate(sentences):
-            d._sentences.append(Sentences(i, s, d, self.config))
+            d._sents.append(Sentences(i, s, d, self.config))
 
         return d

@@ -45,7 +45,7 @@ def test_tokenizer_emoji_f(text, tokens_true, toker):
     (BertTokenizer, "komik:) :( ;) <3 :/ :p :P :d :D :-) :-( xd xD :)))) ^_^",
      ["komik", ":", ")", ":", "(", ";", ")", "<", "3", ":", "/", ":", "p", ":",
       "P", ":", "d", ":", "D", ":", "-", ")", ":", "-", "(", "x", "##d", "x", "##D", ":", ")", ")", ")", ")",
-      "^", "_", "^"]),
+     "^", "_", "^"]),
 ])
 def test_bert_tokenizer_emoji_f(text, tokens_true, toker):
     tokenizer = toker(emoticon=False)

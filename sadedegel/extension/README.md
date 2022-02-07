@@ -46,6 +46,7 @@ joblib.dump(pipeline, "sg_tweet_sentiment_pipeline.joblib")
  Powered by this assumption, using `prefix_range` argument, the `HashVectorizer` hashes the tokens after their prefixes of determined lengths are removed.
 
 ```python
+from sklearn.pipeline import  Pipeline
 from sadedegel.extension.sklearn import Text2Doc, HashVectorizer
 
 pipeline = Pipeline([("text2doc", Text2Doc(tokenizer="icu", emoticon=True, emoji=True, hashtag=True, mention=True)),
