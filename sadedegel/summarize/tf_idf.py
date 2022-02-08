@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 
-from ..tokenize import Sentences
+from ..bblock import Sentences
 from ._base import ExtractiveSummarizer
 
 from ..config import load_config

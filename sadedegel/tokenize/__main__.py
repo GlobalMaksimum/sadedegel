@@ -1,5 +1,5 @@
 from sadedegel.dataset import load_raw_corpus, load_sentence_corpus, file_paths
-from sadedegel.tokenize import NLTKPunctTokenizer, RegexpSentenceTokenizer
+from sadedegel.bblock.sbd import NLTKPunctTokenizer, RegexpSentenceTokenizer
 from sadedegel import Doc
 from sadedegel.bblock.util import flatten, is_eos
 from sadedegel.ml import create_model, save_model
