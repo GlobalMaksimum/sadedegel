@@ -165,7 +165,7 @@ def create_empty_model(run_name: str):
     return model
 
 
-def fit_ranker(ranker: lgb.LGBMRanker, vectors: np.ndarray, metadata: pd.DataFrame):
+def fit_ranker(ranker: lgb.LGBMRanker, vectors: np.ndarray, metadata):
     console.log("Fitting model with optimal parameter space.", style="cyan")
 
     train_X, train_y = vectors, metadata.relevance.values
