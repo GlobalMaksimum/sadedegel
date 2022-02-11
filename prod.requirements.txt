@@ -15,3 +15,6 @@ requests
 rich
 cached-property
 h5py>=3.1.0,<=3.2.1
+
+lightgbm
+randomname
