@@ -109,11 +109,6 @@ def ranker_objective(trial, vectors, metadata, k, run_name, live):
 
         eval_at_perc = int(valid_X.shape[0] * k)
 
-        # Check input dimensions
-        assert train_X.shape[0] == train_y.shape[0]
-        assert valid_X.shape[0] == valid_y.shape[0]
-        assert train_X.shape[1] == valid_X.shape[1]
-
         # Fit ranker model
         ranker = lgb.LGBMRanker(objective="lambdarank", metric="ndcg", verbose=-100, **param_grid)
         ranker.fit(X=train_X,
