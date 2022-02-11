@@ -8,7 +8,7 @@ import numpy as np
 from cached_property import cached_property
 from rich.console import Console
 
-from .util import tr_lower, normalize_tokenizer_name, NotATokenError, h5py_decode
+from .util import tr_lower, normalize_tokenizer_name
 
 console = Console()
 
@@ -47,12 +47,6 @@ class VocabularyCounter:
         self.case_sensitive = case_sensitive
 
     def inc(self, word: str, document_id: int, count: int = 1):
-        if not isinstance(word, str):
-            try:
-                word = word.word
-            except Exception as e:
-                raise NotATokenError
-
         if self.case_sensitive:
             w = word
         else:
@@ -107,12 +101,8 @@ class VocabularyCounter:
     def to_hdf5(self, w2v=None):
         with h5py.File(vocabulary_file(self.tokenizer, verify_exists=False), "a") as fp:
             if self.case_sensitive:
-                if "form_" in fp.keys():
-                    del fp["form_"]
                 group = fp.create_group("form_")
             else:
-                if "lower_" in fp.keys():
-                    del fp["lower_"]
                 group = fp.create_group("lower_")
 
             words = sorted(list(self.term_freq.keys()), key=lambda w: tr_lower(w))
@@ -127,11 +117,11 @@ class VocabularyCounter:
                 group.attrs['vector_size'] = w2v.vector_size
 
                 group.create_dataset("vector", data=np.array(
-                    [w2v.wv[w] if w2v.wv.has_index_for(w) else np.zeros(w2v.vector_size) for w in words]).astype(
+                    [w2v[w] if w in w2v else np.zeros(w2v.vector_size) for w in words]).astype(
                     np.float32),
                                      compression="gzip",
                                      compression_opts=9)
-                group.create_dataset("has_vector", data=np.array([w.encode("utf-8") for w in words if w2v.wv.has_index_for(w)], dtype="S"),
+                group.create_dataset("has_vector", data=np.array([w in w2v in w2v for w in words]),
                                      compression="gzip",
                                      compression_opts=9)
 
@@ -157,7 +147,6 @@ class Vocabulary:
 
         self.dword_cs = None
         self.dword = None
-        self.dword_has_vector = None
 
     @cached_property
     def size_cs(self) -> int:
@@ -176,16 +165,7 @@ class Vocabulary:
         @return: dict of feature -> id
         """
         with h5py.File(self.file_name, "r") as fp:
-            return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['lower_']['word'])))
-
-    @cached_property
-    def feature_to_id_has_vector(self) -> Dict[str, int]:
-        """Dictionary of feature -> id
-
-        @return: dict of feature -> id
-        """
-        with h5py.File(self.file_name, "r") as fp:
-            return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['lower_']['has_vector'])))
+            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['lower_']['word'])))
 
     @cached_property
     def id_to_feature(self) -> Dict[int, str]:
@@ -196,21 +176,13 @@ class Vocabulary:
         return dict((i, s) for s, i in self.feature_to_id.items())
 
     @cached_property
-    def id_to_feature_has_vector(self) -> Dict[int, str]:
-        """Dictionary of id -> feature
-
-        @return: dict of id -> feature
-        """
-        return dict((i, s) for s, i in self.feature_to_id_has_vector.items())
-
-    @cached_property
     def feature_cs_to_id(self) -> Dict[str, int]:
         """Dictionary of feature -> id (case sensitive)
 
         @return: dict of feature -> id
         """
         with h5py.File(self.file_name, "r") as fp:
-            return dict((h5py_decode(b), i) for i, b in enumerate(list(fp['form_']['word'])))
+            return dict((b.decode("utf-8"), i) for i, b in enumerate(list(fp['form_']['word'])))
 
     @cached_property
     def id_to_feature_cs(self) -> Dict[int, str]:
@@ -236,12 +208,6 @@ class Vocabulary:
             self.dword_cs = self.feature_cs_to_id
 
         return self.dword.get(tr_lower(word), default)
-
-    def id_has_vector(self,  word: str, default: int = -1):
-        if self.dword_has_vector is None:
-            self.dword_has_vector = self.feature_to_id_has_vector
-
-        return self.dword_has_vector.get(tr_lower(word), default)
 
     def df(self, word: str):
 
@@ -272,7 +238,7 @@ class Vocabulary:
     def has_vector(self, word: str):
         with h5py.File(self.file_name, "r") as fp:
             if "has_vector" in fp['lower_']:
-                i = self.id_has_vector(word)
+                i = self.id(word)
 
                 if i == -1:
                     return False

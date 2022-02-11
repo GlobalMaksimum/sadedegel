@@ -2,7 +2,7 @@ from pytest import approx
 import pytest
 import numpy as np
 from tests.context import LexRankSummarizer
-from sadedegel.tokenize import Doc
+from sadedegel import Doc
 
 
 @pytest.mark.skip()

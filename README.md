@@ -9,7 +9,7 @@ Development of the library started as a part of [Açık Kaynak Hackathon Program
 We are keeping on adding features with the goal of becoming a general purpose open source NLP library for Turkish language.
 
 
-💫 **Version 0.20 out now!**
+💫 **Version 0.21 out now!**
 [Check out the release notes here.](https://github.com/GlobalMaksimum/sadedegel/releases)
 
 
@@ -103,6 +103,10 @@ Other community maintainers
 * Word Vectors for your tokens (`pip install sadedegel[w2v]`)
 
 * A `sklearn` compatible [Feature Extraction API](https://github.com/GlobalMaksimum/sadedegel/tree/develop/sadedegel/extension) 
+  
+* Word Vectors for your tokens (`pip install sadedegel[w2v]`)
+
+* A `sklearn` compatible [Feature Extraction API](https://github.com/GlobalMaksimum/sadedegel/tree/develop/sadedegel/extension)
   
 * [**Experimental**] Prebuilt models for several common NLP tasks ([`sadedegel.prebuilt`](sadedegel/prebuilt/README.md)).
 

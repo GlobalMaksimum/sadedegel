@@ -1,7 +1,7 @@
-from .context import food_reviews_multilabel
+from .context import food_reviews_multioutput
 
 def test_model_load():
-    model = food_reviews_multilabel.load()
+    model = food_reviews_multioutput.load()
     pred_neg = model.predict(['on numara ama biraz yavaştı'])
     pred_pos = model.predict(['sıcacık geldi ve lezzetliydi'])
 
