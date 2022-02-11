@@ -13,6 +13,7 @@ famous_quote = ("Merhaba dünya biz dostuz. Barış için geldik. Sizi lazerleri
 
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.skipif('pkgutil.find_loader("pandas") is None')
+@pytest.mark.skipif('pkgutil.find_loader("optuna") is None')
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("text", [famous_quote])
 @pytest.mark.parametrize("vector", ["bert_128k_cased", "bert_32k_cased", "distilbert",  "bert_32k_uncased", "bert_128k_uncased", "electra"])
@@ -37,6 +38,7 @@ def test_ranker_init(normalize, text, vector):
 
 @pytest.mark.skipif('pkgutil.find_loader("transformers") is None')
 @pytest.mark.skipif('pkgutil.find_loader("pandas") is None')
+@pytest.mark.skipif('pkgutil.find_loader("optuna") is None')
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("text", [famous_quote])
 def test_summary(normalize, text):

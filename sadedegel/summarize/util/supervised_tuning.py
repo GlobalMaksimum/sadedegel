@@ -1,4 +1,3 @@
-import optuna
 import json
 import numpy as np
 import lightgbm as lgb
@@ -10,7 +9,6 @@ import joblib
 from rich.console import Console
 from rich.live import Live
 
-optuna.logging.set_verbosity(optuna.logging.WARN)
 warnings.filterwarnings("ignore")
 
 console = Console()
@@ -20,6 +18,13 @@ try:
 except ImportError:
     console.log(("pandas package is not a general sadedegel dependency."
                  " But we do have a dependency on building our supervised ranker model"))
+
+try:
+    import optuna
+    optuna.logging.set_verbosity(optuna.logging.WARN)
+except ImportError:
+    console.log(("optuna package is not a general sadedegel dependency."
+                 " But we do have a dependency on tuning our supervised ranker model. Please install optuna to proceed."))
 
 
 def check_log_dir(data_home="~/.sadedegel_data"):
