@@ -1,7 +1,6 @@
 import optuna
 import json
 import numpy as np
-import pandas as pd
 import lightgbm as lgb
 from os import makedirs
 from pathlib import Path
@@ -15,6 +14,12 @@ optuna.logging.set_verbosity(optuna.logging.WARN)
 warnings.filterwarnings("ignore")
 
 console = Console()
+
+try:
+    import pandas as pd
+except ImportError:
+    console.log(("pandas package is not a general sadedegel dependency."
+                 " But we do have a dependency on building our supervised ranker model"))
 
 
 def check_log_dir(data_home="~/.sadedegel_data"):

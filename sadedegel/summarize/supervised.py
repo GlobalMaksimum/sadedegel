@@ -1,7 +1,6 @@
 from os.path import dirname
 from pathlib import Path
 from itertools import tee
-import pandas as pd
 import randomname
 
 import numpy as np
@@ -19,6 +18,12 @@ from .util.supervised_tuning import optuna_handler, create_empty_model, fit_rank
 
 __vector_types__ = list(__transformer_model_mapper__.keys()) + ["tfidf", "bm25"]
 console = Console()
+
+try:
+    import pandas as pd
+except ImportError:
+    console.log(("pandas package is not a general sadedegel dependency."
+                 " But we do have a dependency on building our supervised ranker model"))
 
 
 def load_model(vector_type, debug=False):
