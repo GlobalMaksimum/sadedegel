@@ -47,6 +47,7 @@ def form_directory(url: str, data_home="~/.sadedegel_data"):
     else:
         data_home.mkdir(parents=True, exist_ok=True)
         with console.status(f"[bold blue]Downloading {url.split('/')[-1]}"):
+<<<<<<< HEAD
             if "gz" in url:
                 with open(url, 'rb') as fp, gzip.open(data_home / os.path.basename(url), "wb") as wp:
                     copyfileobj(fp, wp)
@@ -54,6 +55,11 @@ def form_directory(url: str, data_home="~/.sadedegel_data"):
                 with open(url, 'rb') as fp:
                     with ZipFile(fp) as zp:
                         zp.extractall(data_home)
+=======
+            with open(url, 'rb') as fp:
+                with ZipFile(fp) as zp:
+                    zp.extractall(data_home)
+>>>>>>> 08d03e426e1b851b667cc9434fb439f3b4091bd5
 
 
 def download(dataset: str):
