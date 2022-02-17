@@ -53,7 +53,7 @@ sents = load_annotated_corpus()
 * [extended](extended/) **sents** is generated using [extended](extended/) **raw** and ML based sentence boundary detector trained over [sents](sents/) corpus
 
 
-### Download Dataset
+### Download Private Dataset
 
 You can download extended dataset using
 
@@ -124,8 +124,18 @@ Validation process ensures that hand annotated sentence tokenization does not vi
 ```bash
 python -m sadedegel.dataset validate
 ```
+# Public Datasets
+### Download Public Datasets
 
-## `tscorpus`
+```python
+import sadedegel as sg
+
+sg.dataset.download("<dataset_name>")
+```
+
+Public datasets, their names and usage are listed below.
+
+## `ts_corpus`
 
 [tscorpus] is an invaluable contribution by [Taner Sezer].
 
