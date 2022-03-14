@@ -33,7 +33,7 @@ def build(save=True):
 
     raw = load_telco_sentiment_train()
     df = pd.DataFrame.from_records(raw)
-    df = shuffle(df)
+    df = shuffle(df, random_state=42)
 
     console.log(f"Corpus Size: {CORPUS_SIZE}")
 
